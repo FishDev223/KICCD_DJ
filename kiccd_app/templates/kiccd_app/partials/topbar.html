@@ -1,0 +1,176 @@
+{% load static %}
+<!-- Topbar Start -->
+<header class="app-topbar" id="header">
+    <div class="page-container topbar-menu">
+        <div class="d-flex align-items-center gap-2">
+
+            <!-- Brand Logo -->
+            <a href="/" class="logo">
+                <span class="logo-light">
+                    <span class="logo-lg"><img src="{% static 'images/logo.png' %}" alt="logo"></span>
+                    <span class="logo-sm"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
+                </span>
+
+                <span class="logo-dark">
+                    <span class="logo-lg"><img src="{% static 'images/logo-dark.png' %}" alt="dark logo"></span>
+                    <span class="logo-sm"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
+                </span>
+            </a>
+
+            <!-- Sidebar Menu Toggle Button -->
+            <button class="sidenav-toggle-button px-2">
+                <i class="ri-menu-5-line fs-24"></i>
+            </button>
+
+            <!-- Horizontal Menu Toggle Button -->
+            <button class="topnav-toggle-button px-2" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
+                <i class="ri-menu-5-line fs-24"></i>
+            </button>
+
+            <!-- Topbar Page Title -->
+            <div class="topbar-item d-none d-md-flex px-2">
+                {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {% if topbarTitle %}
+                    <div>
+                        <h4 class="page-title fs-24 fw-semibold mb-0">{{ topbarTitle }}</h4>
+
+                    </div>
+                    {% else %}
+                    <div>
+                        <h4 class="page-title fs-24 fw-semibold mb-0">Welcome to KICCD!</h4>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+
+            <!-- Search for small devices -->
+            {% comment %}
+            <div class="topbar-item d-flex">
+                <button class="topbar-link" data-bs-toggle="modal" data-bs-target="#searchModal" type="button">
+                    <i class="ri-search-line fs-22"></i>
+                </button>
+            </div>
+            {% endcomment %}
+
+            <!-- Button Trigger Customizer Offcanvas -->
+            {% comment %} 
+            <div class="topbar-item d-none d-sm-flex">
+                <button class="topbar-link" data-bs-toggle="offcanvas" data-bs-target="#theme-settings-offcanvas"
+                    type="button">
+                    <i class="ri-settings-4-line fs-22"></i>
+                </button>
+            </div>
+             {% endcomment %}
+            <!-- Light/Dark Mode Button -->
+            <div class="topbar-item d-none d-sm-flex">
+                <button class="topbar-link" id="light-dark-mode" type="button">
+                    <i class="ri-moon-line light-mode-icon fs-22"></i>
+                    <i class="ri-sun-line dark-mode-icon fs-22"></i>
+                </button>
+            </div>
+
+            <!-- Admin dropdown (visible to staff only) -->
+            {% if user.is_staff %}
+            <div class="topbar-item d-none d-sm-flex">
+                <div class="dropdown">
+                    <button class="topbar-link dropdown-toggle drop-arrow-none" id="kiccdTablesDdown" data-bs-toggle="dropdown" data-bs-offset="0,10" type="button" aria-labelledby="kiccdTablesDdown" aria-haspopup="true" aria-expanded="false" title="KICCD Tables">
+                        <i class="ri-table-line fs-22" aria-hidden="true"></i>
+                        <i class="ri-arrow-down-s-line d-none d-lg-block align-middle"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">KICCD Admin Tables</h6>
+                        </div>
+                       <div class="dropdown-divider mb-2"></div>
+                         <!-- Direct links to individual kiccd_app models -->
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_fisher_changelist' %}">Contract Fishers</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_fishingsite_cf_changelist' %}">CF Fishing Sites</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_subsample_changelist' %}">CF Subsamples</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_cfevent_changelist' %}">CF Events</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_cfcatch_changelist' %}">CF Catch</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_icevent_changelist' %}">Sampling Events</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_iccatch_changelist' %}">Sampling Results</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_icagegrowth_changelist' %}">Age/Growth Data</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_samplesite_changelist' %}">Sampling Sites</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_fishingsite_hp_changelist' %}">HP Fishing Sites</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_trib_changelist' %}">Tributaries</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_crew_changelist' %}">Crew Leaders</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_observer_changelist' %}">Agency Observers</a>
+                        <a class="dropdown-item" href="{% url 'admin:kiccd_app_project_changelist' %}">Projects</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- User Dropdown -->
+            <div class="topbar-item nav-user">
+                <div class="dropdown">
+                    <a class="topbar-link dropdown-toggle drop-arrow-none px-2" data-bs-toggle="dropdown"
+                        data-bs-offset="0,25" type="button" aria-haspopup="false" aria-expanded="false">
+                        <img src="{% static 'images/users/avatar-1.png' %}" width="32"
+                            class="rounded-circle me-lg-2 d-flex" alt="user-image">
+                        <span class="d-lg-flex flex-column gap-1 d-none">
+                            <h5 class="my-0">{{ user.get_full_name }}</h5>
+                        </span>
+                        <i class="ri-arrow-down-s-line d-none d-lg-block align-middle ms-1"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <!-- item-->
+                        <div class="dropdown-header noti-title">
+                            <h6 class="text-overflow m-0">Welcome {{ request.user.username }}!</h6>
+                        </div>
+
+                        <!-- item-->
+                        <a href="{% url 'admin:index' %}" class="dropdown-item">
+                            <i class="ri-admin-line me-1 fs-16 align-middle"></i>
+                            <span class="align-middle">Admin Site</span>
+                        </a>
+
+                        <!-- item-->
+                        <a href="javascript:void(0);" class="dropdown-item">
+                            <i class="ri-settings-2-line me-1 fs-16 align-middle"></i>
+                            <span class="align-middle">Settings</span>
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- item-->
+                        <a href="{% url 'kiccd_app:logout' %}" class="dropdown-item active fw-semibold text-danger">
+                            <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
+                            <span class="align-middle">Sign Out</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Topbar End -->
+
+<!-- Search Modal  -->
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-transparent">
+            <form>
+                <div class="card mb-1">
+                    <div class="px-3 py-2 d-flex flex-row align-items-center" id="top-search">
+                        <i class="ri-search-line fs-22"></i>
+                        <input type="search" class="form-control border-0" id="search-modal-input"
+                            placeholder="Search app pages & forms..." autofocus>
+                        <button type="submit" class="btn p-0" data-bs-dismiss="modal" aria-label="Close">[esc]</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

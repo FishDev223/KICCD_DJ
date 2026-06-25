@@ -1,0 +1,44 @@
+{% load static i18n %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}" {% block html_attribute %}{% endblock html_attribute %}>
+
+<head>
+  <meta charset="utf-8" />
+  <title>{% block title %}{% endblock title %} | KICCD Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="Interact with Kentucky's Invasive Carp Centralized Database (KICCD)." name="description" />
+  <meta content="Chris Hickey" name="author" />
+
+  <!-- KICCD favicon -->
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+
+  {% block extra_css %}{% endblock extra_css %}
+  {% block css %}
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="{% static 'css/icons.css' %}" rel="stylesheet" /> <!-- Icons CSS -->
+  <link href="{% static 'css/vendor.min.css' %}" rel="stylesheet" /> <!-- Vendor CSS -->
+  <link href="{% static 'css/app.css' %}" rel="stylesheet" /> <!-- App CSS -->
+  {% endblock css %}
+
+</head>
+
+<body {% block body_attribute %}{% endblock body_attribute %}>
+
+  {% block content %} {% endblock content %}
+
+  {% block modal %}{% endblock modal %}
+
+  {% block javascript %}
+  <script src="{% static 'js/config.js' %}"></script> <!-- App config JS -->
+  <script src="{% static 'js/app.js' %}"></script>  <!-- App JS -->
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/vendors.min.js' %}"></script>  <!-- Vendor JS -->
+  <script src="{% static 'js/select2.min.js' %}"></script>
+  {% block extra_javascript %}{% endblock extra_javascript %}
+
+  {% endblock javascript %}
+
+</body>
+
+</html>

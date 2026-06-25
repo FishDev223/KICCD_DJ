@@ -1,0 +1,553 @@
+{% extends 'kiccd_app/vertical.html' %}
+{% load static %}
+
+{% block title %}Site Map{% endblock title %}
+
+{% block extra_css %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/select2.css' %}">
+<style>
+    #site-map { width: 100%; height: 65vh; min-height: 420px; }
+    .mapboxgl-popup-content { padding: 10px 14px; font-size: 0.85rem; }
+    .mapboxgl-popup-content strong { font-size: 0.92rem; }
+    #siteNameSelect + .select2-container .select2-selection__rendered { color: inherit; }
+</style>
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Site Map' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-12">
+
+        <div class="card-header border-bottom border-dashed">
+            <div class="row g-2 align-items-end mb-2">
+                <div class="col-md-2 col-sm-6">
+                    <div class="form-floating">
+                        <select id="siteTypeSelect" class="form-control">
+                            <option value="">...</option>
+                            <option value="sampling">Agency Sampling</option>
+                            <option value="cf">Contract Fishing</option>
+                            <option value="hp">IC Harvest Program</option>
+                            <option value="tribs">Tributaries</option>
+                        </select>
+                        <label class="form-label" for="siteTypeSelect">PROJECT</label>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="form-floating">
+                        <select id="basinSelect" class="form-control" disabled>
+                            <option value="">...</option>
+                        </select>
+                        <label class="form-label" for="basinSelect">BASIN</label>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="form-floating">
+                        <select id="poolSelect" class="form-control" disabled>
+                            <option value="">...</option>
+                        </select>
+                        <label class="form-label" for="poolSelect">POOL</label>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <div class="form-floating">
+                        <select id="siteNameSelect" class="form-control select2" data-toggle="select2" disabled style="width:100%">
+                            <option value="">...</option>
+                        </select>
+                        <label class="form-label" for="siteNameSelect">SITE NAME</label>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-end gap-2">
+                    <button id="applyBtn" type="button" class="btn btn-primary" disabled
+                            style="height:calc(3.5rem + 2px);width:calc(3.5rem + 2px);"
+                            title="Apply filter">
+                        <i class="ti ti-filter"></i>
+                    </button>
+                    <button id="resetBtn" type="button" class="btn btn-outline-secondary"
+                            style="height:calc(3.5rem + 2px);width:calc(3.5rem + 2px);"
+                            title="Reset">
+                        <i class="ti ti-refresh"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div id="site-map"></div>
+            <div id="siteInfoPanel" class="d-none px-3 py-2 border-top small d-flex align-items-center justify-content-between gap-3">
+                <div class="text-truncate">
+                    <span class="fw-semibold me-2" id="siteInfoName"></span>
+                    <span class="text-muted" id="siteInfoDetail"></span>
+                </div>
+                <div class="d-flex gap-2 flex-shrink-0">
+                    <button id="siteCopyBtn" type="button" class="btn btn-outline-secondary btn-sm text-nowrap" title="Copy name, lat, lon to clipboard">
+                        <i class="ti ti-clipboard-copy me-1"></i>Copy
+                    </button>
+                    <button id="siteKmlBtn" type="button" class="btn btn-outline-secondary btn-sm text-nowrap" title="Copy as KML to clipboard (paste into Google Earth, etc.)">
+                        <i class="ti ti-map-pin me-1"></i>KML
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+    if (!MAPBOX_TOKEN) {
+        document.getElementById('site-map').innerHTML =
+            '<div class="p-4 text-danger">Mapbox token is not configured.</div>';
+        return;
+    }
+
+    const ENDPOINTS = {
+        sampling: "{% url 'kiccd_app:api_sample_sites_geojson' %}",
+        cf:       "{% url 'kiccd_app:api_cf_sites_geojson' %}",
+        hp:       "{% url 'kiccd_app:api_hp_sites_geojson' %}",
+        tribs:    "{% url 'kiccd_app:api_trib_sites_geojson' %}",
+    };
+
+    // --- Map init ---
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    const map = new mapboxgl.Map({
+        container: 'site-map',
+        style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+        center: [-85.5, 37.8],
+        zoom: 6,
+    });
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
+    // --- State ---
+    let allFeatures     = [];   // full GeoJSON set for the selected project
+    let currentFeatures = [];   // filtered set shown in siteNameSelect
+    let activeMarker        = null;
+    let activePopup         = null;
+    let activeSingleFeature = null;
+
+    // group-layer state
+    const GROUP_SOURCE = 'site-group-source';
+    const GROUP_LAYER  = 'site-group-layer';
+    let groupClickHandler      = null;
+    let groupMouseEnterHandler = null;
+    let groupMouseLeaveHandler = null;
+    let groupFeatures          = [];   // features currently plotted as a group layer
+
+    // --- DOM refs ---
+    const typeSelect  = document.getElementById('siteTypeSelect');
+    const basinSelect = document.getElementById('basinSelect');
+    const poolSelect  = document.getElementById('poolSelect');
+    const nameSelect  = document.getElementById('siteNameSelect');
+    const infoPanel   = document.getElementById('siteInfoPanel');
+    const infoName    = document.getElementById('siteInfoName');
+    const infoDetail  = document.getElementById('siteInfoDetail');
+    const copyBtn     = document.getElementById('siteCopyBtn');
+    const kmlBtn      = document.getElementById('siteKmlBtn');
+    const applyBtn    = document.getElementById('applyBtn');
+    const resetBtn    = document.getElementById('resetBtn');
+
+    // --- Copy to clipboard ---
+    copyBtn.addEventListener('click', function () {
+        let text;
+        if (infoPanel.dataset.copyMode === 'group') {
+            const header = 'Name\tBasin\tPool\tRiver Mile\tLat\tLon';
+            const lines = groupFeatures.map(function (f) {
+                const p   = f.properties;
+                const lat = f.geometry.coordinates[1].toFixed(5);
+                const lng = f.geometry.coordinates[0].toFixed(5);
+                return [
+                    p.name         || '',
+                    p.basin        || '',
+                    p.pool         || '',
+                    p.river_mi != null ? p.river_mi : '',
+                    lat,
+                    lng
+                ].join('\t');
+            });
+            text = [header].concat(lines).join('\n');
+        } else {
+            const name = infoName.textContent;
+            const lat  = infoPanel.dataset.lat;
+            const lng  = infoPanel.dataset.lng;
+            text = name + '\t' + lat + '\t' + lng;
+        }
+        navigator.clipboard.writeText(text).then(function () {
+            const orig = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="ti ti-check me-1"></i>Copied!';
+            copyBtn.classList.replace('btn-outline-secondary', 'btn-success');
+            setTimeout(function () {
+                copyBtn.innerHTML = orig;
+                copyBtn.classList.replace('btn-success', 'btn-outline-secondary');
+            }, 2000);
+        });
+    });
+
+    // --- Copy as KML ---
+    function escapeXml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+    }
+
+    function buildKml(features, docName) {
+        var placemarks = features.map(function (f) {
+            var p   = f.properties;
+            var lng = f.geometry.coordinates[0];
+            var lat = f.geometry.coordinates[1];
+            var desc = [];
+            if (p.basin)            desc.push('Basin: '      + p.basin);
+            if (p.pool)             desc.push('Pool: '       + p.pool);
+            if (p.river_mi != null) desc.push('River Mile: ' + p.river_mi);
+            desc.push('Lat/Lon: ' + lat.toFixed(5) + ', ' + lng.toFixed(5));
+            return [
+                '    <Placemark>',
+                '      <name>'        + escapeXml(p.name)           + '</name>',
+                '      <description>' + escapeXml(desc.join(' | ')) + '</description>',
+                '      <styleUrl>#siteStyle</styleUrl>',
+                '      <Point>',
+                '        <coordinates>' + lng.toFixed(6) + ',' + lat.toFixed(6) + ',0</coordinates>',
+                '      </Point>',
+                '    </Placemark>'
+            ].join('\n');
+        });
+        // KML color format is ABGR; yellow (R=255,G=255,B=0) → ff00ffff
+        return [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<kml xmlns="http://www.opengis.net/kml/2.2">',
+            '  <Document>',
+            '    <name>' + escapeXml(docName) + '</name>',
+            '    <Style id="siteNormal">',
+            '      <IconStyle>',
+            '        <color>ff00ffff</color>',
+            '        <scale>1.0</scale>',
+            '        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon>',
+            '      </IconStyle>',
+            '      <LabelStyle><scale>0</scale></LabelStyle>',
+            '    </Style>',
+            '    <Style id="siteHighlight">',
+            '      <IconStyle>',
+            '        <color>ff00ffff</color>',
+            '        <scale>1.2</scale>',
+            '        <Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon>',
+            '      </IconStyle>',
+            '      <LabelStyle><scale>1.0</scale></LabelStyle>',
+            '    </Style>',
+            '    <StyleMap id="siteStyle">',
+            '      <Pair><key>normal</key><styleUrl>#siteNormal</styleUrl></Pair>',
+            '      <Pair><key>highlight</key><styleUrl>#siteHighlight</styleUrl></Pair>',
+            '    </StyleMap>'
+        ].concat(placemarks).concat([
+            '  </Document>',
+            '</kml>'
+        ]).join('\n');
+    }
+
+    kmlBtn.addEventListener('click', function () {
+        var features, docName;
+        if (infoPanel.dataset.copyMode === 'group') {
+            features = groupFeatures;
+            var parts = [];
+            if (basinSelect.value) parts.push(basinSelect.value);
+            if (poolSelect.value)  parts.push(poolSelect.value);
+            if (!parts.length)     parts.push(typeSelect.options[typeSelect.selectedIndex].text);
+            var folderSuffix = typeSelect.value === 'tribs' ? ' Tribs|Embayments' : ' Sites';
+            docName = parts.join(' - ') + folderSuffix;
+        } else {
+            features = activeSingleFeature ? [activeSingleFeature] : [];
+            docName  = infoName.textContent;
+        }
+        if (!features.length) return;
+        var kml = buildKml(features, docName);
+        navigator.clipboard.writeText(kml).then(function () {
+            var orig = kmlBtn.innerHTML;
+            kmlBtn.innerHTML = '<i class="ti ti-check me-1"></i>Copied!';
+            kmlBtn.classList.replace('btn-outline-secondary', 'btn-success');
+            setTimeout(function () {
+                kmlBtn.innerHTML = orig;
+                kmlBtn.classList.replace('btn-success', 'btn-outline-secondary');
+            }, 2000);
+        });
+    });
+
+    // --- Helpers: build filtered feature set from current dropdown values ---
+    function getFiltered() {
+        const basin = basinSelect.value;
+        const pool  = poolSelect.value;
+        return allFeatures.filter(function (f) {
+            const p = f.properties;
+            if (basin && p.basin !== basin) return false;
+            if (pool  && p.pool  !== pool)  return false;
+            return true;
+        });
+    }
+
+    function populateBasins() {
+        const basins = Array.from(
+            new Set(allFeatures.map(function (f) { return f.properties.basin; }).filter(Boolean))
+        ).sort();
+        basinSelect.innerHTML = '<option value="">...</option>';
+        basins.forEach(function (b) {
+            const opt = document.createElement('option');
+            opt.value = b;
+            opt.text  = b;
+            basinSelect.appendChild(opt);
+        });
+        basinSelect.disabled = basins.length === 0;
+    }
+
+    function populatePools(features) {
+        const pools = Array.from(
+            new Set(features.map(function (f) { return f.properties.pool; }).filter(Boolean))
+        ).sort();
+        poolSelect.innerHTML = '<option value="">...</option>';
+        pools.forEach(function (p) {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.text  = p;
+            poolSelect.appendChild(opt);
+        });
+        poolSelect.disabled = pools.length === 0;
+    }
+
+    function populateNames(features) {
+        currentFeatures = features;
+        nameSelect.innerHTML = '<option value="">...</option>';
+        features.forEach(function (f, idx) {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            const p = f.properties;
+            opt.text = p.pool_abbrev ? p.name + ' [' + p.pool_abbrev + ']' : p.name;
+            nameSelect.appendChild(opt);
+        });
+        nameSelect.disabled = features.length === 0;
+        $(nameSelect).trigger('change.select2');
+    }
+
+    function resetFilters() {
+        basinSelect.innerHTML = '<option value="">...</option>';
+        basinSelect.disabled  = true;
+        poolSelect.innerHTML  = '<option value="">...</option>';
+        poolSelect.disabled   = true;
+        nameSelect.innerHTML  = '<option value="">...</option>';
+        nameSelect.disabled   = true;
+        $(nameSelect).trigger('change.select2');
+    }
+
+    // --- PROJECT change: fetch GeoJSON, seed all three dependent dropdowns ---
+    typeSelect.addEventListener('change', function () {
+        clearMarker();
+        clearGroup();
+        infoPanel.classList.add('d-none');
+        allFeatures = [];
+        applyBtn.disabled = true;
+        resetFilters();
+
+        const type = this.value;
+        if (!type) return;
+
+        nameSelect.innerHTML = '<option value="">...</option>';
+
+        fetch(ENDPOINTS[type])
+            .then(function (r) {
+                if (!r.ok) throw new Error('Network error');
+                return r.json();
+            })
+            .then(function (data) {
+                allFeatures = (data.features || []).filter(function (f) {
+                    return f.geometry && f.geometry.coordinates;
+                });
+                populateBasins();
+                populatePools(allFeatures);
+                populateNames(allFeatures);
+                applyBtn.disabled = false;
+            })
+            .catch(function () {
+                nameSelect.innerHTML = '<option value="">-- Error loading sites --</option>';
+            });
+    });
+
+    // --- BASIN change: re-filter pools and names ---
+    basinSelect.addEventListener('change', function () {
+        clearMarker();
+        clearGroup();
+        infoPanel.classList.add('d-none');
+        poolSelect.value = '';
+        const filtered = getFiltered();
+        populatePools(filtered);
+        populateNames(filtered);
+    });
+
+    // --- POOL change: re-filter names only ---
+    poolSelect.addEventListener('change', function () {
+        clearMarker();
+        clearGroup();
+        infoPanel.classList.add('d-none');
+        populateNames(getFiltered());
+    });
+
+    // --- SITE NAME change: fly to & show marker/popup ---
+    $(nameSelect).on('change', function () {
+        clearMarker();
+        infoPanel.classList.add('d-none');
+        const idx = this.value;
+        if (idx === '' || idx === null) return;
+
+        const feature = currentFeatures[parseInt(idx, 10)];
+        if (!feature) return;
+
+        const lng = feature.geometry.coordinates[0];
+        const lat = feature.geometry.coordinates[1];
+        const p   = feature.properties;
+
+        activeSingleFeature = feature;
+        map.flyTo({ center: [lng, lat], zoom: 13, speed: 1.4 });
+
+        activePopup = new mapboxgl.Popup({ offset: 30, closeButton: true, maxWidth: '280px' })
+            .setHTML(buildPopupHtml(p, lat, lng));
+
+        activeMarker = new mapboxgl.Marker({ color: '#e6d00d' })
+            .setLngLat([lng, lat])
+            .setPopup(activePopup)
+            .addTo(map);
+
+        activePopup.addTo(map);
+
+        // Info panel
+        infoName.textContent = p.name;
+        const parts = [];
+        if (p.basin)             parts.push('Basin: ' + p.basin);
+        if (p.pool)              parts.push('Pool: ' + p.pool);
+        if (p.river_mi != null)  parts.push('River Mi: ' + p.river_mi);
+        parts.push(lat.toFixed(5) + ', ' + lng.toFixed(5));
+        infoDetail.textContent = parts.join('  |  ');
+        infoPanel.dataset.lat = lat.toFixed(5);
+        infoPanel.dataset.lng = lng.toFixed(5);
+        infoPanel.dataset.copyMode = 'single';
+        infoPanel.classList.remove('d-none');
+    });
+
+    // --- Popup HTML ---
+    function buildPopupHtml(p, lat, lng) {
+        var rows = '';
+        if (p.site_code) rows += row('Code', p.site_code);
+        rows += row('Pool',  p.pool  || '—');
+        rows += row('Basin', p.basin || '—');
+        if (p.river_mi != null) rows += row('River Mile', p.river_mi);
+        rows += row('Lat / Lon', lat.toFixed(5) + ', ' + lng.toFixed(5));
+        return '<strong class="d-block mb-2">' + p.name + '</strong>'
+             + '<table class="mb-0" style="font-size:0.82rem;line-height:1.6">' + rows + '</table>';
+    }
+
+    function row(label, val) {
+        return '<tr>'
+            + '<td class="pe-3 text-muted text-nowrap">' + label + '</td>'
+            + '<td>' + val + '</td>'
+            + '</tr>';
+    }
+
+    // --- Cleanup ---
+    function clearMarker() {
+        if (activePopup)  { activePopup.remove();  activePopup  = null; }
+        if (activeMarker) { activeMarker.remove(); activeMarker = null; }
+        activeSingleFeature = null;
+    }
+
+    function clearGroup() {
+        if (groupClickHandler)      { map.off('click',      GROUP_LAYER, groupClickHandler);      groupClickHandler      = null; }
+        if (groupMouseEnterHandler) { map.off('mouseenter', GROUP_LAYER, groupMouseEnterHandler); groupMouseEnterHandler = null; }
+        if (groupMouseLeaveHandler) { map.off('mouseleave', GROUP_LAYER, groupMouseLeaveHandler); groupMouseLeaveHandler = null; }
+        if (map.getLayer(GROUP_LAYER))   map.removeLayer(GROUP_LAYER);
+        if (map.getSource(GROUP_SOURCE)) map.removeSource(GROUP_SOURCE);
+        groupFeatures = [];
+    }
+
+    function plotGroup() {
+        const features = getFiltered();
+        if (!features.length) return;
+
+        clearMarker();
+        clearGroup();
+        infoPanel.classList.add('d-none');
+
+        map.addSource(GROUP_SOURCE, {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: features }
+        });
+        map.addLayer({
+            id: GROUP_LAYER,
+            type: 'circle',
+            source: GROUP_SOURCE,
+            paint: {
+                'circle-radius': 6,
+                'circle-color': '#e6d00d',
+                'circle-stroke-width': 1.5,
+                'circle-stroke-color': '#555'
+            }
+        });
+
+        const bounds = new mapboxgl.LngLatBounds();
+        features.forEach(function (f) { bounds.extend(f.geometry.coordinates); });
+        map.fitBounds(bounds, { padding: 60 });
+
+        // Show group summary in the info panel so the copy button is accessible
+        groupFeatures = features;
+        infoName.textContent = features.length + ' site' + (features.length !== 1 ? 's' : '');
+        const gParts = [];
+        if (basinSelect.value) gParts.push('Basin: ' + basinSelect.value);
+        if (poolSelect.value)  gParts.push('Pool: '  + poolSelect.value);
+        if (!gParts.length)    gParts.push(typeSelect.options[typeSelect.selectedIndex].text);
+        infoDetail.textContent = gParts.join('  |  ');
+        infoPanel.dataset.copyMode = 'group';
+        infoPanel.classList.remove('d-none');
+
+        groupClickHandler = function (e) {
+            const coords = e.features[0].geometry.coordinates.slice();
+            const p      = e.features[0].properties;
+            new mapboxgl.Popup({ offset: 25 })
+                .setLngLat(coords)
+                .setHTML(buildPopupHtml(p, coords[1], coords[0]))
+                .addTo(map);
+        };
+        groupMouseEnterHandler = function () { map.getCanvas().style.cursor = 'pointer'; };
+        groupMouseLeaveHandler = function () { map.getCanvas().style.cursor = ''; };
+
+        map.on('click',      GROUP_LAYER, groupClickHandler);
+        map.on('mouseenter', GROUP_LAYER, groupMouseEnterHandler);
+        map.on('mouseleave', GROUP_LAYER, groupMouseLeaveHandler);
+    }
+
+    // --- APPLY: plot all currently filtered sites as a layer ---
+    applyBtn.addEventListener('click', function () {
+        plotGroup();
+    });
+
+    // --- RESET: clear everything and return to initial state ---
+    resetBtn.addEventListener('click', function () {
+        clearMarker();
+        clearGroup();
+        infoPanel.classList.add('d-none');
+        typeSelect.value  = '';
+        allFeatures       = [];
+        applyBtn.disabled = true;
+        resetFilters();
+        map.flyTo({ center: [-85.5, 37.8], zoom: 6, speed: 1.4 });
+    });
+
+}());
+</script>
+{% endblock extra_javascript %}

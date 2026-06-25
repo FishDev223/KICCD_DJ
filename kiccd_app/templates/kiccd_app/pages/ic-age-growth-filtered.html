@@ -1,0 +1,222 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Length-at-Age Analysis{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/datetime/1.6.2/css/dataTables.dateTime.css" rel="stylesheet" integrity="sha384-7gVhgCBvVkFm8CjELsmoaaDJyWITKmo5b7imOimmD95IVzEyhS92YJ3jlcHfGc1l" crossorigin="anonymous">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Invasive Carp | Length-At-Age' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Filterable Age Analysis</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Length-at-Age Results</h4>
+        </div>
+
+        <div class="card-body">
+            <form method="get" class="row g-1 align-items-end">
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ag-filter-year" class="form-select" name="year">
+                            <option value="">...</option>
+                            {% for year in year_options %}
+                            <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-year" class="form-label">YEAR</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ag-filter-species" class="form-select" name="species">
+                            <option value="">...</option>
+                            {% for species in species_options %}
+                            <option value="{{ species.spp_id }}" {% if selected_species == species.spp_id|stringformat:"s" %}selected{% endif %}>{{ species.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-species" class="form-label">SPP</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ag-filter-sex" class="form-select" name="sex">
+                            <option value="">...</option>
+                            {% for sex in sex_options %}
+                            <option value="{{ sex.sx_id }}" {% if selected_sex == sex.sx_id|stringformat:"s" %}selected{% endif %}>{{ sex.abbrev }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-sex" class="form-label">SEX</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2 offset-md-1">
+                    <div class="form-floating">
+                        <select id="ag-filter-basin" class="form-select" name="basin">
+                            <option value="">...</option>
+                            {% for basin in basin_options %}
+                            <option value="{{ basin.basin_id }}" {% if selected_basin == basin.basin_id|stringformat:"s" %}selected{% endif %}>{{ basin.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-basin" class="form-label">BASIN</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ag-filter-pool" class="form-select" name="pool">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                            <option value="{{ pool.pool_id }}" {% if selected_pool == pool.pool_id|stringformat:"s" %}selected{% endif %}>{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-pool" class="form-label">POOL</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ag-filter-trib" class="form-select" name="trib">
+                            <option value="">...</option>
+                            {% for trib in trib_options %}
+                            <option value="{{ trib.trib_id }}" {% if selected_trib == trib.trib_id|stringformat:"s" %}selected{% endif %}>{{ trib.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-trib" class="form-label">TRIBUTARY</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ag-filter-site" class="form-select" name="site">
+                            <option value="">...</option>
+                            {% for site in site_options %}
+                            <option value="{{ site.site_id }}" {% if selected_site == site.site_id|stringformat:"s" %}selected{% endif %}>{{ site.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-site" class="form-label">SITE</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ag-filter-agency" class="form-select" name="agency">
+                            <option value="">...</option>
+                            {% for agency in agency_options %}
+                            <option value="{{ agency.partner_id }}" {% if selected_agency == agency.partner_id|stringformat:"s" %}selected{% endif %}>{{ agency.abbrev }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ag-filter-agency" class="form-label">AGENCY</label>
+                    </div>
+                </div>
+
+                <input type="hidden" name="apply" value="1">
+
+                <div class="row g-2 align-items-center mt-2">
+                    <div class="col-6 col-md-2 offset-md-4">
+                        <button type="submit" class="btn btn-sm btn-primary w-100">APPLY</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <a href="{% url 'kiccd_app:ic_age_growth_length_at_age' %}" class="btn btn-sm btn-secondary w-100">RESET</a>
+                    </div>
+                </div>
+            </form>
+
+            <div class="mt-4">
+                {% if not filters_applied %}
+                <div class="alert alert-light mb-0"><em>Select filters and click "APPLY" to run Length-at-Age analysis.</em></div>
+                {% else %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Length-at-Age Summary (Ages 1-25)</h5>
+                    <span class="badge bg-primary">Record Cnt: {{ total_filtered_records }}</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="ag-length-table" class="table table-striped table-sm table-bordered w-100">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Age</th>
+                                <th>N</th>
+                                <th>%</th>
+                                <th>Min Length (mm)</th>
+                                <th>Max Length (mm)</th>
+                                <th>Avg Length (mm)</th>
+                                <th>Std Dev</th>
+                                <th>Std Err</th>
+                                <th>Avg Wt (kg)</th>
+                                <th>Avg Wt (lb)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in results %}
+                            <tr>
+                                <td>{{ row.age }}</td>
+                                <td>{{ row.count }}</td>
+                                <td>{{ row.age_frequency|floatformat:1|default:'-' }}</td>
+                                <td>{{ row.min_length_mm|floatformat:1|default:'-' }}</td>
+                                <td>{{ row.max_length_mm|floatformat:1|default:'-' }}</td>
+                                <td>{{ row.mean_length_mm|floatformat:1|default:'-' }}</td>
+                                <td>{{ row.std_dev_length_mm|floatformat:2|default:'-' }}</td>
+                                <td>{{ row.std_err_length_mm|floatformat:2|default:'-' }}</td>
+                                <td>{{ row.mean_weight_kg|floatformat:1|default:'-' }}</td>
+                                <td>{{ row.mean_weight_lb|floatformat:1|default:'-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    const tableEl = $('#ag-length-table');
+    if (tableEl.length) {
+        tableEl.DataTable({
+            order: [[0, 'asc']],
+            keys: false,
+            fixedHeader: true,
+            paging: false,
+            searching: false,
+            info: false,
+            layout: {
+                topStart: null,
+                topEnd: null,
+                bottomStart: null,
+                bottomEnd: {buttons: ['copy', 'csv', 'pdf']}
+            },
+            language: {
+                paginate: {
+                    previous: "<i class='ti ti-chevron-left'>",
+                    next: "<i class='ti ti-chevron-right'>"
+                }
+            },
+            drawCallback: function () {
+                $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+            }
+        });
+    }
+});
+</script>
+{% endblock extra_javascript %}

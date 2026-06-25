@@ -1,0 +1,26 @@
+{% load static %}
+
+<header>
+    <div class="row header-row">
+        <div class="col-1"></div>
+        <div class="col header-col-left">
+            <a href="{% url 'home' %}">
+                <img class="logo-img" src="{% static 'images/logo-light.png' %}" alt="KICCD Logo">
+            </a>
+        </div>
+        {% if request.user.is_authenticated %}
+        <div class="col header-col-right text-end">
+            <span class="header-username">Welcome, {{ request.user.username }}!</span>
+            <a href="{% url 'home' %}">
+                <i class="fa-solid fa-house header-home-icon" title="Home"></i></a>
+            <!-- Link directly to the KICCD_APP admin page -->
+            <a href="{% url 'admin:app_list' app_label='kiccd_app' %}">
+                <i class="fa-solid fa-bars header-admin-icon" title="KICCD App Admin"></i></a>
+            <a class="header-logout" href="{% url 'logout' %}">
+                <i class="fa-solid fa-right-from-bracket header-logout-icon" title="Logout"></i></a>
+        </div>
+        {% endif %}
+        <div class="col-1"></div>
+    </div>
+</header>
+

@@ -1,0 +1,126 @@
+html, body {
+    overflow-x: hidden;
+    background-color: #212121;
+}
+ 
+* {
+
+    font-family: "Outfit", "Public Sans", sans-serif;
+}
+
+
+::-webkit-scrollbar {
+    width: 1px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    border: 2px solid #DDD9D9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2AACF5;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2AACF5;
+}
+
+.header-row {
+    background-color: #212121;
+    border-bottom: 3px double #4C6841;
+}
+
+.index-header-row {
+    background-color: #212121;
+    border-bottom: 4px solid #4C6841;
+    height: 2vh;
+    display: flex;
+    align-items: center;
+}
+
+.index-content-col, .home-content-col {
+    background-color: #212121;
+    color: #ffffff;
+}
+
+.header-username {
+    color: white;
+    font-size: 18px;
+    margin-top: 6px;
+}
+
+.logo-img {
+    height: 50px;
+    width: 200px;
+}
+
+.fa-house {
+    color: white;
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+.fa-bars {
+    color: white;
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+.fa-right-from-bracket {
+    color: white;
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+.footer-row {
+    height: 4vh;
+    display: flex;
+    align-items: center;
+    background-color: #212121;
+    border-top: 2px solid #4C6841;
+    border-bottom: 2px solid #4C6841;
+    font-size: 12px;
+}
+
+.index-content {
+    padding: 20px;
+}
+
+.modal-content {
+    color: #212121;
+}
+
+.modal-header, .modal-footer {
+    background-color: #9FAF93;
+    color: #212121;
+}
+
+.loginModalLabel {
+    color: #212121;
+}
+
+.modal-body {
+    background-color: #212121;
+    color: #ffffff;
+}
+
+.form-control {
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #4C6841;
+    border-radius: 4px;
+}
+
+.card-header {
+    color: #212121;
+    background-color: #9FAF93;
+    text-align: center;
+
+}
+
+.card-body {
+    background-color: #2C2C2C;
+    color: #ffffff;
+}

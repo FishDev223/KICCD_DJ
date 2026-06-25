@@ -1,0 +1,731 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+ 
+{% block title %}Add ICHP Harvest Data{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add ICHP Harvest Data' %}
+{% endblock page_title %}
+ 
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">1) Choose a reported ICHP fishing effort prior to entering any harvest data.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center"> Select an ICHP Fishing Effort...</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Report Instead</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW REPORT</a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="row p-md-2 p-2 g-1 mt-0 mb-md-0 mb-3 bg-dark bg-opacity-10">
+                    <div class="col-md-8 mt-md-0 mt-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>* ICHP Effort derived from:<br>Date | Fisher - Net # (LxDxM)</em>">
+                        <div class="form-floating">
+                            {{ shared_form.event }}
+                            <label class="form-label" for="id_event">SELECT A FISHING EFFORT...</label>
+                        </div>
+                        {% if shared_form.event.errors %}
+                            <div class="text-danger small">{{ shared_form.event.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-1 mt-md-0 mt-2 d-flex align-items-center">
+                        <div class="w-100 text-center" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Current number of existing IchpCatch rows for the selected event.">
+                            <p class="mb-1 mt-1 text-muted fs-11">RECORD COUNT</p>
+                            <p id="ichp_event_record_count" class="mb-0 fw-semibold fs-16">-</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 offset-md-1 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*Only when <u>ZERO</u> fish were harvested by the entire net haul.">
+                        <p class="mb-1 mt-1 text-muted fs-11">NO HARVEST?</p>
+                        <div class="form-check form-switch">
+                            {{ shared_form.no_fish }}
+                        </div>
+                        {% if shared_form.no_fish.errors %}
+                            <div class="text-danger small">{{ shared_form.no_fish.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="card col-md-12">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-2 mb-0 w-100">
+                <h5 class="d-none d-md-block text-muted mb-0">2) Record Catch & Release (C&R) and Harvest numbers for up to 10 fish species.</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">Add C&R Counts and Harvest Totals...</h4>
+            </div>
+        </div>
+        <div class="card-body">
+                    {{ formset.management_form }}
+
+                    {% for form in formset %}
+                        <div class="border rounded p-md-1 p-sm-3 mb-2 mb-md-1 bg-dark bg-opacity-10 csv-row">
+                            <div class="row g-1 g-md-1 mb-0 mt-0 align-items-stretch">
+                                <div class="col-md-2">
+                                    <div class="form-floating">
+                                        {{ form.species }}
+                                        <label for="{{ form.species.id_for_label }}" class="form-label">SPECIES</label>
+                                    </div>
+                                    {% if form.species.errors %}
+                                        <div class="text-danger small">{{ form.species.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                <div class="row g-1 mb-0 mt-0 align-items-stretch">
+                                    <div class="col-md-3 mt-md-0">
+                                        <div class="form-floating">
+                                            {{ form.harvest_cnt }}
+                                            <label class="d-none d-md-block form-label" for="{{ form.harvest_cnt.id_for_label }}">HARVEST CNT</label>
+                                            <label class="d-block d-md-none form-label" for="{{ form.harvest_cnt.id_for_label }}">HARVEST COUNT</label>
+                                        </div>
+                                        {% if form.harvest_cnt.errors %}
+                                            <div class="text-danger small">{{ form.harvest_cnt.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mt-md-0">
+                                        <div class="form-floating">
+                                            {{ form.rel_healthy_cnt }}
+                                            <label class="form-label" for="{{ form.rel_healthy_cnt.id_for_label }}">HEALTHY C&R</label>
+                                        </div>
+                                        {% if form.rel_healthy_cnt.errors %}
+                                            <div class="text-danger small">{{ form.rel_healthy_cnt.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mt-md-0">
+                                        <div class="form-floating">
+                                            {{ form.rel_moribund_cnt }}
+                                            <label class="form-label" for="{{ form.rel_moribund_cnt.id_for_label }}">MORIBUND C&R</label>
+                                        </div>
+                                        {% if form.rel_moribund_cnt.errors %}
+                                            <div class="text-danger small">{{ form.rel_moribund_cnt.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mt-md-0">
+                                        <div class="form-floating">
+                                            {{ form.total_cnt }}
+                                            <label class="d-none d-md-block form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL</label>
+                                            <label class="d-block d-md-none form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL COUNT</label>
+                                        </div>
+                                        {% if form.total_cnt.errors %}
+                                            <div class="text-danger small">{{ form.total_cnt.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-floating">
+                                        {{ form.reported_weight_lb }}
+                                        <label class="form-label" for="{{ form.reported_weight_lb.id_for_label }}">TOTAL WEIGHT (lb)</label>
+                                    </div>
+                                    {% if form.reported_weight_lb.errors %}
+                                        <div class="text-danger small">{{ form.reported_weight_lb.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-floating">
+                                        {{ form.reported_mean_length_in }}
+                                        <label class="d-none d-md-block form-label" for="{{ form.reported_mean_length_in.id_for_label }}">MEAN TL (in)</label>
+                                        <label class="d-block d-md-none form-label" for="{{ form.reported_mean_length_in.id_for_label }}">MEAN LENGTH (in)</label>
+                                    </div>
+                                    {% if form.reported_mean_length_in.errors %}
+                                        <div class="text-danger small">{{ form.reported_mean_length_in.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                        <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                            <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="AddCsvHeading1">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddEventOne">
+                                            Additional Data Loading Options
+                                        </button>
+                                    </h2>
+                                    <div id="AddCsvOne" class="accordion-collapse collapse"
+                                        aria-labelledby="AddCsvHeading1" data-bs-parent="#CSVLoadUI">
+                                        <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                            <div class="row g-2 align-items-stretch mb-2">
+                                                <div class="col-md-6">
+                                                    <label class="form-label mb-1" for="csv_file_input">Load from CSV</label>
+                                                    <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div id="csv_status" class="text-muted"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row g-2 align-items-stretch mb-2">
+                                                <div class="col-md-6">
+                                                    <label class="form-label mb-1" for="csv_column_map">Column order (optional)</label>
+                                                    <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="species,harvest_cnt,rel_healthy_cnt,rel_moribund_cnt,total_cnt,reported_weight_lb,reported_mean_length_in" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-check mt-4">
+                                                        <input id="csv_clear_existing" class="form-check-input" type="checkbox" checked>
+                                                        <label class="form-check-label" for="csv_clear_existing">Clear existing rows?</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <button type="submit" class="btn btn-success" id="ichpCatchSubmitBtn">
+                                    <span id="ichpCatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                                    SUBMIT
+                                </button>
+                            <div>
+                                <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Reset the entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                                <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:ichp_harvest_list' %}'">CANCEL</button>
+                            </div>
+                        </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.querySelector('form');
+    var submitBtn = document.getElementById('ichpCatchSubmitBtn');
+    var submitSpinner = document.getElementById('ichpCatchSubmitSpinner');
+    if (!form || !submitBtn) return;
+    form.addEventListener('submit', function () {
+        submitSpinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+}());
+</script>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const eventSelect = document.getElementById('id_event');
+    const eventRecordCount = document.getElementById('ichp_event_record_count');
+    const speciesSelects = document.querySelectorAll('select[id*="species"]');
+    const noFishCheckbox = document.querySelector('#id_no_fish');
+    const eventCountUrl = "{% url 'kiccd_app:api_ichp_event_catch_count' %}";
+    const eventSearchUrl = "{% url 'kiccd_app:api_ichp_event_search' %}";
+    let lastSyncedEventId = null;
+
+    // Initialize Select2 AJAX on the event dropdown (replaces full pre-loaded list)
+    if (window.jQuery && eventSelect && typeof jQuery.fn.select2 !== 'undefined') {
+        jQuery(eventSelect).select2({
+            placeholder: 'Type a date or fisher name to search...',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: eventSearchUrl,
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return { term: params.term || '' };
+                },
+                processResults: function (data) {
+                    return { results: data.results || [] };
+                },
+                cache: true
+            }
+        });
+    }
+    const csvFileInput = document.getElementById('csv_file_input');
+    const csvLoadButton = document.getElementById('csv_load_btn');
+    const csvStatus = document.getElementById('csv_status');
+    const csvColumnMap = document.getElementById('csv_column_map');
+    const csvClearExisting = document.getElementById('csv_clear_existing');
+
+    function setEventRecordCountDisplay(value) {
+        if (!eventRecordCount) {
+            return;
+        }
+        eventRecordCount.textContent = value;
+    }
+
+    function fetchEventRecordCount() {
+        if (!eventSelect) {
+            return;
+        }
+
+        const selectedEventId = String(eventSelect.value || '').trim();
+        if (!selectedEventId) {
+            setEventRecordCountDisplay('-');
+            return;
+        }
+
+        setEventRecordCountDisplay('...');
+        fetch(eventCountUrl + '?event_id=' + encodeURIComponent(selectedEventId), {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Request failed with status ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (payload) {
+                const count = payload && typeof payload.record_count === 'number' ? payload.record_count : 0;
+                setEventRecordCountDisplay(String(count));
+            })
+            .catch(function () {
+                setEventRecordCountDisplay('-');
+            });
+    }
+
+    function syncEventState(forceFetch) {
+        if (!eventSelect) {
+            return;
+        }
+        const currentEventId = String(eventSelect.value || '').trim();
+        const hasChanged = currentEventId !== lastSyncedEventId;
+
+        if (hasChanged || forceFetch) {
+            lastSyncedEventId = currentEventId;
+            fetchEventRecordCount();
+        }
+    }
+
+    function startEventSyncFallbackWatcher(durationMs, intervalMs) {
+        if (!eventSelect) {
+            return;
+        }
+        const startedAt = Date.now();
+        const timerId = setInterval(function () {
+            if (Date.now() - startedAt >= durationMs) {
+                clearInterval(timerId);
+                return;
+            }
+            syncEventState(false);
+        }, intervalMs);
+    }
+
+    if (eventSelect) {
+        ['change', 'input', 'blur', 'select2:select', 'select2:clear', 'select2:close'].forEach(function (eventName) {
+            eventSelect.addEventListener(eventName, function () {
+                syncEventState(false);
+            });
+        });
+
+        if (window.jQuery && typeof window.jQuery.fn !== 'undefined') {
+            window.jQuery(eventSelect).on('select2:select select2:clear select2:close change change.select2', function () {
+                syncEventState(false);
+            });
+        }
+
+        const selectObserver = new MutationObserver(function () {
+            syncEventState(false);
+        });
+        selectObserver.observe(eventSelect, {
+            attributes: true,
+            attributeFilter: ['value']
+        });
+        Array.from(eventSelect.options || []).forEach(function (optionEl) {
+            selectObserver.observe(optionEl, {
+                attributes: true,
+                attributeFilter: ['selected']
+            });
+        });
+
+        document.addEventListener('change', function (event) {
+            const target = event && event.target ? event.target : null;
+            if (!target) {
+                return;
+            }
+            if (target === eventSelect || target.id === 'id_event' || target.name === 'event') {
+                syncEventState(false);
+            }
+        });
+
+        window.addEventListener('focus', function () {
+            syncEventState(false);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                syncEventState(false);
+            }
+        });
+
+        startEventSyncFallbackWatcher(15000, 500);
+        syncEventState(true);
+    }
+
+    if (noFishCheckbox && speciesSelects.length) {
+        const firstSpeciesSelect = speciesSelects[0];
+        const updateFirstSpecies = function (value) {
+            if (!firstSpeciesSelect) {
+                return;
+            }
+            firstSpeciesSelect.value = value;
+            firstSpeciesSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        noFishCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                updateFirstSpecies('0');
+                speciesSelects.forEach(function (select, index) {
+                    if (index === 0) {
+                        return;
+                    }
+                    const row = select.closest('.border.rounded');
+                    if (row) {
+                        row.style.display = 'none';
+                    }
+                });
+            } else {
+                updateFirstSpecies('');
+                speciesSelects.forEach(function (select, index) {
+                    if (index === 0) {
+                        return;
+                    }
+                    const row = select.closest('.border.rounded');
+                    if (row) {
+                        row.style.display = '';
+                    }
+                });
+            }
+        });
+        updateFirstSpecies(noFishCheckbox.checked ? '0' : '');
+    }
+    speciesSelects.forEach(function (select) {
+        const row = select.closest('.border.rounded');
+        if (!row) {
+            return;
+        }
+
+        const healthyInput = row.querySelector('input[id*="rel_healthy_cnt"]');
+        const moribundInput = row.querySelector('input[id*="rel_moribund_cnt"]');
+        const harvestInput = row.querySelector('input[id*="harvest_cnt"]');
+        const totalInput = row.querySelector('input[id*="total_cnt"]');
+        const weightInput = row.querySelector('input[id*="reported_weight_lb"]');
+        const lengthInput = row.querySelector('input[id*="reported_mean_length_in"]');
+        if (!healthyInput || !moribundInput || !harvestInput || !totalInput) {
+            return;
+        }
+
+        function updateTotal() {
+            const healthyVal = parseInt(healthyInput.value, 10) || 0;
+            const moribundVal = parseInt(moribundInput.value, 10) || 0;
+            const harvestVal = parseInt(harvestInput.value, 10) || 0;
+            totalInput.value = healthyVal + moribundVal + harvestVal;
+        }
+
+        healthyInput.addEventListener('input', updateTotal);
+        moribundInput.addEventListener('input', updateTotal);
+        harvestInput.addEventListener('input', updateTotal);
+
+        function applyState(value) {
+            if (value === '0') {
+                [healthyInput, moribundInput, harvestInput, totalInput].forEach(function (input) {
+                    input.value = '0';
+                    input.readOnly = true;
+                });
+                if (weightInput) {
+                    weightInput.value = '0';
+                    weightInput.readOnly = true;
+                }
+                if (lengthInput) {
+                    lengthInput.value = '';
+                }
+            } else if (['52', '299', '301', '36', '302', '300'].includes(value)) {
+                healthyInput.value = '0';
+                moribundInput.value = '0';
+
+                healthyInput.readOnly = true;
+                moribundInput.readOnly = true;
+                totalInput.readOnly = true;
+                harvestInput.readOnly = false;
+
+                if (weightInput) {
+                    weightInput.readOnly = false;
+                }
+
+                updateTotal();
+            } else if (value) {
+                healthyInput.readOnly = false;
+                moribundInput.readOnly = false;
+                harvestInput.readOnly = false;
+                totalInput.readOnly = true;
+                if (weightInput) {
+                    weightInput.readOnly = false;
+                }
+                updateTotal();
+            } else {
+                [healthyInput, moribundInput, harvestInput, totalInput].forEach(function (input) {
+                    input.value = '';
+                    input.readOnly = false;
+                });
+                if (weightInput) {
+                    weightInput.value = '';
+                    weightInput.readOnly = false;
+                }
+                if (lengthInput) {
+                    lengthInput.value = '';
+                }
+            }
+        }
+
+        select.addEventListener('change', function () {
+            applyState(this.value);
+        });
+
+        applyState(select.value);
+
+    });
+
+    function getRows() {
+        return Array.from(document.querySelectorAll('.csv-row'));
+    }
+
+    function clearFormsetRows() {
+        const rows = getRows();
+        rows.forEach(function (row) {
+            const inputs = Array.from(row.querySelectorAll('input, select, textarea'));
+            inputs.forEach(function (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = false;
+                } else {
+                    field.value = '';
+                }
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let current = '';
+        let row = [];
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i += 1) {
+            const char = text[i];
+            const next = text[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && next === '"') {
+                    current += '"';
+                    i += 1;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
+
+            if (!inQuotes && char === ',') {
+                row.push(current.trim());
+                current = '';
+                continue;
+            }
+
+            if (!inQuotes && (char === '\n' || char === '\r')) {
+                if (char === '\r' && next === '\n') {
+                    i += 1;
+                }
+                row.push(current.trim());
+                if (row.some(function (cell) { return cell !== ''; })) {
+                    rows.push(row);
+                }
+                row = [];
+                current = '';
+                continue;
+            }
+
+            current += char;
+        }
+
+        if (current.length || row.length) {
+            row.push(current.trim());
+            if (row.some(function (cell) { return cell !== ''; })) {
+                rows.push(row);
+            }
+        }
+
+        return rows;
+    }
+
+    function isTruthy(value) {
+        const normalized = String(value || '').trim().toLowerCase();
+        return ['1', 'true', 'yes', 'y', 't'].includes(normalized);
+    }
+
+    function setFieldValue(field, value) {
+        if (!field) {
+            return;
+        }
+        if (field.type === 'checkbox') {
+            field.checked = isTruthy(value);
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+        field.value = value;
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function getRowFields(row) {
+        return {
+            species: row.querySelector('select[id*="species"]'),
+            harvest: row.querySelector('input[id*="harvest_cnt"]'),
+            healthy: row.querySelector('input[id*="rel_healthy_cnt"]'),
+            moribund: row.querySelector('input[id*="rel_moribund_cnt"]'),
+            total: row.querySelector('input[id*="total_cnt"]'),
+            weight: row.querySelector('input[id*="reported_weight_lb"]'),
+            length: row.querySelector('input[id*="reported_mean_length_in"]')
+        };
+    }
+
+    function setCsvStatus(message, isError) {
+        if (!csvStatus) {
+            return;
+        }
+        csvStatus.textContent = message;
+        csvStatus.classList.toggle('text-danger', Boolean(isError));
+        csvStatus.classList.toggle('text-muted', !isError);
+    }
+
+    function getColumnOrder() {
+        const defaultOrder = [
+            'species',
+            'harvest_cnt',
+            'rel_healthy_cnt',
+            'rel_moribund_cnt',
+            'total_cnt',
+            'reported_weight_lb',
+            'reported_mean_length_in'
+        ];
+        const allowed = new Set(defaultOrder);
+        if (!csvColumnMap || !csvColumnMap.value.trim()) {
+            return { order: defaultOrder, error: '' };
+        }
+
+        const order = csvColumnMap.value
+            .split(',')
+            .map(function (value) { return value.trim(); })
+            .filter(function (value) { return value.length; });
+
+        const invalid = order.filter(function (value) { return !allowed.has(value); });
+        if (invalid.length) {
+            return { order: [], error: 'Unknown columns: ' + invalid.join(', ') };
+        }
+
+        const seen = new Set();
+        const duplicates = order.filter(function (value) {
+            if (seen.has(value)) {
+                return true;
+            }
+            seen.add(value);
+            return false;
+        });
+        if (duplicates.length) {
+            return { order: [], error: 'Duplicate columns: ' + Array.from(new Set(duplicates)).join(', ') };
+        }
+
+        return { order: order, error: '' };
+    }
+
+    function loadCsvIntoFormset(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length <= 1) {
+            setCsvStatus('No data rows found.', true);
+            return;
+        }
+
+        if (csvClearExisting && csvClearExisting.checked) {
+            clearFormsetRows();
+        }
+
+        const dataRows = rows.slice(1);
+        const mapping = getColumnOrder();
+        if (mapping.error) {
+            setCsvStatus(mapping.error, true);
+            return;
+        }
+        const columnOrder = mapping.order;
+        const formRows = getRows();
+        if (!formRows.length) {
+            setCsvStatus('No form rows found.', true);
+            return;
+        }
+
+        const loadCount = Math.min(dataRows.length, formRows.length);
+        for (let i = 0; i < loadCount; i += 1) {
+            const row = formRows[i];
+            const fields = getRowFields(row);
+            columnOrder.forEach(function (columnName, colIndex) {
+                const value = dataRows[i][colIndex] || '';
+                if (columnName === 'species') {
+                    setFieldValue(fields.species, value);
+                } else if (columnName === 'harvest_cnt') {
+                    setFieldValue(fields.harvest, value);
+                } else if (columnName === 'rel_healthy_cnt') {
+                    setFieldValue(fields.healthy, value);
+                } else if (columnName === 'rel_moribund_cnt') {
+                    setFieldValue(fields.moribund, value);
+                } else if (columnName === 'total_cnt') {
+                    setFieldValue(fields.total, value);
+                } else if (columnName === 'reported_weight_lb') {
+                    setFieldValue(fields.weight, value);
+                } else if (columnName === 'reported_mean_length_in') {
+                    setFieldValue(fields.length, value);
+                }
+            });
+        }
+
+        if (dataRows.length > formRows.length) {
+            setCsvStatus('Loaded ' + loadCount + ' rows. ' + (dataRows.length - loadCount) + ' row(s) ignored.', false);
+        } else {
+            setCsvStatus('Loaded ' + loadCount + ' rows.', false);
+        }
+    }
+
+    if (csvLoadButton && csvFileInput) {
+        csvLoadButton.addEventListener('click', function () {
+            if (!csvFileInput.files || !csvFileInput.files.length) {
+                setCsvStatus('Select a CSV file first.', true);
+                return;
+            }
+            const file = csvFileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const text = event.target && event.target.result ? String(event.target.result) : '';
+                loadCsvIntoFormset(text);
+            };
+            reader.onerror = function () {
+                setCsvStatus('Unable to read the CSV file.', true);
+            };
+            reader.readAsText(file);
+        });
+    }
+});
+</script>
+
+{% endblock extra_javascript %}

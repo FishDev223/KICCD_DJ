@@ -1,0 +1,302 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Filter ICHP Results{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='ICHP - Effort & Harvest Summary' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Filtered ICHP Results (Effort & Harvest)</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Filterable ICHP Results</h4>
+        </div>
+        <div class="card-body">
+            <form id="ichp-filter-form" class="row g-1 align-items-end">
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ichp-filter-year" class="form-select" name="year">
+                            <option value="">...</option>
+                            {% for year in year_options %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-year" class="form-label">YEAR</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ichp-filter-basin" class="form-select" name="basin">
+                            <option value="">...</option>
+                            {% for basin in basin_options %}
+                            <option value="{{ basin.basin_id }}">{{ basin.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-basin" class="form-label">BASIN</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ichp-filter-pool" class="form-select" name="pool">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                            <option value="{{ pool.pool_id }}">{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-pool" class="form-label">POOL</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ichp-filter-site" class="form-select" name="site">
+                            <option value="">...</option>
+                            {% for site in site_options %}
+                            <option value="{{ site.site_id }}">{{ site.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-site" class="form-label">SITE</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ichp-filter-month" class="form-select" name="month">
+                            <option value="">...</option>
+                            {% for month in month_options %}
+                            <option value="{{ month.ic_month1 }}">{{ month.ic_mon }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-month" class="form-label">MONTH</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ichp-filter-season" class="form-select" name="season">
+                            <option value="">...</option>
+                            {% for season in season_options %}
+                            <option value="{{ season }}">{{ season }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-season" class="form-label">SEASON</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ichp-filter-fisher" class="form-select" name="fisher">
+                            <option value="">...</option>
+                            {% for fisher in fisher_options %}
+                            <option value="{{ fisher.fisher_id }}">{{ fisher.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ichp-filter-fisher" class="form-label">FISHER</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ichp-filter-observed" class="form-select" name="observed">
+                            <option value="exclude" selected>Excluded</option>
+                            <option value="all">Included</option>
+                            <option value="only">Only</option>
+                        </select>
+                        <label for="ichp-filter-observed" class="form-label">OBSERVED?</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="row g-2 justify-content-center mt-1">
+                        <div class="col-6 col-md-2">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">APPLY</button>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <button type="button" id="ichp-filter-reset" class="btn btn-sm btn-secondary w-100">RESET</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="mt-4" id="ichp-effort-results">
+                <div class="alert alert-light mb-0"><em>Select filters and click "APPLY" to view results.</em></div>
+            </div>
+
+            <div class="mt-3" id="ichp-targeted-results"></div>
+
+            <div class="mt-3" id="ichp-species-accordion">
+                <div class="accordion" id="ichp-species-accordion-items">
+                    {% for species in species_options %}
+                    <div class="accordion-item ichp-species-item" data-species-id="{{ species.spp_id }}" data-species-name="{{ species.name }}">
+                        <h2 class="accordion-header" id="ichp-species-header-{{ species.spp_id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ichp-species-body-{{ species.spp_id }}" aria-expanded="false" aria-controls="ichp-species-body-{{ species.spp_id }}">
+                                {{ species.name }}
+                            </button>
+                        </h2>
+                        <div id="ichp-species-body-{{ species.spp_id }}" class="accordion-collapse collapse" aria-labelledby="ichp-species-header-{{ species.spp_id }}" data-bs-parent="#ichp-species-accordion-items">
+                            <div class="accordion-body"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    const integerFormatter = new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 0
+    });
+    const oneDecimalFormatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+    });
+
+    const formatValue = value => {
+        if (value === null || value === undefined || value === '') {
+            return 'N/A';
+        }
+        const num = Number(value);
+        if (Number.isNaN(num)) {
+            return value;
+        }
+        return integerFormatter.format(num);
+    };
+ 
+    const formatOneDecimal = value => {
+        if (value === null || value === undefined || value === '') {
+            return 'N/A';
+        }
+        const num = Number(value);
+        if (Number.isNaN(num)) {
+            return value;
+        }
+        return oneDecimalFormatter.format(num);
+    };
+ 
+    const renderEffortCard = stats => `
+        <div class="card border">
+            <div class="card-header bg-light">
+                <strong>ICHP Fishing Efforts</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-2 p-2 ms-md-2 align-items-center">
+                    <div class="col-12 col-md-3 mb-1"><strong>Fishers:</strong> ${formatValue(stats.fisher_count)}</div>
+                    <div class="col-12 col-md-3 mb-1"><strong>Fishing Days:</strong> ${formatValue(stats.fisher_day_count)}</div>
+                    <div class="col-12 col-md-3 mb-1"><strong>Net Count:</strong> ${formatValue(stats.net_count)}</div>
+                    <div class="col-12 col-md-3 mb-1"><strong>Total Net Ft:</strong> ${formatValue(stats.total_net_length)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const renderTargetedHarvestCard = (stats, title) => `
+        <div class="card border">
+            <div class="card-header bg-light">
+                <strong>${title}</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-2 p-2 ms-md-2 align-items-center">
+                    <div class="col-12 col-md-4 mb-1"><strong>Harvest Total:</strong> ${formatValue(stats.harvest_count)}</div>
+                    <div class="col-12 col-md-4 mb-1"><strong>Total Weight (lb):</strong> ${formatOneDecimal(stats.total_weight_lb)}</div>
+                    <div class="col-12 col-md-4 mb-1"><strong>Total Weight (kg):</strong> ${formatOneDecimal(stats.total_weight_kg)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const renderSpeciesHarvestCard = (stats, title) => `
+		<div class="row g-2 p-2 ms-md-2 align-items-center">
+			<div class="col-12 col-md-2 mb-1"><strong>Harvest Total:</strong> ${formatValue(stats.harvest_count)}</div>
+			<div class="col-12 col-md-2 mb-1"><strong>Healthy C&R:</strong> ${formatValue(stats.rel_healthy_count)}</div>
+			<div class="col-12 col-md-2 mb-1"><strong>Moribund C&R:</strong> ${formatValue(stats.rel_moribund_count)}</div>
+			<div class="col-12 col-md-3 mb-1"><strong>Total Weight (lb):</strong> ${formatOneDecimal(stats.total_weight_lb)}</div>
+			<div class="col-12 col-md-3 mb-1"><strong>Total Weight (kg):</strong> ${formatOneDecimal(stats.total_weight_kg)}</div>
+		</div>
+    `;
+
+    const loadEffortStats = (params, targetEl) => {
+        const url = '{% url "kiccd_app:ichp_effort_stats" %}?' + params.toString();
+        $(targetEl).html('<div class="alert alert-secondary mb-0">Loading effort stats...</div>');
+
+        return fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data || !data.data || !data.data.stats) {
+                    $(targetEl).html('<div class="alert alert-warning mb-0">No data returned.</div>');
+                    return;
+                }
+                $(targetEl).html(renderEffortCard(data.data.stats));
+            })
+            .catch(() => {
+                $(targetEl).html('<div class="alert alert-danger mb-0">Failed to load effort stats.</div>');
+            });
+    };
+
+    const loadHarvestStats = (params, targetEl, title, renderer) => {
+        const url = '{% url "kiccd_app:ichp_harvest_stats" %}?' + params.toString();
+        $(targetEl).html('<div class="alert alert-secondary mb-0">Loading harvest stats...</div>');
+
+        return fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data || !data.data || !data.data.stats) {
+                    $(targetEl).html('<div class="alert alert-warning mb-0">No data returned.</div>');
+                    return;
+                }
+                $(targetEl).html(renderer(data.data.stats, title));
+            })
+            .catch(() => {
+                $(targetEl).html('<div class="alert alert-danger mb-0">Failed to load harvest stats.</div>');
+            });
+    };
+
+    const applyFilters = () => {
+        const params = new URLSearchParams($('#ichp-filter-form').serialize());
+
+        loadEffortStats(params, '#ichp-effort-results');
+
+        const targetedParams = new URLSearchParams(params.toString());
+        targetedParams.set('targeted_only', '1');
+        loadHarvestStats(targetedParams, '#ichp-targeted-results', 'Invasive Carp Harvest', renderTargetedHarvestCard);
+
+        $('.ichp-species-item').each(function () {
+            const speciesId = $(this).data('species-id');
+            const speciesName = $(this).data('species-name');
+            const speciesParams = new URLSearchParams(params.toString());
+            speciesParams.set('species', speciesId);
+            const body = $(this).find('.accordion-body');
+            loadHarvestStats(speciesParams, body, `${speciesName} Harvest`, renderSpeciesHarvestCard);
+        });
+    };
+
+    $('#ichp-filter-form').on('submit', function (event) {
+        event.preventDefault();
+        applyFilters();
+    });
+
+    $('#ichp-filter-reset').on('click', function () {
+        const form = document.getElementById('ichp-filter-form');
+        if (form) {
+            form.reset();
+        }
+
+        $('#ichp-effort-results').html(
+            '<div class="alert alert-light mb-0"><em>Select filters and click "APPLY" to view results.</em></div>'
+        );
+        $('#ichp-targeted-results').html('<div></div>');
+        $('.ichp-species-item .accordion-body').html(
+            '<div class="alert alert-light mb-0">Select filters and click "APPLY" to view species stats.</div>'
+        );
+    });
+});
+</script>
+{% endblock extra_javascript %}

@@ -1,0 +1,135 @@
+{% extends 'kiccd_app/vertical.html' %}
+{% load static %}
+
+{% block title %}New Crew{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='New Crew Leader' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex">
+                <div class="row g-2 mb-0 w-100">
+                    <h5 class="d-none d-md-block text-muted mb-0">Add a new field crew leader by providing the following information...</h5>
+                    <h4 class="d-block d-md-none mb-0 text-center">Add a New Agency Crew Leader</h4>
+                </div>
+            </div>
+
+            <div class="card-body p-3">
+
+                {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-1">
+                        <div class="col-md-10 offset-md-1 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                            <div class="form-floating">
+                                {{ form.leader }}
+                                <label for="id_leader" class="form-label">FULL NAME</label>
+                            </div>
+                            {% if form.leader.errors %}
+                                <div class="text-danger small">{{ form.leader.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+					<div class="row g-1">
+                        <div class="col-md-3 offset-md-1 mb-0 mt-1 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+							<div class="form-floating">
+                                {{ form.agency }}
+                                <label for="id_agency" class="form-label">AGENCY</label>
+                            </div>
+                            {% if form.agency.errors %}
+                                <div class="text-danger small">{{ form.agency.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-7 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+							<div class="form-floating">
+                                {{ form.office }}
+                                <label for="id_office" class="form-label">OFFICE</label>
+                            </div>
+                            {% if form.office.errors %}
+                                <div class="text-danger small">{{ form.office.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-success">CREATE</button>
+                        <div>
+                            <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                            <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const agencySelect = document.getElementById('id_agency');
+    const officeSelect = document.getElementById('id_office');
+    officeSelect.disabled = true;
+    // if (!agencySelect || !officeSelect) return;
+
+    // URL with placeholder 0; we'll replace the '0' segment with the selected id
+    const baseUrl = "{% url 'kiccd_app:api_offices_by_agency' 0 %}";
+    function buildUrl(id){
+        return baseUrl.replace('/0/','/'+id+'/');
+    }
+
+    function clearOptions(){
+        officeSelect.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.text = '...';
+        officeSelect.appendChild(opt);
+        // officeSelect.disabled = true;
+    }
+
+    agencySelect.addEventListener('change', function(){
+        const agencyId = this.value;
+        if (!agencyId){
+            clearOptions();
+            return;
+        }
+        fetch(buildUrl(agencyId))
+            .then(r => r.json())
+            .then(data => {
+                officeSelect.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.text = '...';
+                officeSelect.appendChild(placeholder);
+                (data.offices || []).forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.id;
+                    opt.text = o.name;
+                    officeSelect.appendChild(opt);
+                });
+                officeSelect.disabled = false;
+            })
+            .catch(() => clearOptions());
+    });
+
+    // populate on load if an agency is pre-selected
+    if (agencySelect.value) {
+        agencySelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock extra_javascript %}

@@ -1,0 +1,487 @@
+{% extends 'kiccd_app/vertical.html' %}
+{% load static %}
+
+{% block title %}Site Check{% endblock title %}
+
+{% block extra_css %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<style>
+    #check-map { width: 100%; height: 65vh; min-height: 420px; cursor: crosshair; }
+    .mapboxgl-popup-content { padding: 10px 14px; font-size: 0.85rem; }
+</style>
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Site Check' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-12">
+
+        <div class="card-header border-bottom border-dashed">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3 col-sm-6">
+                    <div class="form-floating">
+                        <input type="number" id="latInput" class="form-control" placeholder="Latitude"
+                               step="any" min="-90" max="90">
+                        <label class="form-label" for="latInput">LATITUDE</label>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="form-floating">
+                        <input type="number" id="lngInput" class="form-control" placeholder="Longitude"
+                               step="any" min="-180" max="180">
+                        <label class="form-label" for="lngInput">LONGITUDE</label>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-end gap-2">
+                    <button id="goBtn" type="button" class="btn btn-primary text-nowrap"
+                            style="height:calc(3.5rem + 2px);"
+                            title="Plot coordinates">
+                        <i class="ti ti-map-pin me-1"></i>Plot
+                    </button>
+                    <button id="locBtn" type="button" class="btn btn-outline-secondary text-nowrap"
+                            style="height:calc(3.5rem + 2px);"
+                            title="Use my current location">
+                        <i class="ti ti-current-location me-1"></i>My Location
+                    </button>
+                    <button id="clearBtn" type="button" class="btn btn-outline-danger"
+                            style="height:calc(3.5rem + 2px);width:calc(3.5rem + 2px);"
+                            title="Clear">
+                        <i class="ti ti-x"></i>
+                    </button>
+                    <div class="d-flex align-items-center gap-1 ms-2" style="height:calc(3.5rem + 2px);">
+                        <input class="form-check-input mt-0" type="checkbox" id="huc12Toggle"
+                               title="Enable HUC12 / HUC10 / HUC8 lookup">
+                        <label class="form-check-label text-nowrap" for="huc12Toggle"
+                               style="cursor:pointer;">HUC Lookup?</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div id="check-map"></div>
+            <div id="infoPanel" class="d-none border-top px-3 py-2 small">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+                    <div class="d-flex flex-wrap gap-x-4 gap-2" style="column-gap:1.5rem;">
+                        <div>
+                            <span class="text-muted">Lat: </span>
+                            <span id="infoLat" class="fw-semibold"></span>
+                        </div>
+                        <div>
+                            <span class="text-muted">Lon: </span>
+                            <span id="infoLng" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoStateRow" class="d-none">
+                            <span class="text-muted">State: </span>
+                            <span id="infoState" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoCountyRow" class="d-none">
+                            <span class="text-muted">County: </span>
+                            <span id="infoCounty" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoBasinRow" class="d-none">
+                            <span class="text-muted">Basin: </span>
+                            <span id="infoBasin" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoPoolRow" class="d-none">
+                            <span class="text-muted">Pool: </span>
+                            <span id="infoPool" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoTribRow" class="d-none">
+                            <span class="text-muted">Tributary: </span>
+                            <span id="infoTrib" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoHuc8Row" class="d-none">
+                            <span class="text-muted">HUC8: </span>
+                            <span id="infoHuc8" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoHuc10Row" class="d-none">
+                            <span class="text-muted">HUC10: </span>
+                            <span id="infoHuc10" class="fw-semibold"></span>
+                        </div>
+                        <div id="infoHuc12Row" class="d-none">
+                            <span class="text-muted">HUC12: </span>
+                            <span id="infoHuc12" class="fw-semibold"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <button id="copyBtn" type="button" class="btn btn-outline-secondary btn-sm text-nowrap"
+                                title="Copy lat, lon to clipboard">
+                            <i class="ti ti-clipboard-copy me-1"></i>Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+    if (!MAPBOX_TOKEN) {
+        document.getElementById('check-map').innerHTML =
+            '<div class="p-4 text-danger">Mapbox token is not configured.</div>';
+        return;
+    }
+
+    // --- Map init ---
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    const map = new mapboxgl.Map({
+        container: 'check-map',
+        style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+        center: [-85.5, 37.8],
+        zoom: 6,
+    });
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
+    // --- DOM refs ---
+    const latInput  = document.getElementById('latInput');
+    const lngInput  = document.getElementById('lngInput');
+    const goBtn     = document.getElementById('goBtn');
+    const locBtn    = document.getElementById('locBtn');
+    const clearBtn  = document.getElementById('clearBtn');
+    const infoPanel   = document.getElementById('infoPanel');
+    const copyBtn      = document.getElementById('copyBtn');
+    const huc12Toggle  = document.getElementById('huc12Toggle');
+
+    // --- Info panel field helper ---
+    function setInfoField(rowId, spanId, value) {
+        const row  = document.getElementById(rowId);
+        const span = document.getElementById(spanId);
+        if (!row || !span) return;
+        if (value) {
+            span.textContent = value;
+            row.classList.remove('d-none');
+        } else {
+            row.classList.add('d-none');
+            span.textContent = '';
+        }
+    }
+
+    // --- Boundary API URLs & caches ---
+    const POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
+    const BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
+    const TRIB_BOUNDS_URL  = "{% url 'kiccd_app:api_trib_boundaries' %}";
+    const HUC12_BOUNDS_URL = "{% url 'kiccd_app:api_huc12_boundaries' %}";
+    let poolCache  = null;
+    let basinCache = null;
+    var tribCacheMap = {};   // keyed by 'b{basin_id}_p{pool_id}' — avoids re-fetching same filtered set
+    let huc12Cache = null;
+
+    function fetchPoolBoundaries() {
+        if (poolCache !== null) return Promise.resolve(poolCache);
+        return fetch(POOL_BOUNDS_URL)
+            .then(function (r) { return r.json(); })
+            .then(function (d) { poolCache = d.features || []; return poolCache; })
+            .catch(function () { poolCache = []; return []; });
+    }
+
+    function fetchBasinBoundaries() {
+        if (basinCache !== null) return Promise.resolve(basinCache);
+        return fetch(BASIN_BOUNDS_URL)
+            .then(function (r) { return r.json(); })
+            .then(function (d) { basinCache = d.features || []; return basinCache; })
+            .catch(function () { basinCache = []; return []; });
+    }
+
+    function fetchTribBoundaries() {
+        if (tribCacheMap['all'] !== undefined) return Promise.resolve(tribCacheMap['all']);
+        return fetch(TRIB_BOUNDS_URL)
+            .then(function (r) { return r.json(); })
+            .then(function (d) { tribCacheMap['all'] = d.features || []; return tribCacheMap['all']; })
+            .catch(function () { tribCacheMap['all'] = []; return []; });
+    }
+
+    // Fetch only the trib boundaries for a specific basin/pool — results are
+    // cached per basin+pool key so repeat lookups in the same area are instant.
+    function fetchFilteredTribBoundaries(basinId, poolId) {
+        var key = 'b' + (basinId != null ? basinId : '') + '_p' + (poolId != null ? poolId : '');
+        if (tribCacheMap[key] !== undefined) return Promise.resolve(tribCacheMap[key]);
+        var url = TRIB_BOUNDS_URL;
+        var params = [];
+        if (basinId != null) params.push('basin_id=' + basinId);
+        if (poolId  != null) params.push('pool_id='  + poolId);
+        if (params.length)   url += '?' + params.join('&');
+        return fetch(url)
+            .then(function (r) { return r.json(); })
+            .then(function (d) { tribCacheMap[key] = d.features || []; return tribCacheMap[key]; })
+            .catch(function () { tribCacheMap[key] = []; return []; });
+    }
+
+    function fetchHuc12Boundaries() {
+        if (huc12Cache !== null) return Promise.resolve(huc12Cache);
+        return fetch(HUC12_BOUNDS_URL)
+            .then(function (r) { return r.json(); })
+            .then(function (d) { huc12Cache = d.features || []; return huc12Cache; })
+            .catch(function () { huc12Cache = []; return []; });
+    }
+
+    // --- Location lookups ---
+    function lookupLocation(lat, lng) {
+        var la = parseFloat(lat);
+        var lo = parseFloat(lng);
+        if (isNaN(la) || isNaN(lo)) return;
+
+        // Clear derived fields while new lookups run
+        ['infoStateRow', 'infoCountyRow', 'infoBasinRow', 'infoPoolRow', 'infoTribRow',
+         'infoHuc12Row', 'infoHuc10Row', 'infoHuc8Row'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.add('d-none');
+        });
+
+        // --- Shared point-in-polygon helper (try/catch per feature so one bad
+        //     geometry can't abort the whole search)
+        function findContaining(features, pt) {
+            for (var i = 0; i < features.length; i++) {
+                var f = features[i];
+                if (!f.geometry) continue;
+                try {
+                    if (window.turf.booleanPointInPolygon(pt, f)) return f;
+                } catch (e) { /* skip malformed feature */ }
+            }
+            return null;
+        }
+
+        // Step 1: Basin + Pool in parallel (small boundary sets, fast).
+        // Step 2: Once both IDs are known, fetch only the tribs that belong to
+        //         that basin/pool — the DB does the filtering so the response
+        //         payload is tiny.
+        Promise.all([fetchBasinBoundaries(), fetchPoolBoundaries()])
+        .then(function (results) {
+            if (!window.turf) return Promise.resolve([]);
+            var pt = window.turf.point([lo, la]);
+
+            var basinMatch = findContaining(results[0], pt);
+            setInfoField('infoBasinRow', 'infoBasin', basinMatch ? basinMatch.properties.name : null);
+
+            var poolMatch = findContaining(results[1], pt);
+            setInfoField('infoPoolRow', 'infoPool', poolMatch ? poolMatch.properties.name : null);
+
+            var basinId = basinMatch ? basinMatch.properties.basin_id : null;
+            var poolId  = poolMatch  ? poolMatch.properties.pool_id   : null;
+
+            // If neither matched there is no trib to find either
+            if (basinId == null && poolId == null) {
+                setInfoField('infoTribRow', 'infoTrib', null);
+                return Promise.resolve([]);
+            }
+
+            return fetchFilteredTribBoundaries(basinId, poolId);
+        })
+        .then(function (tribFeatures) {
+            if (!tribFeatures || !tribFeatures.length || !window.turf) return;
+            var pt       = window.turf.point([lo, la]);
+            var tribMatch = findContaining(tribFeatures, pt);
+            setInfoField('infoTribRow', 'infoTrib', tribMatch ? tribMatch.properties.name : null);
+        })
+        .catch(function (e) { console.error('Basin/Pool/Trib lookup failed:', e); });
+
+        // HUC12 / HUC10 / HUC8 (only when toggle is enabled)
+        if (huc12Toggle && huc12Toggle.checked) {
+            fetchHuc12Boundaries().then(function (features) {
+                if (!features.length || !window.turf) return;
+                var match = findContaining(features, window.turf.point([lo, la]));
+                setInfoField('infoHuc12Row', 'infoHuc12', match ? match.properties.huc12_name : null);
+                setInfoField('infoHuc10Row', 'infoHuc10', match ? match.properties.huc10_name : null);
+                setInfoField('infoHuc8Row',  'infoHuc8',  match ? match.properties.huc8_name  : null);
+            }).catch(function (e) { console.error('HUC12 boundary lookup failed:', e); });
+        }
+
+        // State & County via reverse geocoding
+        var geocodeUrl = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
+            + lo + ',' + la
+            + '.json?types=region%2Cdistrict&access_token=' + MAPBOX_TOKEN;
+        fetch(geocodeUrl)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var stateAbbrev = null;
+                var countyName  = null;
+                (data.features || []).forEach(function (f) {
+                    if (f.place_type.indexOf('region') !== -1
+                            && f.properties && f.properties.short_code) {
+                        var parts = f.properties.short_code.split('-');
+                        stateAbbrev = parts[parts.length - 1].toUpperCase();
+                    }
+                    if (f.place_type.indexOf('district') !== -1 && f.text) {
+                        countyName = f.text
+                            .replace(/ County$/i,       '')
+                            .replace(/ Parish$/i,       '')
+                            .replace(/ Borough$/i,      '')
+                            .replace(/ Census Area$/i,  '')
+                            .replace(/ Municipality$/i, '')
+                            .trim();
+                    }
+                });
+                setInfoField('infoStateRow',  'infoState',  stateAbbrev);
+                setInfoField('infoCountyRow', 'infoCounty', countyName);
+            })
+            .catch(function () {});
+    }
+
+    // --- State ---
+    let marker = null;
+    let popup  = null;
+
+    // --- Place marker ---
+    function placeMarker(lat, lng) {
+        var la = parseFloat(lat);
+        var lo = parseFloat(lng);
+        if (isNaN(la) || isNaN(lo)) return;
+
+        latInput.value = la.toFixed(6);
+        lngInput.value = lo.toFixed(6);
+
+        var popupHtml = '<div style="font-size:0.82rem;line-height:1.6">'
+            + '<strong>Lat:</strong> ' + la.toFixed(6) + '<br>'
+            + '<strong>Lon:</strong> ' + lo.toFixed(6)
+            + '</div>';
+
+        if (popup)  { popup.remove();  popup  = null; }
+        if (marker) { marker.remove(); marker = null; }
+
+        popup = new mapboxgl.Popup({ offset: 30, closeButton: true, maxWidth: '200px' })
+            .setHTML(popupHtml);
+
+        marker = new mapboxgl.Marker({ color: '#e6d00d', draggable: true })
+            .setLngLat([lo, la])
+            .setPopup(popup)
+            .addTo(map);
+
+        popup.addTo(map);
+
+        marker.on('dragend', function () {
+            var pos = marker.getLngLat();
+            latInput.value = pos.lat.toFixed(6);
+            lngInput.value = pos.lng.toFixed(6);
+            popup.setHTML('<div style="font-size:0.82rem;line-height:1.6">'
+                + '<strong>Lat:</strong> ' + pos.lat.toFixed(6) + '<br>'
+                + '<strong>Lon:</strong> ' + pos.lng.toFixed(6)
+                + '</div>');
+            updateInfoCoords(pos.lat, pos.lng);
+            lookupLocation(pos.lat, pos.lng);
+        });
+
+        map.flyTo({ center: [lo, la], zoom: 13, speed: 1.4 });
+        updateInfoCoords(la, lo);
+        lookupLocation(la, lo);
+    }
+
+    function updateInfoCoords(lat, lng) {
+        var la = parseFloat(lat);
+        var lo = parseFloat(lng);
+        document.getElementById('infoLat').textContent = la.toFixed(6);
+        document.getElementById('infoLng').textContent = lo.toFixed(6);
+        infoPanel.dataset.lat = la.toFixed(6);
+        infoPanel.dataset.lng = lo.toFixed(6);
+        infoPanel.classList.remove('d-none');
+    }
+
+    function clearAll() {
+        if (popup)  { popup.remove();  popup  = null; }
+        if (marker) { marker.remove(); marker = null; }
+        latInput.value = '';
+        lngInput.value = '';
+        infoPanel.classList.add('d-none');
+        ['infoStateRow', 'infoCountyRow', 'infoBasinRow', 'infoPoolRow', 'infoTribRow',
+         'infoHuc12Row', 'infoHuc10Row', 'infoHuc8Row'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.add('d-none');
+        });
+    }
+
+    // --- Map click ---
+    map.on('click', function (e) {
+        placeMarker(e.lngLat.lat, e.lngLat.lng);
+    });
+
+    // --- Plot button ---
+    goBtn.addEventListener('click', function () {
+        placeMarker(latInput.value, lngInput.value);
+    });
+
+    // --- Enter key in either input ---
+    [latInput, lngInput].forEach(function (el) {
+        el.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { placeMarker(latInput.value, lngInput.value); }
+        });
+    });
+
+    // --- My Location ---
+    locBtn.addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by this browser.');
+            return;
+        }
+        locBtn.disabled = true;
+        var origHtml = locBtn.innerHTML;
+        locBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Locating&hellip;';
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                placeMarker(pos.coords.latitude, pos.coords.longitude);
+                locBtn.disabled = false;
+                locBtn.innerHTML = origHtml;
+            },
+            function () {
+                alert('Unable to retrieve your location.');
+                locBtn.disabled = false;
+                locBtn.innerHTML = origHtml;
+            }
+        );
+    });
+
+    // --- Clear ---
+    clearBtn.addEventListener('click', clearAll);
+
+    // --- Copy ---
+    copyBtn.addEventListener('click', function () {
+        // Two-row TSV (header + values) — paste directly into Excel/spreadsheet
+        var fields = [
+            { label: 'Latitude',       value: infoPanel.dataset.lat || '' },
+            { label: 'Longitude',       value: infoPanel.dataset.lng || '' },
+            { label: 'State',     spanId: 'infoState'  },
+            { label: 'County',    spanId: 'infoCounty' },
+            { label: 'Basin',     spanId: 'infoBasin'  },
+            { label: 'Pool',      spanId: 'infoPool'   },
+            { label: 'Tributary', spanId: 'infoTrib'   },
+            { label: 'HUC8',      spanId: 'infoHuc8'   },
+            { label: 'HUC10',     spanId: 'infoHuc10'  },
+            { label: 'HUC12',     spanId: 'infoHuc12'  },
+        ];
+        var headers = [];
+        var values  = [];
+        fields.forEach(function (f) {
+            var val = (f.value !== undefined)
+                ? f.value
+                : ((document.getElementById(f.spanId) || {}).textContent || '').trim();
+            headers.push(f.label);
+            values.push(val);
+        });
+        var text = headers.join('\t') + '\n' + values.join('\t');
+        navigator.clipboard.writeText(text).then(function () {
+            var orig = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="ti ti-check me-1"></i>Copied!';
+            copyBtn.classList.replace('btn-outline-secondary', 'btn-success');
+            setTimeout(function () {
+                copyBtn.innerHTML = orig;
+                copyBtn.classList.replace('btn-success', 'btn-outline-secondary');
+            }, 2000);
+        });
+    });
+
+}());
+</script>
+{% endblock extra_javascript %}

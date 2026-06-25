@@ -1,0 +1,104 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Sampling Crews{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/2.3.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" integrity="sha384-zmMNeKbOwzvUmxN8Z/VoYM+i+cwyC14+U9lq4+ZL0Ro7p1GMoh8uq8/HvIBgnh9+" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/buttons/3.2.5/css/buttons.bootstrap5.min.css" rel="stylesheet" integrity="sha384-HI7qMf1hznIZrIds5RatHHAOCn/7uGgsYQCanIyCeJDebKwCnoWnm4cB9SH+Z/ab" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/fixedheader/4.0.5/css/fixedHeader.bootstrap5.min.css" rel="stylesheet" integrity="sha384-lS0jkAZhyUhxNq2ANCXWpF/ARfdfXrUvgWDYZjKbWIylNAm5rktrh7EQWnvYvX3j" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/keytable/2.12.2/css/keyTable.bootstrap5.min.css" rel="stylesheet" integrity="sha384-C74MMsrNjJFzEP9tqBu5EZZ2hLFMV161uHLM9pF5e5hp14W54ZRO02n4b6IAAAFK" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.bootstrap5.min.css" rel="stylesheet" integrity="sha384-seyUnB//1QOFEqox9uI7YTLBgz9jBwFRqZvsEPFrTw6NAsFEo70nhBWsQfODqiYA" crossorigin="anonymous">
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Agency Field Crews' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Sampling crews that participate in IC research projects.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Agency Sampling Crews</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:crew_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Field Crew</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> New Crew</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Crew Leader</th>
+                        <th>Agency</th>
+                        <th>Office</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for crew in crews %}
+                    <tr>
+                        <td>{{ crew.crew_id }}</td>
+                        <td>{{ crew.leader }}</td>
+                        <td>{{ crew.agency }}</td>
+                        <td>{{ crew.office.name }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No crews found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div> <!-- end card body-->
+    </div> <!-- end card -->
+</div> <!-- end row-->
+{% endblock page_content %}
+
+{% block extra_javascript %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    // Basin Datatable
+    $('#basic-datatable').DataTable({
+		order:[],
+        keys: true,
+        fixedHeader: true,
+        pageLength: 50,
+		lengthChange: false,
+		paging: false,
+		ordering: true,
+         layout: {
+		topStart: {search: {placeholder: 'Search'}},
+        topEnd: {buttons: ['copy', 'csv', 'pdf']},
+        bottomStart: 'info'
+        },      
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            }
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    table.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $(".dataTables_length select").addClass('form-select form-select-sm');
+    $(".dataTables_length label").addClass('form-label');
+});
+</script>
+{% endblock extra_javascript %}

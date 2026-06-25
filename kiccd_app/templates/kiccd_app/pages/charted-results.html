@@ -1,0 +1,43 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Charted and Graphs{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'css/apexcharts.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Charted and Graphs' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Charted and Graphs</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Charted and Graphs</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Info about a New <br> Contract Fishing Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> EFFORT</a>
+                <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add New Catch Data to <br>an Existing CF Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> CATCH</a>
+            </div>
+        </div>
+        <div class="card-body">
+            
+
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+ 
+{% block extra_javascript %}
+<script src="{% static 'js/apexcharts.min.js' %}"></script> <!-- ApexCharts JS -->
+<script>
+$(document).ready(function () {
+    "use strict";
+
+
+});
+</script>
+{% endblock extra_javascript %} 

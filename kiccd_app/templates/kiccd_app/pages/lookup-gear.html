@@ -1,0 +1,79 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Gear List{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/2.3.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" integrity="sha384-zmMNeKbOwzvUmxN8Z/VoYM+i+cwyC14+U9lq4+ZL0Ro7p1GMoh8uq8/HvIBgnh9+" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/buttons/3.2.5/css/buttons.bootstrap5.min.css" rel="stylesheet" integrity="sha384-HI7qMf1hznIZrIds5RatHHAOCn/7uGgsYQCanIyCeJDebKwCnoWnm4cB9SH+Z/ab" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/fixedheader/4.0.5/css/fixedHeader.bootstrap5.min.css" rel="stylesheet" integrity="sha384-lS0jkAZhyUhxNq2ANCXWpF/ARfdfXrUvgWDYZjKbWIylNAm5rktrh7EQWnvYvX3j" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/keytable/2.12.2/css/keyTable.bootstrap5.min.css" rel="stylesheet" integrity="sha384-C74MMsrNjJFzEP9tqBu5EZZ2hLFMV161uHLM9pF5e5hp14W54ZRO02n4b6IAAAFK" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.bootstrap5.min.css" rel="stylesheet" integrity="sha384-seyUnB//1QOFEqox9uI7YTLBgz9jBwFRqZvsEPFrTw6NAsFEo70nhBWsQfODqiYA" crossorigin="anonymous">
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Sampling Gear' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row">
+	<div class="col-2"></div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <p class="text-muted">
+					Different types of fish sampling gear.
+                </p>
+
+                <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Code</th>					
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for gear in gears %}
+                        <tr>
+                            <td>{{ gear.gear_id }}</td>
+                            <td>{{ gear.name }}</td>
+                            <td>{{ gear.code }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No gear found.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+					
+                </table>
+
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+    </div><!-- end col-->
+</div> <!-- end row-->
+
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js" integrity="sha384-VQb2IR8f6y3bNbMe6kK6H+edzCXdt7Z/3GtWA7zYzXcvfwYRR5rHGl46q28FbtsY" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.3.5/js/dataTables.bootstrap5.min.js" integrity="sha384-3BApNGXgbm9rg2kjIbaEVprAGb2B0n9QyLjBrH090WdkzZ3IiUv8RZoTh5uP8oWH" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js" integrity="sha384-nShWTydNlLNjbeTudrIIbT/2GtisYB0Hdmc1BMuBNdWRkXb5+pqyKRuZzrwmmDpa" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.bootstrap5.min.js" integrity="sha384-gUHKtNwDWTZzNL3AtaUES875ooIVf1iMuwWhklVW7Cdv9gAVUijYefPr+HPH7wjT" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.html5.min.js" integrity="sha384-XT65ZByvRGLJG18n96xtO3veM0VfqLVC8Meh+QKwvKGlX483Ei/l2ocUgQYvPR/0" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.print.min.js" integrity="sha384-SbNRDguI7TGChBvvLf/a66MngtndT7TOurCIAwfkiKkzbM/hAsUwaL4MBBOgYWnH" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/fixedheader/4.0.5/js/dataTables.fixedHeader.min.js" integrity="sha384-JxStvM0Ok+ArQDY+V0vVrAfklIxU02MThxg/bD2B9O+oCUvX+V81pERBBXASWUDR" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/keytable/2.12.2/js/dataTables.keyTable.min.js" integrity="sha384-G+rv7bKd5bT5j04gGhAjehDV9gQy4C4kavlQnvrn+kDmNyEirE+WzSDCMOEZf9i/" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js" integrity="sha384-0o8p0hBO3h/Z1wlhV3vP9DEFA1nf3vlr2N6yAtAfy0eDJJBgBPhIOG0GRO0FzOX5" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.bootstrap5.js" integrity="sha384-hyp/YDWGBMFqg7pJuS+y+2VWJkwnOyX+oMN9fWcxINo2flqjC/SdNaHj8LIV4zKJ" crossorigin="anonymous"></script>
+<script src="{% static 'js/lookup_short.js' %}"></script>
+
+{% endblock extra_javascript %}

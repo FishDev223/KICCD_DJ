@@ -1,0 +1,634 @@
+{% load static %}
+<!-- Sidenav Menu Start -->
+<div class="sidenav-menu">
+
+    <!-- Brand Logo -->
+    <a href="/" class="logo">
+        <span class="logo-light">
+            <span class="logo-lg"><img src="{% static 'images/logo.png' %}" alt="logo"></span>
+            <span class="logo-sm"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
+        </span>
+
+        <span class="logo-dark">
+            <span class="logo-lg"><img src="{% static 'images/logo-dark.png' %}" alt="dark logo"></span>
+            <span class="logo-sm"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
+        </span>
+    </a>
+
+    <!-- Sidebar Hover Menu Toggle Button -->
+    <button class="button-sm-hover">
+        <i class="ri-circle-line align-middle"></i>
+    </button>
+
+    <!-- Sidebar Menu Toggle Button -->
+    <button class="sidenav-toggle-button">
+        <i class="ri-menu-5-line fs-20"></i>
+    </button>
+
+    <!-- Full Sidebar Menu Close Button -->
+    <button class="button-close-fullsidebar">
+        <i class="ti ti-x align-middle"></i>
+    </button>
+
+    <div data-simplebar>
+        <ul class="side-nav">
+            <li class="side-nav-item">
+                <a href="/" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-home-9-line"></i></span>
+                    <span class="menu-text"> Home </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="{% url 'kiccd_app:project_list' %}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-folders-line"></i></span>
+                    <span class="menu-text"> Project List </span>
+                </a>
+            </li>
+
+            {% comment %} Agency Sampling Efforts {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sideAgencyWork" aria-expanded="false"
+                    aria-controls="sideAgencyWork" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-shield-star-line"></i></span>
+                    <span class="menu-text">Agency Sampling</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sideAgencyWork">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AddAgencyNew" aria-expanded="false"
+                                aria-controls="AddAgencyNew" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
+                                <span class="menu-text"> Add New... </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AddAgencyNew">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Field Efforts.">
+                                        <a href="{% url 'kiccd_app:ic_event_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">Field Effort</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Sampling Data.">
+                                        <a href="{% url 'kiccd_app:ic_catch_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">Catch Data</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Age & Growth Data.">
+                                        <a href="{% url 'kiccd_app:ic_age_growth_bulk_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">A&G Data</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#ViewAgencyData" aria-expanded="false"
+                                aria-controls="ViewAgencyData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-eye-line"></i></span>
+                                <span class="menu-text">View Data...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="ViewAgencyData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Filtered Data.">
+                                        <a href="{% url 'kiccd_app:ic_filtered' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Filtered Data </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Recent Efforts.">
+                                        <a href="{% url 'kiccd_app:recent_ic_events' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Recent Efforts </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Recent Catch.">
+                                        <a href="{% url 'kiccd_app:recent_ic_catch' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Recent Catch </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Sampling Data.">
+                                        <a href="{% url 'kiccd_app:ic_catch_list' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> All Catch </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Age & Growth Data.">
+                                        <a href="{% url 'kiccd_app:ic_age_growth_list' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> A&G Data </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AnalyzeICData" aria-expanded="false"
+                                aria-controls="AnalyzeICData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-line-chart-line"></i></span>
+                                <span class="menu-text">View Results...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AnalyzeICData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> A&G Analysis Results.">
+                                        <a href="{% url 'kiccd_app:ic_age_growth_length_at_age' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Length-at-Age </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Length Frequency Distributions.">
+                                        <a href="{% url 'kiccd_app:ic_length_dist' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Length Distribution </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li> 
+            
+            {% comment %} Contract Fishing Program {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sideContractFishing" aria-expanded="false"
+                    aria-controls="sideContractFishing" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-contract-line"></i></span>
+                    <span class="menu-text">Contract Fishing</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sideContractFishing">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AddCFNew" aria-expanded="false"
+                                aria-controls="AddCFNew" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
+                                <span class="menu-text"> Add New... </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AddCFNew">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Fishing Efforts.">
+                                        <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">Fishing Effort</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Contract Fishing Data.">
+                                        <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">CF Catch Data</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#ViewCFData" aria-expanded="false"
+                                aria-controls="ViewCFData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-eye-line"></i></span>
+                                <span class="menu-text">View Data...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="ViewCFData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Recent CF Efforts.">
+                                        <a href="{% url 'kiccd_app:recent_cf_events' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Recent Efforts </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Filterable CF Data.">
+                                        <a href="{% url 'kiccd_app:cf_report_filtered' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Filtered Data </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> All CF Data.<br>(<em>Long load time!</em>)">
+                                        <a href="{% url 'kiccd_app:cf_catch_list' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> All Harvest Data </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li> 
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AnalyzeCFData" aria-expanded="false"
+                                aria-controls="AnalyzeCFData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-line-chart-line"></i></span>
+                                <span class="menu-text">View Results...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AnalyzeCFData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Filterable CF Results.">
+                                        <a href="{% url 'kiccd_app:cf_filtered' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Filtered Results </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Contract Fishing Charts.">
+                                        <a href="{% url 'kiccd_app:cf_charted_results' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Monthly Charts </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Mean daily targeted catch rates by month.">
+                                        <a href="{% url 'kiccd_app:cf_daily_catch_rate' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Daily Catch Rates </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li> 
+
+            {% comment %} ICHP Ride-Alongs {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sideICHPRAFishing" aria-expanded="false"
+                    aria-controls="sideICHPRAFishing" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-ship-2-line"></i></span>
+                    <span class="menu-text">ICHP Ride-Alongs</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sideICHPRAFishing">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AddRANew" aria-expanded="false"
+                                aria-controls="AddRANew" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
+                                <span class="menu-text"> Add New... </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AddRANew">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> A Ride-Along Event.">
+                                        <a href="{% url 'kiccd_app:ra_event_set_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">RA Event</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Ride-Along Catch Data.">
+                                        <a href="{% url 'kiccd_app:ra_catch_batch_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">RA Catch</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#ViewRAData" aria-expanded="false"
+                                aria-controls="ViewRAData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-eye-line"></i></span>
+                                <span class="menu-text">View Data...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="ViewRAData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Filterable Ride-Along Effort and Catch Data.">
+                                        <a href="{% url 'kiccd_app:ra_report_filtered' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Filtered Data </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Recent RA Efforts.">
+                                        <a href="{% url 'kiccd_app:recent_ra_events' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Recent Events </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Ride-Along Catch Data.">
+                                        <a href="{% url 'kiccd_app:ra_catch_list' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> RA Catch Data </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li> 
+
+            {% comment %} Invasive Carp Harvest Program {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sideICHPFishing" aria-expanded="false"
+                    aria-controls="sideICHPFishing" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-archive-stack-line"></i></span>
+                    <span class="menu-text">ICHP Reports</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sideICHPFishing">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AddICHPNew" aria-expanded="false"
+                                aria-controls="AddICHPNew" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
+                                <span class="menu-text"> Add New... </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AddICHPNew">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="Add a Report via one form.<br> <em>Single Net Sets Only!</em>">
+                                        <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">Combined Entry</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Reported ICHP Effort.">
+                                        <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">Effort Only</span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Reported Catch Data.">
+                                        <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text text-center">Catch Only</span>
+                                        </a>    
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#ViewICHPData" aria-expanded="false"
+                                aria-controls="ViewICHPData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-eye-line"></i></span>
+                                <span class="menu-text">View Data...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="ViewICHPData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Recent ICHP Efforts.">
+                                        <a href="{% url 'kiccd_app:recent_ichp_events' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Recent Efforts </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> ICHP Catch Data.">
+                                        <a href="{% url 'kiccd_app:ichp_report_filtered' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Harvest Data </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AnalyzeICHPData" aria-expanded="false"
+                                aria-controls="AnalyzeICHPData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-line-chart-line"></i></span>
+                                <span class="menu-text">View Results...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AnalyzeICHPData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Filterable ICHP Results.">
+                                        <a href="{% url 'kiccd_app:ichp_filtered' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Filtered Results </span>
+                                        </a>
+                                    </li>
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Charted Harvest Totals.">
+                                        <a href="{% url 'kiccd_app:ichp_monthly_weight' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Monthly Harvest </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li> 
+
+            {% comment %} Multi-Project Subsamples {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sideSubsamples" aria-expanded="false"
+                    aria-controls="sideSubsamples" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-bring-forward"></i></span>
+                    <span class="menu-text"> Subsamples</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sideSubsamples">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>ADD</b></u> Fisher Subsample Data.">
+                            <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
+                                <span class="menu-text"> Add New Data </span>
+                            </a>
+                        </li>
+                       <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Filterable Subsample Data.">
+                            <a href="{% url 'kiccd_app:subsample_filtered' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-eye-line"></i></span>
+                                <span class="menu-text"> View SS Data </span>
+                            </a>
+                        </li>
+                        {% comment %} 
+                       <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Subsample LxW Data.">
+                            <a href="{% url 'kiccd_app:subsample_data' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-eye-line"></i></span>
+                                <span class="menu-text"> View Data </span>
+                            </a>
+                        </li> {% endcomment %}
+
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#AnalyzeSSData" aria-expanded="false"
+                                aria-controls="AnalyzeSSData" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-line-chart-line"></i></span>
+                                <span class="menu-text">View Results...</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse" id="AnalyzeSSData">
+                                <ul class="sub-menu">
+                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="<u><b>VIEW</b></u> Subsample Length Distribution.">
+                                        <a href="{% url 'kiccd_app:ss_length_dist' %}" class="side-nav-link">
+                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                            <span class="menu-text"> Len Distribution </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="{% url 'kiccd_app:site_map' %}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-road-map-line"></i></span>
+                    <span class="menu-text"> Site Map </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
+                <a href="{% url 'kiccd_app:site_check' %}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-crosshair-line"></i></span>
+                    <span class="menu-text"> Site Check </span>
+                </a>
+            </li>
+
+            {% comment %} Sampling/Fishing Site information {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarSites" aria-expanded="false"
+                    aria-controls="sidebarSites" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-pin-distance-line"></i></span>
+                    <span class="menu-text">Site Tables</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarSites">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:sample_sites' %}" class="side-nav-link">
+                                <span class="menu-text">Sampling Sites</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:cf_sites' %}" class="side-nav-link">
+                                <span class="menu-text">Fishing Sites (CF)</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:hp_sites' %}" class="side-nav-link">
+                                <span class="menu-text">Fishing Sites (ICHP)</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:trib_list' %}" class="side-nav-link">
+                                <span class="menu-text">Tributaries</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            {% comment %} Lookup Tables {% endcomment %}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#sidebarLookups" aria-expanded="false"
+                    aria-controls="sidebarLookups" class="side-nav-link">
+                    <span class="menu-icon"><i class="ri ri-menu-search-line"></i></span>
+                    <span class="menu-text">Lookup Tables</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="sidebarLookups">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:pool_list' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">OHR Pools</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:basin_list' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">River Basins</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:species_list' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">Fish Species</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:crew_list' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">Field Crews</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:fisher_list' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">Fishers</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:observer_list' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">Observers</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{% url 'kiccd_app:lookup_collections' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text">Other Tables</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<!-- Sidenav Menu End -->

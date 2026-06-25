@@ -1,0 +1,102 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Commercial/Contract Fishers{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/datetime/1.6.2/css/dataTables.dateTime.css" rel="stylesheet" integrity="sha384-7gVhgCBvVkFm8CjELsmoaaDJyWITKmo5b7imOimmD95IVzEyhS92YJ3jlcHfGc1l" crossorigin="anonymous">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='ICHP & Contract Fishers' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Fishers participating in the Contract Fishing and/or IC Harvest Programs.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">ICHP & Contract Fishers</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:fisher_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Fisher</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> FISHER</a>
+            </div>
+        </div>    
+        <div class="card-body">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Lookup Name</th>
+                        <th>Commercial License?</th>
+                        <th>Under Contract?</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for fisher in fishers %}
+                    <tr>
+                        <td>{{ fisher.fisher_id }}</td>
+                        <td>{{ fisher.name }}</td>
+                        <td>{{ fisher.lookup }}</td>
+                        <td>{{ fisher.commercial_license }}</td>
+                        <td>{{ fisher.contracted }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No fishers found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div> <!-- end card body-->
+    </div> <!-- end card -->
+</div> <!-- end row-->
+
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    // Default Datatable
+    $('#basic-datatable').DataTable({
+        order: [],
+        keys: true,
+        fixedHeader: true,
+        pageLength: 50,
+		lengthChange: false,
+		paging: false,
+		ordering: true,
+        layout: {
+		topStart: {search: {placeholder: 'Search'}},
+        topEnd: {buttons: ['copy', 'csv', 'pdf']},
+        bottomStart: 'info'
+        },    
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            }
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+});
+</script>
+
+{% endblock extra_javascript %}

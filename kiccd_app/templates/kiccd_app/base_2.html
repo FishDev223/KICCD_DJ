@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+ 
+<html lang="en" class="no-Translate" Translate="no">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0", shrink-to-fit=no>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+        <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+        {% block extra_head %}
+        {% endblock extra_head %}
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+       
+
+        <link href="{% static 'css/app.css' %}" rel="stylesheet" /> 
+        <link href="{% static 'css/vendor.min.css' %}" rel="stylesheet" />
+        <link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}">
+
+        <script src="{% static 'js/config.js' %}"></script> <!-- App config JS -->
+        <script src="{% static 'js/app.js' %}"></script>  <!-- App JS -->
+        <script src="{% static 'js/jquery.min.js' %}"></script>
+    </head>
+
+    <body>
+
+        <div class="container-fluid main-container">
+            {% block content %}
+            {% endblock content %}
+        </div>
+
+        {% block extra_scripts %}
+        {% endblock extra_scripts %}
+    </body>
+
+</html>

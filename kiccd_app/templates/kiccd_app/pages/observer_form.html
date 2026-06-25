@@ -1,0 +1,111 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}New Observer{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add a New Observer' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex">
+                <div class="row g-2 mb-0 w-100">
+                    <h5 class="d-none d-md-block text-muted mb-0">Add a new Agency observer by providing the following information...</h5>
+                    <h4 class="d-block d-md-none mb-0 text-center">Add a New Agency Observer</h4>
+                </div>
+            </div>
+            <div class="card-body p-3">
+
+                {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-1">
+                        <div class="col-md-10 offset-md-1 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                            <div class="form-floating">
+                                {{ form.first_name }}
+                                <label for="id_first_name" class="form-label">FIRST NAME</label>
+                            </div>
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small">{{ form.first_name.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-md-10 offset-md-1 mb-0 mt-1 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                            <div class="form-floating">
+                                {{ form.last_name }}
+                                <label for="id_last_name" class="form-label">LAST NAME</label>
+                            </div>
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small">{{ form.last_name.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-md-2 offset-md-1 mb-0 mt-1 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10"></div>
+                        <div class="col-md-6 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                            <div class="form-floating">
+                                {{ form.agency }}
+                                <label for="id_agency" class="form-label">AGENCY</label>
+                            </div>
+                            {% if form.agency.errors %}
+                                <div class="text-danger small">{{ form.agency.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10"></div>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-md-10 offset-md-1 mb-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                            <div class="accordion accordion-flush mb-2 mb-md-1" id="ObserverOptionalAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingOptional">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOptional" aria-expanded="false" aria-controls="collapseOptional">
+                                            <strong><u>Click to Add Optional Info</u></strong>
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOptional" class="accordion-collapse collapse" aria-labelledby="headingOptional" data-bs-parent="#ObserverOptionalAccordion">
+                                        <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                            <div class="row">
+                                                <div class="col-md-10 offset-md-1 mb-0 mb-md-0 mt-2 mt-md-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Full Name Override">
+                                                    <div class="form-floating">
+                                                        {{ form.name }}
+                                                        <label for="id_name" class="form-label">FULL NAME</label>
+                                                    </div>
+                                                    {% if form.name.errors %}
+                                                        <div class="text-danger small">{{ form.name.errors|striptags }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-success">CREATE</button>
+                        <div>
+                            <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                            <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}

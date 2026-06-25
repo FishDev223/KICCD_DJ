@@ -1,0 +1,70 @@
+{% extends "kiccd_app/base_2.html" %}
+{% load static %}
+
+{% block extra_head %}
+<title>You Logged Out of KICCD</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="row container-fluid mx-auto index-wrapper">
+        <div class="col px-0">
+            <header>
+                <div class="row index-header-row">
+                    <div class="col-1"></div>
+                    <div class="col-1"></div>
+                </div>
+            </header>
+            <div class="row index-content">
+                <div class='col-lg-2 text-middle'>
+                </div>
+                <div class='col-lg col-12 index-content-col text-center text-middle'>
+                    <img class="index-logo-full" src="{% static 'images/full_logo-light-270.png' %}" alt="KICCD Full Logo">
+                    <h1 class="pt-5">You are now logged out of KICCD!</h1>
+                    <p class="index-info-text">If this was not intentional, login again using the button below.</p>
+                    <a class="btn btn-secondary index-btn2" href="#" role="button" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+                </div>
+                <!-- Login Modal -->
+                <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form method="post" action="{% url 'kiccd_app:login' %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="loginModalLabel">Provide KICCD Login Credentials...</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class='col-lg-2'></div>
+            </div>
+          <footer>
+            <div class="row footer-row">
+            <div class="col footer-col text-center">
+            &copy; KDFWR - AIS Branch {{ current_year }} - Kentucky Invasive Carp Centralized Database (KICCD)
+            </div>
+            </div>
+          </footer>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js" integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock extra_scripts %}

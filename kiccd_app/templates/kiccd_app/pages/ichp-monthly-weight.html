@@ -1,0 +1,334 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}ICHP Monthly Weight{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'css/apexcharts.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='ICHP Monthly Harvest Weight' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <div>
+                <h5 class="d-none d-md-block text-muted mb-0">ICHP Total Reported Weight (lb) by Month</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">ICHP Monthly Weight</h4>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <form id="ichp-weight-filter-form" method="get" class="row g-2 align-items-end mb-3">
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="weight-filter-year" name="year" class="form-select">
+                            <option value="">...</option>
+                            {% for year in year_options %}
+                                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="weight-filter-year">YEAR</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="weight-filter-species" name="species" class="form-select">
+                            <option value="">...</option>
+                            <option value="targeted" {% if selected_species == 'targeted' %}selected{% endif %}>All Invasive Carp</option>
+                            {% for species in species_options %}
+                                <option value="{{ species.spp_id }}" {% if species.spp_id == selected_species %}selected{% endif %}>{{ species.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="weight-filter-species">SPECIES</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="weight-filter-fisher" name="fisher" class="form-select">
+                            <option value="">...</option>
+                            {% for fisher in fisher_options %}
+                                <option value="{{ fisher.fisher_id }}" {% if fisher.fisher_id == selected_fisher %}selected{% endif %}>{{ fisher }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="weight-filter-fisher">FISHER</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="weight-filter-basin" name="basin" class="form-select">
+                            <option value="">...</option>
+                            {% for basin in basin_options %}
+                                <option value="{{ basin.basin_id }}" {% if basin.basin_id == selected_basin %}selected{% endif %}>{{ basin.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="weight-filter-basin">BASIN</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="weight-filter-pool" name="pool" class="form-select">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                                <option value="{{ pool.pool_id }}" {% if pool.pool_id == selected_pool %}selected{% endif %}>{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="weight-filter-pool">POOL</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="weight-filter-site" name="site" class="form-select">
+                            <option value="">...</option>
+                            {% for site in site_options %}
+                                <option value="{{ site.site_id }}" {% if site.site_id == selected_site %}selected{% endif %}>{{ site.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="weight-filter-site">SITE</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="weight-filter-observed" name="observed" class="form-select">
+                            <option value="exclude" {% if selected_observed == 'exclude' or not selected_observed %}selected{% endif %}>Excluded</option>
+                            <option value="all" {% if selected_observed == 'all' %}selected{% endif %}>Included</option>
+                            <option value="only" {% if selected_observed == 'only' %}selected{% endif %}>Only</option>
+                        </select>
+                        <label for="weight-filter-observed">OBSERVED?</label>
+                    </div>
+                </div>
+
+
+                <div class="col-12 mt-2">
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-sm btn-primary px-4">APPLY</button>
+                        <a href="{% url 'kiccd_app:ichp_monthly_weight' %}" class="btn btn-sm btn-secondary px-4">RESET</a>
+                    </div>
+                </div>
+            </form>
+
+            {% if not form_submitted %}
+                <div class="alert alert-info mt-2">Select one or more filters and click APPLY to generate the chart.</div>
+            {% elif not has_data %}
+                <div class="alert alert-warning mt-2">No weight records matched the selected filters.</div>
+            {% endif %}
+
+            <div id="ichp-monthly-weight-chart" class="apex-charts {% if not has_data %}d-none{% endif %}" data-colors="#057FDD,#05C687,#DD9B1C,#A68D60,#6A54B8,#719064,#cf1515,#e67e22,#16a085,#8e44ad"></div>
+            {{ chart_data|json_script:"ichpMonthlyWeightChartData" }}
+            {{ table_rows|json_script:"ichpMonthlyWeightTableData" }}
+
+            <div class="accordion mt-4 {% if not has_data %}d-none{% endif %}" id="ichp-weight-accordion" {% if not has_data %}aria-hidden="true"{% endif %}>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="ichp-weight-table-heading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ichp-weight-table-collapse" aria-expanded="false" aria-controls="ichp-weight-table-collapse">
+                            Monthly Weight Data Table
+                            <span id="ichp-weight-record-badge" class="badge bg-primary ms-auto">Records: 0</span>
+                        </button>
+                    </h2>
+                    <div id="ichp-weight-table-collapse" class="accordion-collapse collapse" aria-labelledby="ichp-weight-table-heading" data-bs-parent="#ichp-weight-accordion">
+                        <div class="accordion-body">
+                            <div class="mb-2 d-flex gap-2">
+                                <button id="ichp-weight-csv-download" type="button" class="btn btn-sm btn-outline-primary" disabled>
+                                    <i class="ri-download-line align-middle me-1 fs-18"></i> CSV
+                                </button>
+                                <button id="ichp-weight-copy-table" type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="ri-file-copy-line align-middle me-1 fs-18"></i> Copy
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped table-bordered" id="ichp-weight-data-table">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Month</th>
+                                            <th>Total Weight (lb)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ichp-weight-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/apexcharts.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    const chartData = JSON.parse(document.getElementById('ichpMonthlyWeightChartData').textContent || '{}');
+    const tableData = JSON.parse(document.getElementById('ichpMonthlyWeightTableData').textContent || '[]');
+
+    const categories = chartData.categories || [];
+    const series = chartData.series || [];
+
+    const recordBadge = document.getElementById('ichp-weight-record-badge');
+    const csvButton = document.getElementById('ichp-weight-csv-download');
+    const copyButton = document.getElementById('ichp-weight-copy-table');
+    const tableBody = document.getElementById('ichp-weight-table-body');
+
+    const weightFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+    // ---- Table ----
+    if (tableData.length && tableBody) {
+        tableData.forEach(function (row) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + row.year + '</td>' +
+                           '<td>' + row.month + '</td>' +
+                           '<td>' + weightFormatter.format(row.total_weight_lb) + '</td>';
+            tableBody.appendChild(tr);
+        });
+        if (recordBadge) {
+            recordBadge.textContent = 'Records: ' + tableData.length.toLocaleString('en-US');
+        }
+    }
+
+    // ---- CSV / Copy helpers ----
+    const toCsvCell = function (value) {
+        if (value === null || typeof value === 'undefined') { return ''; }
+        const s = String(value);
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+
+    const downloadCsv = function (filename, rows) {
+        const content = rows.map(function (row) { return row.map(toCsvCell).join(','); }).join('\n');
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const copyToClipboard = async function (text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    };
+
+    const buildCsvRows = function () {
+        const rows = [['Year', 'Month', 'Total Weight (lb)']];
+        tableData.forEach(function (row) {
+            rows.push([row.year, row.month, row.total_weight_lb]);
+        });
+        return rows;
+    };
+
+    if (csvButton) {
+        csvButton.disabled = !tableData.length;
+        csvButton.addEventListener('click', function () {
+            if (tableData.length) { downloadCsv('ichp_monthly_weight.csv', buildCsvRows()); }
+        });
+    }
+
+    if (copyButton) {
+        copyButton.disabled = !tableData.length;
+        copyButton.addEventListener('click', async function () {
+            if (!tableData.length) { return; }
+            const text = buildCsvRows().map(function (r) { return r.join('\t'); }).join('\n');
+            try {
+                await copyToClipboard(text);
+                const orig = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="ri-check-line align-middle me-1 fs-18"></i> Copied';
+                setTimeout(function () { copyButton.innerHTML = orig; }, 1600);
+            } catch (e) {
+                console.error('Clipboard copy failed:', e);
+            }
+        });
+    }
+
+    // ---- Chart ----
+    const hasData = series.length > 0 && series.some(function (s) { return s.data && s.data.some(function (v) { return v > 0; }); });
+
+    if (!hasData) { return; }
+
+    let colors = ['#057FDD', '#05C687', '#DD9B1C', '#A68D60', '#6A54B8', '#719064', '#cf1515', '#e67e22', '#16a085', '#8e44ad'];
+    const dataColors = $('#ichp-monthly-weight-chart').data('colors');
+    if (dataColors) {
+        colors = dataColors.split(',').map(function (c) { return c.trim(); }).filter(Boolean);
+    }
+
+    const chartOptions = {
+        chart: {
+            type: 'bar',
+            height: 440,
+            toolbar: { show: true },
+        },
+        title: {
+            text: 'Total Monthly ICHP Harvest',
+            align: 'center',
+            style: { color: 'var(--ct-apex-axis-color)', fontSize: '16px', fontWeight: 500 },
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '70%',
+                borderRadius: 2,
+            },
+        },
+        dataLabels: { enabled: false },
+        colors: colors,
+        series: series,
+        xaxis: {
+            categories: categories,
+            labels: { style: { colors: 'var(--ct-apex-axis-color)' } },
+            axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+            axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+            title: { text: 'Month', style: { color: 'var(--ct-apex-axis-color)' } },
+        },
+        yaxis: {
+            labels: {
+                style: { colors: 'var(--ct-apex-axis-color)' },
+                formatter: function (val) { return Number(val).toLocaleString('en-US'); },
+            },
+            axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+            axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+            title: { text: 'Total Weight (lb)', style: { color: 'var(--ct-apex-axis-color)' } },
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return Number(val).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' lb';
+                },
+            },
+        },
+        legend: {
+            position: 'top',
+            labels: { colors: 'var(--ct-apex-axis-color)' },
+        },
+    };
+
+    const chart = new ApexCharts(document.querySelector('#ichp-monthly-weight-chart'), chartOptions);
+    chart.render();
+});
+</script>
+{% endblock extra_javascript %}

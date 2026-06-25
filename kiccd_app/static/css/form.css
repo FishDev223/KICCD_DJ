@@ -1,0 +1,43 @@
+@charset "UTF-8";
+
+.form-floating-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  height: 100%;
+  padding: 16px 12.32px;
+  padding: 1rem 0.77rem;
+  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  border: var(--ct-border-width) solid transparent;
+  transform-origin: 0 0;
+  transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+}
+
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 8px 12.32px;
+  padding: 0.5rem 0.77rem;
+  font-size: 14px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ct-body-color);
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background-color: var(--ct-secondary-bg);
+  background-clip: padding-box;
+  border: var(--ct-border-width) solid var(--ct-border-color-translucent);
+  border-radius: 0.3rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}

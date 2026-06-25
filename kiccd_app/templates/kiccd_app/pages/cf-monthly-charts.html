@@ -1,0 +1,262 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}CF Harvest Charts{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'css/apexcharts.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='CF Harvest Charts' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Contract Fishing Harvest Totals</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">CF Harvest Totals</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Info about a New <br> Contract Fishing Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> EFFORT</a>
+                <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add New Catch Data to <br>an Existing CF Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> CATCH</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="cf-harvest-chart" class="apex-charts" data-colors="#057FDD,#05C687,#DD9B1C,#A68D60,#6A54B8,#719064,#cf1515"></div>
+            {{ chart_data|json_script:"cfChartData" }}
+            <div id="cf-harvest-empty" class="alert alert-info mt-3 d-none">No data available for the selected months.</div>
+            <div class="accordion mt-4" id="cf-plotly-accordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="cf-plotly-heading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cf-plotly-collapse" aria-expanded="false" aria-controls="cf-plotly-collapse">
+                            Alternative Chart (w/ Error Bars)
+                        </button>
+                    </h2>
+                    <div id="cf-plotly-collapse" class="accordion-collapse collapse" aria-labelledby="cf-plotly-heading" data-bs-parent="#cf-plotly-accordion">
+                        <div class="accordion-body">
+                            <div id="cf-harvest-chart-plotly" style="height: 600px;"></div>
+                            <div class="mt-3">
+                                <button id="cf-monthly-csv-download" type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Download Chart Data</em>">
+                                <i class="ri-download-line align-middle me-1 fs-18"></i> CSV Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/apexcharts.min.js' %}"></script>
+<script src="{% static 'js/plotly-2.32.0.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    const chartData = JSON.parse(document.getElementById('cfChartData').textContent);
+    const categories = chartData.categories || [];
+    const series = chartData.series || [];
+    const csvButton = document.getElementById('cf-monthly-csv-download');
+
+    const toCsvCell = function (value) {
+        if (value === null || typeof value === 'undefined') {
+            return '';
+        }
+        const valueAsString = String(value);
+        if (/[",\n]/.test(valueAsString)) {
+            return '"' + valueAsString.replace(/"/g, '""') + '"';
+        }
+        return valueAsString;
+    };
+
+    const downloadCsv = function (filename, rows) {
+        const csvContent = rows.map(function (row) {
+            return row.map(toCsvCell).join(',');
+        }).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const compileMonthlyCsvRows = function () {
+        const rows = [['Month', 'Season Year', 'Harvest Count', 'Error Std Dev']];
+        series.forEach(function (seriesItem) {
+            (seriesItem.data || []).forEach(function (point, index) {
+                rows.push([
+                    point.x || categories[index] || '',
+                    seriesItem.name || '',
+                    Number(point.y) || 0,
+                    typeof point.sd === 'number' ? point.sd : ''
+                ]);
+            });
+        });
+        return rows;
+    };
+
+    if (!series.length) {
+        $('#cf-harvest-empty').removeClass('d-none');
+        if (csvButton) {
+            csvButton.disabled = true;
+        }
+        return;
+    }
+
+    if (csvButton) {
+        csvButton.addEventListener('click', function () {
+            downloadCsv('cf_monthly_chart_data.csv', compileMonthlyCsvRows());
+        });
+    }
+
+    let colors = ['#057FDD', '#05C687', '#DD9B1C', '#A68D60', '#6A54B8', '#719064', '#cf1515' ];
+    const dataColors = $('#cf-harvest-chart').data('colors');
+    if (dataColors) {
+        colors = dataColors.split(',').map(color => color.trim()).filter(Boolean);
+    }
+
+    const options = {
+        chart: {
+            type: 'bar',
+            height: 500,
+            toolbar: { show: true }
+        },
+        title: {
+            text: 'Total Invasive Carp Harvest by Month',
+            align: 'center',
+            style: { color: 'var(--ct-apex-axis-color)', fontSize: '16px', fontWeight: 500 }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '80%',
+                endingShape: 'rounded'
+            }
+        },
+        dataLabels: { enabled: false },
+        stroke: { show: true, width: 2, colors: ['transparent'] },
+        colors: colors,
+        series: series,
+        xaxis: {
+            categories: categories,
+            labels: { style: { colors: 'var(--ct-apex-axis-color)' } },
+            axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+            axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' }
+        },
+        yaxis: {
+            labels: { style: { colors: 'var(--ct-apex-axis-color)' } },
+            axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+            axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+            title: { text: 'IC Harvest Count', style: { color: 'var(--ct-apex-axis-color)', fontSize: '12px', fontWeight: 400, fontFamily: 'Arial, Helvetica, sans-serif', cssClass: 'apexcharts-yaxis-title' } }
+        },
+        legend: { position: 'bottom' },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val;
+                }
+            }
+        }
+    };
+
+    const chart = new ApexCharts(document.querySelector('#cf-harvest-chart'), options);
+    chart.render();
+
+    const renderPlotly = function () {
+        const themeStyles = getComputedStyle(document.documentElement);
+        const axisColor = themeStyles.getPropertyValue('--ct-apex-axis-color').trim() || '#000000';
+        const plotBg = 'transparent';
+        const gridColor = themeStyles.getPropertyValue('--ct-border-color').trim() || 'rgba(0,0,0,0.1)';
+
+        const plotlyTraces = series.map(function (seriesItem, seriesIndex) {
+            const yValues = seriesItem.data.map(point => Number(point.y) || 0);
+            const errors = seriesItem.data.map(point => (typeof point.sd === 'number' ? point.sd : 0));
+            return {
+                type: 'bar',
+                name: seriesItem.name,
+                x: categories,
+                y: yValues,
+                marker: { color: colors[seriesIndex % colors.length] },
+                error_y: {
+                    type: 'data',
+                    array: errors,
+                    visible: true,
+                    thickness: 1,
+                    color: axisColor
+                }
+            };
+        });
+
+        Plotly.newPlot('cf-harvest-chart-plotly', plotlyTraces, {
+            title: { text: 'Total Invasive Carp Harvest by Month', x: 0.5, font: { color: axisColor } },
+            barmode: 'group',
+            bargap: 0.2,
+            bargroupgap: 0.1,
+            paper_bgcolor: plotBg,
+            plot_bgcolor: plotBg,
+            font: { color: axisColor },
+            xaxis: {
+                title: '',
+                tickfont: { color: axisColor },
+                linecolor: axisColor,
+                tickson: 'boundaries',
+                ticks: 'outside',
+                ticklen: 6,
+                tickwidth: 1,
+                tickcolor: axisColor,
+                mirror: false
+            },
+            yaxis: {
+                title: 'IC Harvest Count',
+                titlefont: { color: axisColor },
+                tickfont: { color: axisColor },
+                linecolor: axisColor,
+                mirror: false,
+                gridcolor: gridColor,
+                zerolinecolor: gridColor
+            },
+            legend: { orientation: 'h', y: -0.2, x: 0.5, xanchor: 'center', font: { color: axisColor } }
+        }, {
+            responsive: true,
+            displaylogo: false
+        });
+    };
+
+    let plotlyRendered = false;
+    const plotlyCollapse = document.getElementById('cf-plotly-collapse');
+    if (plotlyCollapse) {
+        plotlyCollapse.addEventListener('shown.bs.collapse', function () {
+            renderPlotly();
+            plotlyRendered = true;
+        });
+
+        if (plotlyCollapse.classList.contains('show')) {
+            renderPlotly();
+            plotlyRendered = true;
+        }
+    }
+
+    const themeObserver = new MutationObserver(function (mutations) {
+        for (const mutation of mutations) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                if (plotlyRendered) {
+                    renderPlotly();
+                }
+                break;
+            }
+        }
+    });
+
+    themeObserver.observe(document.documentElement, { attributes: true });
+});
+</script>
+{% endblock extra_javascript %}

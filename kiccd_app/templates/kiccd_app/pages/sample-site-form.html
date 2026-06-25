@@ -1,0 +1,620 @@
+{% extends 'kiccd_app/vertical.html' %}
+{% load static %}
+
+{% block title %}New Sample Site{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='New Sampling Site' %}
+{% endblock page_title %}
+
+{% block extra_css %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<style>
+    #coord-picker-map { width: 100%; height: 380px; cursor: crosshair; }
+    #collapseCoordPicker .accordion-body { background: transparent; }
+</style>
+{% endblock extra_css %}
+ 
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-10 offset-md-1">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-2 mb-0 w-100">
+                <h5 class="d-none d-md-block text-muted mb-0">Add a new sampling site by providing the information below...</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">Add a New Sampling Site</h4>
+            </div>
+        </div>
+        <div class="card-body">
+
+            {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                    {% csrf_token %}
+                <div class="row g-2">
+                    <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.name }}
+                        <label class="form-label" for="id_name" >SITE NAME</label>
+                        </div>
+                        {% if form.name.errors %}
+                            <div class="text-danger small">{{ form.name.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-4 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.latitude }}
+                        <label for="id_latitude" class="form-label">LATITUDE</label>
+                        </div>
+                        
+                        {% if form.latitude.errors %}
+                            <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.longitude }}
+                        <label for="id_longitude" class="form-label">LONGITUDE</label>
+                        </div>
+                        {% if form.longitude.errors %}
+                            <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.river_mi }}
+                        <label for="id_river_mi" class="form-label">RIVER MI</label>
+                        </div>
+                        {% if form.river_mi.errors %}
+                            <div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.type }}
+                        <label for="id_type" class="form-label">SITE TYPE</label>
+                        </div>
+                        {% if form.type.errors %}
+                            <div class="text-danger small">{{ form.type.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.state }}
+                        <label for="id_state" class="form-label">STATE</label>
+                        </div>
+                        {% if form.state.errors %}
+                            <div class="text-danger small">{{ form.state.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.county }}
+                        <label for="id_county" class="form-label">COUNTY</label>
+                        </div>
+                        {% if form.county.errors %}
+                            <div class="text-danger small">{{ form.county.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.pool }}
+                        <label for="id_pool" class="form-label">POOL</label>
+                        </div>
+                        {% if form.pool.errors %}
+                            <div class="text-danger small">{{ form.pool.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.basin }}
+                        <label for="id_basin" class="form-label">BASIN</label>
+                        </div>
+                        {% if form.basin.errors %}
+                            <div class="text-danger small">{{ form.basin.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                        {{ form.trib }}
+                        <label for="id_trib" class="form-label">TRIBUTARY</label>
+                        </div>
+                        {% if form.trib.errors %}
+                            <div class="text-danger small">{{ form.trib.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="accordion  accordion-flush mb-2 mb-md-1" id="fisherOptionalAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOptional">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOptional" aria-expanded="false" aria-controls="collapseOptional">
+                                        <strong><u>Click to Add Optional Info</u></strong>
+                                    </button>
+                                </h2>
+                                <div id="collapseOptional" class="accordion-collapse collapse" aria-labelledby="headingOptional" data-bs-parent="#fisherOptionalAccordion">
+                                    <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                        <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-1">
+                                            <div class="col-md-5 mb-2 mb-md-0 mt-2 mt-md-0">
+                                                <div class="form-floating">
+                                                    {{ form.site_code }}
+                                                    <label for="id_site_code" class="form-label">SITE CODE</label>
+                                                </div>
+                                                {% if form.site_code.errors %}
+                                                    <div class="text-danger small">{{ form.site_code.errors|striptags }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-3 mb-2 mb-md-0 mt-2 mt-md-0 align-items-center d-flex flex-column">
+                                                <p class="mb-1 mt-1 fs-11">WOODY DEBRIS?</p>
+                                                <div class="form-check form-switch">
+                                                    {{ form.woody_debris }}
+                                                </div>
+                                                {% if form.woody_debris.errors %}
+                                                    <div class="text-danger small">{{ form.woody_debris.errors|striptags }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-3 mb-2 mb-md-0 mt-2 mt-md-0 align-items-center d-flex flex-column">
+                                                <p class="mb-1 mt-1 fs-11">SUBMERGED VEG?</p>
+                                                <div class="form-check form-switch">
+                                                    {{ form.submersed_av }}
+                                                </div>
+                                                {% if form.submersed_av.errors %}
+                                                    <div class="text-danger small">{{ form.submersed_av.errors|striptags }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="accordion accordion-flush mb-2 mb-md-1" id="coordPickerAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingCoordPicker">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCoordPicker" aria-expanded="false" aria-controls="collapseCoordPicker">
+                                        <strong><u>Select site from a map...</u></strong>
+                                    </button>
+                                </h2>
+                                <div id="collapseCoordPicker" class="accordion-collapse collapse" aria-labelledby="headingCoordPicker">
+                                    <div class="accordion-body p-1 bg-dark bg-opacity-10">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="text-muted small">Click anywhere on the map to set coordinates. Drag the marker to adjust.</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="coordPickerLocBtn">&#128205; Use My Location</button>
+                                        </div>
+                                        <div id="coord-picker-map"></div>
+                                        <div id="coordPickerDisplay" class="mt-2 small text-center text-muted d-none">
+                                            Selected &mdash; Lat: <strong id="coordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="coordPickerLng"></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 col-md-10 offset-md-1 d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-success" id="sampleSiteSubmitBtn">
+                            <span id="sampleSiteSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                            ADD SITE
+                        </button>
+                    <div>
+                        <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>  
+</div>
+
+<script>
+(function () {
+    var form = document.querySelector('form');
+    var submitBtn = document.getElementById('sampleSiteSubmitBtn');
+    var submitSpinner = document.getElementById('sampleSiteSubmitSpinner');
+    if (!form || !submitBtn) return;
+    form.addEventListener('submit', function () {
+        submitSpinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+}());
+</script>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const stateSelect = document.getElementById('id_state');
+    const countySelect = document.getElementById('id_county');
+    const basinSelect = document.getElementById('id_basin');
+    const tribSelect = document.getElementById('id_trib');
+    if (!stateSelect || !countySelect) return;
+
+    const baseUrl = "{% url 'kiccd_app:api_counties_by_state' 0 %}";
+    function buildUrl(id){
+        return baseUrl.replace('/0/','/'+id+'/');
+    }
+
+    function clearCountyOptions(){
+        countySelect.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.text = '...';
+        countySelect.appendChild(opt);
+        countySelect.disabled = true;
+    }
+
+    stateSelect.addEventListener('change', function(){
+        const stateId = this.value;
+        if (!stateId){
+            clearCountyOptions();
+            return;
+        }
+        // Capture and clear any pending auto-select from the coordinate picker
+        const pendingCounty = (stateSelect.dataset.pendingCounty || '').trim();
+        stateSelect.dataset.pendingCounty = '';
+        fetch(buildUrl(stateId))
+            .then(r => r.json())
+            .then(data => {
+                countySelect.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.text = '...';
+                countySelect.appendChild(placeholder);
+                (data.counties || []).forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.text = c.name;
+                    countySelect.appendChild(opt);
+                });
+                countySelect.disabled = false;
+                if (pendingCounty) {
+                    const match = Array.from(countySelect.options).find(function (o) {
+                        return o.text.trim().toLowerCase() === pendingCounty.toLowerCase();
+                    });
+                    if (match) { countySelect.value = match.value; }
+                }
+            })
+            .catch(() => clearCountyOptions());
+    });
+
+    // populate on load if a state is pre-selected
+    if (stateSelect.value){
+        stateSelect.dispatchEvent(new Event('change'));
+    }
+    // basin -> trib population
+    if (basinSelect && tribSelect){
+        const tribBase = "{% url 'kiccd_app:api_tribs_by_basin' 0 %}";
+        function tribUrl(id){ return tribBase.replace('/0/','/'+id+'/'); }
+        function clearTribOptions(){
+            tribSelect.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.text = '...';
+            tribSelect.appendChild(opt);
+            tribSelect.disabled = true;
+        }
+
+        basinSelect.addEventListener('change', function(){
+            const b = this.value;
+            if (!b){ clearTribOptions(); return; }
+            fetch(tribUrl(b))
+                .then(r => r.json())
+                .then(data => {
+                    tribSelect.innerHTML = '';
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.text = '...';
+                    tribSelect.appendChild(placeholder);
+                    (data.tribs || []).forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t.id;
+                        opt.text = t.name;
+                        tribSelect.appendChild(opt);
+                    });
+                    tribSelect.disabled = false;
+                    // Read pendingTrib AFTER options are populated so a late-resolving
+                    // boundary lookup (autoFillTrib) can set it before we check.
+                    const pendingTrib = (tribSelect.dataset.pendingTrib || '').trim();
+                    tribSelect.dataset.pendingTrib = '';
+                    if (pendingTrib) {
+                        const match = Array.from(tribSelect.options).find(function(o) {
+                            return String(o.value) === String(pendingTrib);
+                        });
+                        if (match) tribSelect.value = match.value;
+                    }
+                })
+                .catch(() => clearTribOptions());
+        });
+
+        if (basinSelect.value){ basinSelect.dispatchEvent(new Event('change')); }
+    }
+
+    // --- Pool & Basin auto-fill via Turf.js boundary lookup ---
+    const POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
+    const BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
+    let poolCache  = null;
+    let basinCache = null;
+
+    function fetchPoolBoundaries() {
+        if (poolCache !== null) return Promise.resolve(poolCache);
+        return fetch(POOL_BOUNDS_URL)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { poolCache = d.features || []; return poolCache; })
+            .catch(function() { poolCache = []; return []; });
+    }
+
+    function fetchBasinBoundaries() {
+        if (basinCache !== null) return Promise.resolve(basinCache);
+        return fetch(BASIN_BOUNDS_URL)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { basinCache = d.features || []; return basinCache; })
+            .catch(function() { basinCache = []; return []; });
+    }
+
+    function autoFillPool(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (!window.turf || isNaN(la) || isNaN(lo)) return;
+        fetchPoolBoundaries().then(function(features) {
+            if (!features.length) return;
+            var pt    = window.turf.point([lo, la]);
+            var match = features.find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            var poolSel = document.getElementById('id_pool');
+            if (!poolSel) return;
+            if (!match) return;
+            var opt = Array.from(poolSel.options).find(function(o) {
+                return String(o.value) === String(match.properties.pool_id);
+            });
+            if (opt) {
+                poolSel.value = opt.value;
+                // Sync Select2 if present
+                if (window.$ && $(poolSel).data('select2')) {
+                    $(poolSel).trigger('change.select2');
+                }
+            }
+        });
+    }
+
+    function autoFillBasin(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (!window.turf || isNaN(la) || isNaN(lo)) return;
+        fetchBasinBoundaries().then(function(features) {
+            if (!features.length) return;
+            var pt    = window.turf.point([lo, la]);
+            var match = features.find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            var basinSel = document.getElementById('id_basin');
+            if (!basinSel) return;
+            if (!match) return;
+            var opt = Array.from(basinSel.options).find(function(o) {
+                return String(o.value) === String(match.properties.basin_id);
+            });
+            if (opt) {
+                basinSel.value = opt.value;
+                basinSel.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+
+    // --- Trib auto-fill via Turf.js boundary lookup ---
+    const TRIB_BOUNDS_URL = "{% url 'kiccd_app:api_trib_boundaries' %}";
+    let tribBoundsCache = null;
+
+    function fetchTribBoundaries() {
+        if (tribBoundsCache !== null) return Promise.resolve(tribBoundsCache);
+        return fetch(TRIB_BOUNDS_URL)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { tribBoundsCache = d.features || []; return tribBoundsCache; })
+            .catch(function() { tribBoundsCache = []; return []; });
+    }
+
+    function autoFillTrib(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (!window.turf || isNaN(la) || isNaN(lo)) return;
+        fetchTribBoundaries().then(function(features) {
+            if (!features.length) return;
+            var pt    = window.turf.point([lo, la]);
+            var match = features.find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            if (!match) return;
+            var tribId = String(match.properties.trib_id);
+            // Always store as pending so the basin change handler's .then() can
+            // pick it up after populating options (fixes the async race condition).
+            tribSelect.dataset.pendingTrib = tribId;
+            // Also attempt direct selection in case the basin dropdown is already
+            // populated (basin AJAX resolved before this boundary lookup).
+            var existing = Array.from(tribSelect.options).find(function(o) {
+                return String(o.value) === tribId;
+            });
+            if (existing) { tribSelect.value = existing.value; }
+        });
+    }
+
+    // Expose for the coordinate picker IIFE
+    window._autoFillPool  = autoFillPool;
+    window._autoFillBasin = autoFillBasin;
+    window._autoFillTrib  = autoFillTrib;
+
+    // Manual lat/lng change listeners
+    var latField = document.getElementById('id_latitude');
+    var lngField = document.getElementById('id_longitude');
+    if (latField && lngField) {
+        function tryFillFromCoords() {
+            autoFillPool(latField.value, lngField.value);
+            autoFillBasin(latField.value, lngField.value);
+            autoFillTrib(latField.value, lngField.value);
+        }
+        latField.addEventListener('change', tryFillFromCoords);
+        lngField.addEventListener('change', tryFillFromCoords);
+    }
+});
+</script>
+
+<script>
+// --- Coordinate Picker Map ---
+(function () {
+    'use strict';
+    const MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+    if (!MAPBOX_TOKEN) return;
+
+    const collapseEl = document.getElementById('collapseCoordPicker');
+    if (!collapseEl) return;
+
+    const latInput = document.getElementById('id_latitude');
+    const lngInput = document.getElementById('id_longitude');
+    const locBtn   = document.getElementById('coordPickerLocBtn');
+    const display  = document.getElementById('coordPickerDisplay');
+    const dispLat  = document.getElementById('coordPickerLat');
+    const dispLng  = document.getElementById('coordPickerLng');
+
+    let pickerMap    = null;
+    let pickerMarker = null;
+
+    function placeMarker(lng, lat) {
+        latInput.value      = lat.toFixed(6);
+        lngInput.value      = lng.toFixed(6);
+        dispLat.textContent = lat.toFixed(6);
+        dispLng.textContent = lng.toFixed(6);
+        display.classList.remove('d-none');
+        if (pickerMarker) {
+            pickerMarker.setLngLat([lng, lat]);
+        } else {
+            pickerMarker = new mapboxgl.Marker({ color: '#e6d00d', draggable: true })
+                .setLngLat([lng, lat])
+                .addTo(pickerMap);
+            pickerMarker.on('dragend', function () {
+                const pos = pickerMarker.getLngLat();
+                latInput.value      = pos.lat.toFixed(6);
+                lngInput.value      = pos.lng.toFixed(6);
+                dispLat.textContent = pos.lat.toFixed(6);
+                dispLng.textContent = pos.lng.toFixed(6);
+                reverseGeocodeAndFill(pos.lng, pos.lat);
+                if (window._autoFillPool)  window._autoFillPool(pos.lat, pos.lng);
+                if (window._autoFillBasin) window._autoFillBasin(pos.lat, pos.lng);
+                if (window._autoFillTrib)  window._autoFillTrib(pos.lat, pos.lng);
+            });
+        }
+        reverseGeocodeAndFill(lng, lat);
+        if (window._autoFillPool)  window._autoFillPool(lat, lng);
+        if (window._autoFillBasin) window._autoFillBasin(lat, lng);
+        if (window._autoFillTrib)  window._autoFillTrib(lat, lng);
+    }
+
+    function reverseGeocodeAndFill(lng, lat) {
+        var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
+                + lng + ',' + lat
+                + '.json?types=region%2Cdistrict&access_token=' + MAPBOX_TOKEN;
+        fetch(url)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var stateAbbrev = null;
+                var countyName  = null;
+                (data.features || []).forEach(function (f) {
+                    if (f.place_type.indexOf('region') !== -1
+                            && f.properties && f.properties.short_code) {
+                        var parts = f.properties.short_code.split('-');
+                        stateAbbrev = parts[parts.length - 1].toUpperCase();
+                    }
+                    if (f.place_type.indexOf('district') !== -1 && f.text) {
+                        countyName = f.text
+                            .replace(/ County$/i,      '')
+                            .replace(/ Parish$/i,      '')
+                            .replace(/ Borough$/i,     '')
+                            .replace(/ Census Area$/i, '')
+                            .replace(/ Municipality$/i,'')
+                            .trim();
+                    }
+                });
+                if (!stateAbbrev) return;
+                var stateSelect = document.getElementById('id_state');
+                var stateOption = Array.from(stateSelect.options).find(function (o) {
+                    return o.text.trim().toUpperCase() === stateAbbrev;
+                });
+                if (!stateOption) return;
+                stateSelect.dataset.pendingCounty = countyName || '';
+                stateSelect.value = stateOption.value;
+                stateSelect.dispatchEvent(new Event('change'));
+            })
+            .catch(function () { /* geocoding failure — user can select manually */ });
+    }
+
+    collapseEl.addEventListener('shown.bs.collapse', function () {
+        if (!pickerMap) {
+            mapboxgl.accessToken = MAPBOX_TOKEN;
+            const initLat = parseFloat(latInput.value);
+            const initLng = parseFloat(lngInput.value);
+            const hasCoords = !isNaN(initLat) && !isNaN(initLng);
+
+            pickerMap = new mapboxgl.Map({
+                container: 'coord-picker-map',
+                style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+                center: hasCoords ? [initLng, initLat] : [-85.5, 37.8],
+                zoom: hasCoords ? 13 : 6,
+            });
+            pickerMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            pickerMap.getCanvas().style.cursor = 'crosshair';
+
+            if (hasCoords) {
+                pickerMap.on('load', function () { placeMarker(initLng, initLat); });
+            }
+
+            pickerMap.on('click', function (e) {
+                placeMarker(e.lngLat.lng, e.lngLat.lat);
+            });
+        } else {
+            pickerMap.resize();
+        }
+    });
+
+    if (locBtn) {
+        locBtn.addEventListener('click', function () {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+            locBtn.disabled    = true;
+            locBtn.textContent = 'Locating\u2026';
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    placeMarker(lng, lat);
+                    if (pickerMap) {
+                        pickerMap.flyTo({ center: [lng, lat], zoom: 13, speed: 1.6 });
+                    }
+                    locBtn.disabled    = false;
+                    locBtn.textContent = '\u{1F4CD} Use My Location';
+                },
+                function () {
+                    alert('Unable to retrieve your location.');
+                    locBtn.disabled    = false;
+                    locBtn.textContent = '\u{1F4CD} Use My Location';
+                }
+            );
+        });
+    }
+}());
+</script>
+
+{% endblock extra_javascript %}

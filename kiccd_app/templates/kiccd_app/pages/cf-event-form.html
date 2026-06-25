@@ -1,0 +1,174 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}New CF Event{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add a new Contract Fishing Effort' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header border-bottom border-dashed d-flex align-items-center">
+                <p class="text-muted fs-14 mb-0">Use these inputs to add a recent Contract Fishing Effort.</p>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-2">
+                        <div class="mb-3 col-md-4">
+                            <label for="id_cf_date" class="form-label mb-0 fs-12">Fishing Date</label>
+                            {{ form.cf_date }}
+                            {% if form.cf_date.errors %}
+                                <div class="text-danger small">{{ form.cf_date.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-4">
+                            <label for="id_fisher" class="form-label mb-0 fs-12">Fisher</label>
+                            {{ form.fisher }}
+                            {% if form.fisher.errors %}
+                                <div class="text-danger small">{{ form.fisher.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-4">
+                            <label for="id_observer" class="form-label mb-0 fs-12">Observer</label>
+                            {{ form.observer }}
+                            {% if form.observer.errors %}
+                                <div class="text-danger small">{{ form.observer.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="mb-3 col-md-4">
+                            <label for="id_site" class="form-label mb-0 fs-12">Fishing Site</label>
+                            {{ form.site }}
+                            {% if form.site.errors %}
+                                <div class="text-danger small">{{ form.site.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label for="id_gear" class="form-label mb-0 fs-12">Gear Type</label>
+                            {{ form.gear }}
+                            {% if form.gear.errors %}
+                                <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-2">    
+                        <div class="mb-3 col-md-3">
+                            <label for="id_set_num" class="form-label mb-0 fs-12">Net #</label>
+                            {{ form.set_num }}
+                            {% if form.set_num.errors %}
+                                <div class="text-danger small">{{ form.set_num.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label for="id_gear_length" class="form-label mb-0 fs-12">Length (ft)</label>
+                            {{ form.gear_length }}
+                            {% if form.gear_length.errors %}
+                                <div class="text-danger small">{{ form.gear_length.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label for="id_gear_depth" class="form-label mb-0 fs-12">Height (ft)</label>
+                            {{ form.gear_depth }}
+                            {% if form.gear_depth.errors %}
+                                <div class="text-danger small">{{ form.gear_depth.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label for="id_mesh_size" class="form-label mb-0 fs-12">Mesh (in)</label>
+                            {{ form.mesh_size }}
+                            {% if form.mesh_size.errors %}
+                                <div class="text-danger small">{{ form.mesh_size.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="mb-3 col-md-2">
+                            <label for="id_start_time" class="form-label mb-0 fs-12">Set Time</label>
+                            {{ form.start_time }}
+                            {% if form.start_time.errors %}
+                                <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-2">
+                            <label for="id_end_time" class="form-label mb-0 fs-12">Pull Time</label>
+                            {{ form.end_time }}
+                            {% if form.end_time.errors %}
+                                <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label for="id_latitude" class="form-label mb-0 fs-12">Latitude</label>
+                            {{ form.latitude }}
+                            {% if form.latitude.errors %}
+                                <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label for="id_longitude" class="form-label mb-0 fs-12">Longitude</label>
+                            {{ form.longitude }}
+                            {% if form.longitude.errors %}
+                                <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 col-md-2">
+                            <label for="id_water_temp_f" class="form-label mb-0 fs-12">Water Temp (°F)</label>
+                            {{ form.water_temp_f }}
+                            {% if form.water_temp_f.errors %}
+                                <div class="text-danger small">{{ form.water_temp_f.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="mt-3 d-flex center justify-content-between">
+                            <button type="submit" class="btn btn-primary" id="cfEventSubmitBtn">
+                                <span id="cfEventSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                                SUBMIT
+                            </button>
+                            <a class="btn btn-secondary" href="{% url 'kiccd_app:home' %}">CANCEL</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.querySelector('form');
+    var submitBtn = document.getElementById('cfEventSubmitBtn');
+    var submitSpinner = document.getElementById('cfEventSubmitSpinner');
+    if (!form || !submitBtn) return;
+    form.addEventListener('submit', function () {
+        submitSpinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+}());
+</script>
+{% endblock page_content %}

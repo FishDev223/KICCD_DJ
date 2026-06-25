@@ -1,0 +1,115 @@
+
+
+/* Change Django admin header background */
+#header {
+    background-color: #252631; /* Use your desired color */
+    border-bottom: 3px double #c7d5bd;
+    color: white;
+
+}
+
+* {
+    font-family: "Outfit", "Public Sans", sans-serif;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    :root {
+      --primary: #252631;
+      --primary-fg: #f7f7f7;
+  
+      --body-fg: #eeeeee;
+      --body-bg: #1C1D26;
+      --body-quiet-color: #d0d0d0;
+      --body-medium-color: #e0e0e0;
+      --body-loud-color: #ffffff;
+  
+      --breadcrumbs-link-fg: #e0e0e0;
+      --breadcrumbs-bg: var(--primary);
+  
+      --link-fg: #4C6841;
+      --link-hover-color: #4ac1f7;
+      --link-selected-fg: #6f94c6;
+  
+      --hairline-color: #272727;
+      --border-color: #353535;
+  
+      --error-fg: #e35f5f;
+      --message-success-bg: #006b1b;
+      --message-warning-bg: #583305;
+      --message-error-bg: #570808;
+  
+      --darkened-bg: #212121;
+      --selected-bg: #1b1b1b;
+      --selected-row: #00363a;
+  
+      --close-button-bg: #333333;
+      --close-button-hover-bg: #666666;
+
+      color-scheme: dark;
+    }
+  }
+
+
+html[data-theme="dark"] {
+    --primary: #252631;
+    --primary-fg: #f7f7f7;
+
+    --header-bg: #252631;
+
+    --body-fg: #eeeeee;
+    --body-bg: #1C1D26;
+    --body-quiet-color: #d0d0d0;
+    --body-medium-color: #e0e0e0;
+    --body-loud-color: #ffffff;
+
+    --breadcrumbs-link-fg: #e0e0e0;
+    --breadcrumbs-bg: var(--primary);
+
+    --link-fg: #bfccb4;
+    --link-hover-color: #4ac1f7;
+    --link-selected-fg: #6f94c6;
+
+    --hairline-color: #5c5c5c;
+    --border-color: #3b3b3b;
+
+    --error-fg: #e35f5f;
+    --message-success-bg: #006b1b;
+    --message-warning-bg: #583305;
+    --message-error-bg: #570808;
+
+    --darkened-bg: #212121;
+    --selected-bg: #1b1b1b;
+    --selected-row: #00363a;
+
+    --close-button-bg: #333333;
+    --close-button-hover-bg: #666666;
+
+    color-scheme: dark;
+}
+ .module h2, .module caption, .inline-group h2 {
+    margin: 0;
+    padding: 8px;
+    font-weight: 400;
+    font-size: 0.8125rem;
+    text-align: left;
+    background: var(--header-bg);
+    color: var(--header-link-color);
+}
+
+.module caption,
+.inline-group h2 {
+    font-size: 0.80rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+#site-name {
+    padding: 0;
+    margin: 0;
+    font-family: "Outfit", "Public Sans", sans-serif;
+    margin-inline-end: 20px;
+    font-weight: 600;
+    font-size: 24px;
+    color: #AAB9CA;
+}

@@ -1,0 +1,110 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Agency Sampling Results{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/datetime/1.6.2/css/dataTables.dateTime.css" rel="stylesheet" integrity="sha384-7gVhgCBvVkFm8CjELsmoaaDJyWITKmo5b7imOimmD95IVzEyhS92YJ3jlcHfGc1l" crossorigin="anonymous">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Agency Sampling Results' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Results of all agency sampling efforts grouped by date and species.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Results of All Sampling Efforts</h4>
+        
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New <br> Sampling Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> EFFORT</a>
+                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Results to an<br> Existing Sampling Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> RESULTS</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Project</th>
+                        <th>Agency</th>
+                        <th>Basin</th>
+                        <th>Pool</th>
+                        <th>Site</th>
+                        <th>Gear</th>
+                        <th>Effort</th>
+                        <th>Run/Set</th>
+                        <th>Species</th>
+                        <th>Count</th>
+                        <th>Length (mm)</th>
+                        <th>Weight (g)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for catch in catches %}
+                        <tr>
+                            <td>{{ catch.event.datez }}</td>
+                            <td>{{ catch.event.project }}</td>
+                            <td>{{ catch.event.agency }}</td>
+                            <td>{{ catch.event.site.basin.abbrev }}</td>
+                            <td>{{ catch.event.site.pool.abbrev }}</td>
+                            <td>{{ catch.event.site.name }}</td>
+                            <td>{{ catch.event.gear }}</td>
+                            <td>{{ catch.event.effort_min }}</td>
+                            <td>{{ catch.event.effort_num }}</td>
+                            <td>{{ catch.species.abbrev }}</td>
+                            <td>{{ catch.fish_count|default:0 }}</td>
+                            <td>{% if catch.length_mm %}{{ catch.length_mm }}{% else %}&mdash;{% endif %}</td>
+                            <td>{% if catch.weight_g %}{{ catch.weight_g }}{% else %}&mdash;{% endif %}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="13" class="text-center">No agency catch records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+ 
+{% block extra_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+    "use strict";
+    $('#basic-datatable').DataTable({
+        order: [],
+        keys: false,
+        fixedHeader: true,
+        pageLength: 50,
+        layout: {
+        topStart: {pageLength: {menu: [50, 100, 150, 200]}},
+        topEnd: {search: {placeholder: ''}},
+        bottomStart: 'info',
+        bottomEnd: 'paging',
+        bottom: {buttons: ['copy', 'csv', 'pdf']}  
+        },      
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            }
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+});
+</script>
+{% endblock extra_javascript %}

@@ -1,0 +1,1176 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Add Catch Data{% endblock title %}
+
+{% block extra_css %}
+
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add Catch Data' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-12 mb-0">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">1) Choose an existing sampling event from the dropdown.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Choose A Sampling Effort</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Sampling<br>Effort Instead...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW EFFORT</a>
+            </div>
+        </div>
+        <div class="card-body p-2 p-md-2">
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
+            {% if shared_form.event.errors %}
+                <div class="alert alert-warning" role="alert">
+                    Your catch-row entries were preserved. Select a sampling event, then click Submit again.
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <input type="hidden" id="catch_snapshot" name="catch_snapshot" value="">
+
+                <div class="row p-md-2 p-2 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-6 mt-md-0 mt-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>* Efforts derived from:<br>Date (Site - Transect/Net #)</em>">
+                        <div class="form-floating">
+                            {{ shared_form.event }}
+                            <label class="form-label" for="id_event">AGENCY SAMPLING EVENT...</label>
+                        </div>
+                        {% if shared_form.event.errors %}
+                            <div class="text-danger small">{{ shared_form.event.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 mt-md-0 mt-2 d-flex align-items-center">
+                        <div class="w-100 text-center text-md-start" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Current number of existing IcCatch rows for the selected event.">
+                            <p class="mb-1 mt-1 text-muted fs-11">RECORD COUNT</p>
+                            <p id="ic_event_record_count" class="mb-0 fw-semibold fs-16">-</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*<u>ZERO</u> fish captured during entire sampling effort.">
+                        <p class="mb-1 mt-1 text-muted fs-11">NO FISH?</p>
+                        <div class="form-check form-switch">
+                            {{ shared_form.no_fish }}
+                        </div>
+                        {% if shared_form.no_fish.errors %}
+                            <div class="text-danger small">{{ shared_form.no_fish.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
+                        <p class="mb-1 mt-1 text-muted fs-11">ROWS</p>
+                        <select id="visible_rows" class="form-select form-select-sm">
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="75">75</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="250">250</option>
+                        </select>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="card col-md-12 mt-3">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-2 mb-0 w-100">
+                <h5 class="d-none d-md-block text-muted mb-0">2) Provide count and size data for all sampled fish species.</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">Input Data On All Fish</h4>
+            </div>
+        </div>
+        <div class="card-body p-1 p-md-1">
+                {{ formset.management_form }}
+ 
+                <div id="catch-formset">
+                {% for form in formset %}
+                <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
+                    <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
+                        <div class="col-md-2">
+                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
+                                    <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #{{ forloop.counter }}</p>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="form-floating">
+                                        {{ form.species }}
+                                        <label class="form-label" for="id_species">SPECIES</label>
+                                    </div>
+                                    {% if form.species.errors %}
+                                        <div class="text-danger small">{{ form.species.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                <div class="col-md-6 me-0">
+                                    <div class="form-floating">
+                                        {{ form.length_mm }}
+                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                    </div>
+                                    {% if form.length_mm.errors %}
+                                    <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.weight_g }}
+                                        <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                    </div>
+                                    {% if form.weight_g.errors %}
+                                    <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-floating">
+                                {{ form.fish_sex }}
+                                <label class="form-label" for="id_fish_sex">SEX</label>
+                            </div>
+                            {% if form.fish_sex.errors %}
+                            <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-floating">
+                                {{ form.fish_count }}
+                                <label class="form-label" for="id_fish_count">COUNT</label>
+                            </div>
+                            {% if form.fish_count.errors %}
+                            <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-floating">
+                                {{ form.gonad_stage }}
+                                <label class="form-label" for="id_gonad_stage">STAGE</label>
+                            </div>
+                            {% if form.gonad_stage.errors %}
+                            <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-floating">
+                                {{ form.gonad_wt_g }}
+                                <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
+                            </div>
+                            {% if form.gonad_wt_g.errors %}
+                            <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 mt-md-1 col-12">
+                            <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
+                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
+                                    <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
+                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
+                                    <div class="form-check form-switch">
+                                        {{ form.spawn_patch }}
+                                    </div>
+                                    {% if form.spawn_patch.errors %}
+                                    <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age & Growth?">
+                                    <p class="d-none d-md-block mb-1 text-muted fs-11">A&G</p>
+                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE & GROWTH?</p>
+                                    <div class="form-check form-switch">
+                                        {{ form.collected4ag }}
+                                    </div>
+                                    {% if form.collected4ag.errors %}
+                                    <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div id="empty-form-template" class="d-none">
+                    <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
+                        <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
+                            <div class="col-md-2">
+                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
+                                        <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #</p>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <div class="form-floating">
+                                            {{ formset.empty_form.species }}
+                                            <label class="form-label" for="id_species">SPECIES</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                    <div class="col-md-6 me-0">
+                                        <div class="form-floating">
+                                            {{ formset.empty_form.length_mm }}
+                                            <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            {{ formset.empty_form.weight_g }}
+                                            <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.fish_sex }}
+                                    <label class="form-label" for="id_fish_sex">SEX</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.fish_count }}
+                                    <label class="form-label" for="id_fish_count">COUNT</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.gonad_stage }}
+                                    <label class="form-label" for="id_gonad_stage">STAGE</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.gonad_wt_g }}
+                                    <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mt-md-1 col-12">
+                                <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
+                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
+                                        <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
+                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
+                                        <div class="form-check form-switch">
+                                            {{ formset.empty_form.spawn_patch }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age & Growth?">
+                                        <p class="d-none d-md-block mb-1 text-muted fs-11">A&G</p>
+                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE & GROWTH?</p>
+                                        <div class="form-check form-switch">
+                                            {{ formset.empty_form.collected4ag }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddCsvHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddEventOne">
+                                    Additional Data Loading Options
+                                </button>
+                            </h2>
+                            <div id="AddCsvOne" class="accordion-collapse collapse"
+                                aria-labelledby="AddCsvHeading1" data-bs-parent="#CSVLoadUI">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row g-2 align-items-stretch mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label mb-1" for="csv_file_input">Load from CSV</label>
+                                            <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv"  data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div id="csv_status" class="text-muted"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 align-items-stretch mb-2">				
+                                        <div class="col-md-6">
+                                            <label class="form-label mb-1" for="csv_column_map">Column order (optional)</label>
+                                            <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="species,length_mm,weight_g,fish_sex,fish_count,gonad_stage,gonad_wt_g,spawn_patch,collected4ag"   data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check mt-4">
+                                                <input id="csv_clear_existing" class="form-check-input" type="checkbox" checked>
+                                                <label class="form-check-label" for="csv_clear_existing">Clear existing rows?</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-success" id="icCatchSubmitBtn">
+                            <span id="icCatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                            SUBMIT
+                        </button>
+                    <div>
+                        <button type="button" id="reset_form_btn" class="btn btn-secondary me-2">RESET</button>
+                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+{{ catch_snapshot|json_script:"catchSnapshotData" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const catchForm = document.querySelector('form[method="post"][novalidate]');
+    const eventSelect = document.getElementById('id_event');
+    const eventRecordCount = document.getElementById('ic_event_record_count');
+    const noFishCheckbox = document.getElementById('id_no_fish');
+    const visibleRowsSelect = document.getElementById('visible_rows');
+    const formsetContainer = document.getElementById('catch-formset');
+    const emptyFormTemplate = document.getElementById('empty-form-template');
+    const addRowsButton = document.getElementById('add_rows_btn');
+    const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+    const csvFileInput = document.getElementById('csv_file_input');
+    const csvLoadButton = document.getElementById('csv_load_btn');
+    const csvStatus = document.getElementById('csv_status');
+    const csvColumnMap = document.getElementById('csv_column_map');
+    const csvClearExisting = document.getElementById('csv_clear_existing');
+    const catchSnapshotInput = document.getElementById('catch_snapshot');
+    const submitButton = catchForm ? catchForm.querySelector('button[type="submit"]') : null;
+    const resetFormButton = document.getElementById('reset_form_btn');
+    const catchSnapshotData = JSON.parse(document.getElementById('catchSnapshotData').textContent || '[]');
+    const eventHasErrors = {{ event_has_errors|yesno:"true,false" }};
+    const eventCountUrl = "{% url 'kiccd_app:api_ic_event_catch_count' %}";
+    let lastSyncedEventId = null;
+
+    function setEventRecordCountDisplay(value) {
+        if (!eventRecordCount) {
+            return;
+        }
+        eventRecordCount.textContent = value;
+    }
+
+    function fetchEventRecordCount() {
+        if (!eventSelect) {
+            return;
+        }
+
+        const selectedEventId = String(eventSelect.value || '').trim();
+        if (!selectedEventId) {
+            setEventRecordCountDisplay('-');
+            return;
+        }
+
+        setEventRecordCountDisplay('...');
+        fetch(eventCountUrl + '?event_id=' + encodeURIComponent(selectedEventId), {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Request failed with status ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (payload) {
+                const count = payload && typeof payload.record_count === 'number' ? payload.record_count : 0;
+                setEventRecordCountDisplay(String(count));
+            })
+            .catch(function () {
+                setEventRecordCountDisplay('-');
+            });
+    }
+
+    function syncEventState(forceFetch) {
+        if (!eventSelect) {
+            return;
+        }
+        const currentEventId = String(eventSelect.value || '').trim();
+        const hasChanged = currentEventId !== lastSyncedEventId;
+
+        if (hasChanged || forceFetch) {
+            lastSyncedEventId = currentEventId;
+            updateSubmitButtonState();
+            fetchEventRecordCount();
+        } else {
+            updateSubmitButtonState();
+        }
+    }
+
+    function startEventSyncFallbackWatcher(durationMs, intervalMs) {
+        if (!eventSelect) {
+            return;
+        }
+        const startedAt = Date.now();
+        const timerId = setInterval(function () {
+            if (Date.now() - startedAt >= durationMs) {
+                clearInterval(timerId);
+                return;
+            }
+            syncEventState(false);
+        }, intervalMs);
+    }
+
+    function updateSubmitButtonState() {
+        if (!submitButton || !eventSelect) {
+            return;
+        }
+        const hasEvent = String(eventSelect.value || '').trim() !== '';
+        submitButton.disabled = !hasEvent;
+        submitButton.title = hasEvent ? '' : 'Select a sampling event first.';
+    }
+
+    if (catchForm) {
+        catchForm.addEventListener('submit', function () {
+            const spinner = document.getElementById('icCatchSubmitSpinner');
+            if (spinner) spinner.classList.remove('d-none');
+            if (submitButton) submitButton.disabled = true;
+        });
+    }
+
+    function getRows() {
+        return formsetContainer ? Array.from(formsetContainer.querySelectorAll('.catch-row')) : [];
+    }
+
+    function getSpeciesSelects() {
+        return formsetContainer ? Array.from(formsetContainer.querySelectorAll('select[id*="species"]')) : [];
+    }
+
+    function updateRowNumbers() {
+        const rows = getRows();
+        rows.forEach(function (row, index) {
+            const displayIndex = index + 1;
+            const numberEl = row.querySelector('.row-number');
+            const mobileNumberEl = row.querySelector('.row-number-mobile');
+            if (numberEl) {
+                numberEl.textContent = displayIndex + '.';
+            }
+            if (mobileNumberEl) {
+                mobileNumberEl.textContent = 'FISH #' + displayIndex;
+            }
+        });
+    }
+
+    function applyVisibleRows(count) {
+        const rows = getRows();
+        rows.forEach(function (row, index) {
+            if (!row) {
+                return;
+            }
+            if (index === 0) {
+                row.style.display = '';
+                return;
+            }
+            const isVisible = index < count;
+            row.style.display = isVisible ? '' : 'none';
+        });
+    }
+
+    if (noFishCheckbox && getSpeciesSelects().length) {
+            const firstSpeciesSelect = getSpeciesSelects()[0];
+            const updateFirstSpecies = function (value) {
+                if (!firstSpeciesSelect) {
+                    return;
+                }
+                firstSpeciesSelect.value = value;
+                firstSpeciesSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            };
+            noFishCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    updateFirstSpecies('0');
+                    applyVisibleRows(1);
+                } else {
+                    const count = visibleRowsSelect ? parseInt(visibleRowsSelect.value, 10) : 25;
+                    applyVisibleRows(count);
+                }
+            });
+            if (noFishCheckbox.checked) {
+                updateFirstSpecies('0');
+            }
+    }
+
+    if (eventSelect) {
+        ['change', 'input', 'blur', 'select2:select', 'select2:clear', 'select2:close'].forEach(function (eventName) {
+            eventSelect.addEventListener(eventName, function () {
+                syncEventState(false);
+            });
+        });
+
+        if (window.jQuery && typeof window.jQuery.fn !== 'undefined') {
+            window.jQuery(eventSelect).on('select2:select select2:clear select2:close change change.select2', function () {
+                syncEventState(false);
+            });
+        }
+
+        // Fallback for widget-driven updates that do not emit native events.
+        const selectObserver = new MutationObserver(function () {
+            syncEventState(false);
+        });
+        selectObserver.observe(eventSelect, {
+            attributes: true,
+            attributeFilter: ['value']
+        });
+        Array.from(eventSelect.options || []).forEach(function (optionEl) {
+            selectObserver.observe(optionEl, {
+                attributes: true,
+                attributeFilter: ['selected']
+            });
+        });
+
+        document.addEventListener('change', function (event) {
+            const target = event && event.target ? event.target : null;
+            if (!target) {
+                return;
+            }
+            if (target === eventSelect || target.id === 'id_event' || target.name === 'event') {
+                syncEventState(false);
+            }
+        });
+
+        window.addEventListener('focus', function () {
+            syncEventState(false);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                syncEventState(false);
+            }
+        });
+
+        // Short-lived fallback polling to cover any delayed Select2 init/rebinds.
+        startEventSyncFallbackWatcher(15000, 500);
+
+        syncEventState(true);
+        if (eventHasErrors) {
+            eventSelect.focus();
+        }
+    }
+
+    if (visibleRowsSelect) {
+        if (totalFormsInput) {
+            const totalForms = parseInt(totalFormsInput.value, 10);
+            if (!Number.isNaN(totalForms)) {
+                const optionValues = Array.from(visibleRowsSelect.options)
+                    .map(function (opt) { return parseInt(opt.value, 10); })
+                    .filter(function (val) { return !Number.isNaN(val); })
+                    .sort(function (a, b) { return a - b; });
+                const bestFit = optionValues.find(function (val) { return val >= totalForms; }) || optionValues[optionValues.length - 1];
+                if (bestFit) {
+                    visibleRowsSelect.value = String(bestFit);
+                }
+            }
+        }
+        visibleRowsSelect.addEventListener('change', function () {
+            const count = parseInt(this.value, 10);
+            if (noFishCheckbox && noFishCheckbox.checked) {
+                applyVisibleRows(1);
+                return;
+            }
+            ensureRowCount(count);
+            applyVisibleRows(count);
+        });
+        const initialCount = parseInt(visibleRowsSelect.value, 10);
+        ensureRowCount(Number.isNaN(initialCount) ? 25 : initialCount);
+        applyVisibleRows(Number.isNaN(initialCount) ? 25 : initialCount);
+    }
+
+    function initRow(row) {
+        if (!row) {
+            return;
+        }
+        const select = row.querySelector('select[id*="species"]');
+        if (!row) {
+            return;
+        }
+        if (!select) {
+            return;
+        }
+        const lengthInput = row.querySelector('input[id*="length_mm"]');
+        const weightInput = row.querySelector('input[id*="weight_g"]');
+        const countInput = row.querySelector('input[id*="fish_count"]');
+        const sexSelect = row.querySelector('select[id*="fish_sex"]');
+        const stageSelect = row.querySelector('select[id*="gonad_stage"]');
+        const gwtInput = row.querySelector('input[id*="gonad_wt_g"]');
+        const spCheck = row.querySelector('input[id*="spawn_patch"]');
+        const agCheck = row.querySelector('input[id*="collected4ag"]');
+
+        if (!lengthInput || !weightInput || !countInput || !sexSelect || !stageSelect || !gwtInput || !spCheck || !agCheck) {
+            return;
+        }
+        
+        function applyState(value, preserveExistingValues) {
+            if (value > '0') {
+                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                    if (!preserveExistingValues) {
+                        input.value = '';
+                    }
+                    input.readOnly = false;
+                });
+                if (!preserveExistingValues || String(countInput.value || '').trim() === '') {
+                    countInput.value = '1';
+                }
+                sexSelect.readOnly = false;
+                stageSelect.readOnly = false;
+                spCheck.readOnly = false;
+                agCheck.readOnly = false;
+                noFishCheckbox.checked = false;
+            }
+            else if (value === '0') {
+                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                    if (!preserveExistingValues) {
+                        input.value = '';
+                    }
+                    input.readOnly = true;
+                });
+                if (!preserveExistingValues || String(countInput.value || '').trim() === '') {
+                    countInput.value = '0';
+                }
+
+                if (!preserveExistingValues || String(sexSelect.value || '').trim() === '') {
+                    sexSelect.value = '0';
+                }
+                sexSelect.readOnly = true;
+                if (!preserveExistingValues) {
+                    stageSelect.value = '';
+                }
+                stageSelect.readOnly = true;
+
+                if (!preserveExistingValues) {
+                    spCheck.checked = false;
+                }
+                spCheck.readOnly = true;
+
+                if (!preserveExistingValues) {
+                    agCheck.checked = false;
+                }
+                agCheck.readOnly = true;
+                noFishCheckbox.checked = true;
+            }
+            else {
+                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                    if (!preserveExistingValues) {
+                        input.value = '';
+                    }
+                    input.readOnly = true;
+                });
+
+                if (!preserveExistingValues) {
+                    sexSelect.value = '';
+                    stageSelect.value = '';
+                }
+                sexSelect.readOnly = true;
+                stageSelect.readOnly = true;
+
+                if (!preserveExistingValues) {
+                    spCheck.checked = false;
+                }
+                spCheck.readOnly = true;
+
+                if (!preserveExistingValues) {
+                    agCheck.checked = false;
+                }
+                agCheck.readOnly = true;
+
+            }
+        }
+
+        // Initial setup and event listener
+        select.addEventListener('change', function () {
+            applyState(this.value, false);
+        });
+
+        applyState(select.value, true);
+    }
+
+    getRows().forEach(function (row) {
+        initRow(row);
+    });
+    updateRowNumbers();
+
+    function addRows(count) {
+        if (!emptyFormTemplate || !formsetContainer || !totalFormsInput) {
+            return;
+        }
+        let totalForms = parseInt(totalFormsInput.value, 10);
+        const batch = Number.isNaN(count) ? 0 : count;
+        for (let i = 0; i < batch; i += 1) {
+            const html = emptyFormTemplate.innerHTML.replace(/__prefix__/g, String(totalForms));
+            const temp = document.createElement('div');
+            temp.innerHTML = html.trim();
+            const row = temp.firstElementChild;
+            if (!row) {
+                continue;
+            }
+            formsetContainer.appendChild(row);
+            initRow(row);
+            totalForms += 1;
+        }
+        totalFormsInput.value = totalForms;
+        updateRowNumbers();
+        if (visibleRowsSelect) {
+            const count = parseInt(visibleRowsSelect.value, 10);
+            applyVisibleRows(Number.isNaN(count) ? 25 : count);
+        }
+    }
+
+    function ensureRowCount(count) {
+        const rows = getRows();
+        const target = Number.isNaN(count) ? rows.length : count;
+        if (rows.length >= target) {
+            return;
+        }
+        addRows(target - rows.length);
+    }
+
+    function clearFormsetRows() {
+        const rows = getRows();
+        rows.forEach(function (row) {
+            if (!row) {
+                return;
+            }
+            const inputs = Array.from(row.querySelectorAll('input, select, textarea'));
+            inputs.forEach(function (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = false;
+                } else {
+                    field.value = '';
+                }
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+    }
+
+    function trimRowsToCount(count) {
+        if (!formsetContainer || !totalFormsInput) {
+            return;
+        }
+        const target = Math.max(1, Number.isNaN(count) ? 25 : count);
+        const rows = getRows();
+        if (rows.length <= target) {
+            totalFormsInput.value = String(rows.length);
+            return;
+        }
+        for (let i = rows.length - 1; i >= target; i -= 1) {
+            rows[i].remove();
+        }
+        totalFormsInput.value = String(target);
+        updateRowNumbers();
+    }
+
+    function fullResetForm() {
+        const targetRows = 25;
+
+        if (eventSelect) {
+            eventSelect.value = '';
+            eventSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (noFishCheckbox) {
+            noFishCheckbox.checked = false;
+            noFishCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (csvFileInput) {
+            csvFileInput.value = '';
+        }
+        if (csvColumnMap) {
+            csvColumnMap.value = '';
+        }
+        if (csvClearExisting) {
+            csvClearExisting.checked = true;
+        }
+        setCsvStatus('', false);
+
+        if (catchSnapshotInput) {
+            catchSnapshotInput.value = '';
+        }
+
+        trimRowsToCount(targetRows);
+        ensureRowCount(targetRows);
+        clearFormsetRows();
+
+        if (visibleRowsSelect) {
+            visibleRowsSelect.value = String(targetRows);
+        }
+        applyVisibleRows(targetRows);
+        updateRowNumbers();
+        updateSubmitButtonState();
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let current = '';
+        let row = [];
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i += 1) {
+            const char = text[i];
+            const next = text[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && next === '"') {
+                    current += '"';
+                    i += 1;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
+
+            if (!inQuotes && char === ',') {
+                row.push(current.trim());
+                current = '';
+                continue;
+            }
+
+            if (!inQuotes && (char === '\n' || char === '\r')) {
+                if (char === '\r' && next === '\n') {
+                    i += 1;
+                }
+                row.push(current.trim());
+                if (row.some(function (cell) { return cell !== ''; })) {
+                    rows.push(row);
+                }
+                row = [];
+                current = '';
+                continue;
+            }
+
+            current += char;
+        }
+
+        if (current.length || row.length) {
+            row.push(current.trim());
+            if (row.some(function (cell) { return cell !== ''; })) {
+                rows.push(row);
+            }
+        }
+
+        return rows;
+    }
+
+    function isTruthy(value) {
+        const normalized = String(value || '').trim().toLowerCase();
+        return ['1', 'true', 'yes', 'y', 't'].includes(normalized);
+    }
+
+    function setFieldValue(field, value) {
+        if (!field) {
+            return;
+        }
+        if (field.type === 'checkbox') {
+            field.checked = isTruthy(value);
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+        field.value = value;
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function getRowFields(row) {
+        return {
+            species: row.querySelector('select[id*="species"]'),
+            length: row.querySelector('input[id*="length_mm"]'),
+            weight: row.querySelector('input[id*="weight_g"]'),
+            sex: row.querySelector('select[id*="fish_sex"]'),
+            count: row.querySelector('input[id*="fish_count"]'),
+            stage: row.querySelector('select[id*="gonad_stage"]'),
+            gwt: row.querySelector('input[id*="gonad_wt_g"]'),
+            spawn: row.querySelector('input[id*="spawn_patch"]'),
+            ag: row.querySelector('input[id*="collected4ag"]')
+        };
+    }
+
+    function serializeRowsForSnapshot() {
+        return getRows().map(function (row) {
+            const fields = getRowFields(row);
+            return {
+                species: fields.species ? String(fields.species.value || '') : '',
+                length_mm: fields.length ? String(fields.length.value || '') : '',
+                weight_g: fields.weight ? String(fields.weight.value || '') : '',
+                fish_sex: fields.sex ? String(fields.sex.value || '') : '',
+                fish_count: fields.count ? String(fields.count.value || '') : '',
+                gonad_stage: fields.stage ? String(fields.stage.value || '') : '',
+                gonad_wt_g: fields.gwt ? String(fields.gwt.value || '') : '',
+                spawn_patch: fields.spawn ? Boolean(fields.spawn.checked) : false,
+                collected4ag: fields.ag ? Boolean(fields.ag.checked) : false
+            };
+        }).filter(function (rowData) {
+            const hasScalar = [
+                rowData.species,
+                rowData.length_mm,
+                rowData.weight_g,
+                rowData.fish_sex,
+                rowData.fish_count,
+                rowData.gonad_stage,
+                rowData.gonad_wt_g
+            ].some(function (value) {
+                return String(value || '').trim() !== '';
+            });
+            return hasScalar || rowData.spawn_patch || rowData.collected4ag;
+        });
+    }
+
+    function restoreSnapshotRows(snapshotRows) {
+        if (!Array.isArray(snapshotRows) || !snapshotRows.length) {
+            return;
+        }
+        ensureRowCount(snapshotRows.length);
+        const rows = getRows();
+        snapshotRows.forEach(function (rowData, index) {
+            const row = rows[index];
+            if (!row) {
+                return;
+            }
+            const fields = getRowFields(row);
+            setFieldValue(fields.species, rowData.species || '');
+            setFieldValue(fields.length, rowData.length_mm || '');
+            setFieldValue(fields.weight, rowData.weight_g || '');
+            setFieldValue(fields.sex, rowData.fish_sex || '');
+            setFieldValue(fields.count, rowData.fish_count || '');
+            setFieldValue(fields.stage, rowData.gonad_stage || '');
+            setFieldValue(fields.gwt, rowData.gonad_wt_g || '');
+            setFieldValue(fields.spawn, rowData.spawn_patch ? '1' : '0');
+            setFieldValue(fields.ag, rowData.collected4ag ? '1' : '0');
+        });
+
+        if (visibleRowsSelect) {
+            const desired = Math.min(snapshotRows.length, 250);
+            const option = Array.from(visibleRowsSelect.options).find(function (opt) {
+                return parseInt(opt.value, 10) === desired;
+            });
+            if (option) {
+                visibleRowsSelect.value = option.value;
+            }
+            applyVisibleRows(Number.isNaN(desired) ? 25 : desired);
+        }
+        updateRowNumbers();
+    }
+
+    function setCsvStatus(message, isError) {
+        if (!csvStatus) {
+            return;
+        }
+        csvStatus.textContent = message;
+        csvStatus.classList.toggle('text-danger', Boolean(isError));
+        csvStatus.classList.toggle('text-muted', !isError);
+    }
+
+    function getColumnOrder() {
+        const defaultOrder = [
+            'species',
+            'length_mm',
+            'weight_g',
+            'fish_sex',
+            'fish_count',
+            'gonad_stage',
+            'gonad_wt_g',
+            'spawn_patch',
+            'collected4ag'
+        ];
+        const allowed = new Set(defaultOrder);
+        if (!csvColumnMap || !csvColumnMap.value.trim()) {
+            return { order: defaultOrder, error: '' };
+        }
+
+        const order = csvColumnMap.value
+            .split(',')
+            .map(function (value) { return value.trim(); })
+            .filter(function (value) { return value.length; });
+
+        const invalid = order.filter(function (value) { return !allowed.has(value); });
+        if (invalid.length) {
+            return { order: [], error: 'Unknown columns: ' + invalid.join(', ') };
+        }
+
+        const seen = new Set();
+        const duplicates = order.filter(function (value) {
+            if (seen.has(value)) {
+                return true;
+            }
+            seen.add(value);
+            return false;
+        });
+        if (duplicates.length) {
+            return { order: [], error: 'Duplicate columns: ' + Array.from(new Set(duplicates)).join(', ') };
+        }
+
+        return { order: order, error: '' };
+    }
+
+    function loadCsvIntoFormset(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length <= 1) {
+            setCsvStatus('No data rows found.', true);
+            return;
+        }
+
+        if (csvClearExisting && csvClearExisting.checked) {
+            clearFormsetRows();
+        }
+
+        const dataRows = rows.slice(1);
+        const mapping = getColumnOrder();
+        if (mapping.error) {
+            setCsvStatus(mapping.error, true);
+            return;
+        }
+        const columnOrder = mapping.order;
+        ensureRowCount(dataRows.length);
+        const formRows = getRows();
+
+        dataRows.forEach(function (data, index) {
+            const row = formRows[index];
+            if (!row) {
+                return;
+            }
+            const fields = getRowFields(row);
+            columnOrder.forEach(function (columnName, colIndex) {
+                const value = data[colIndex] || '';
+                if (columnName === 'species') {
+                    setFieldValue(fields.species, value);
+                } else if (columnName === 'length_mm') {
+                    setFieldValue(fields.length, value);
+                } else if (columnName === 'weight_g') {
+                    setFieldValue(fields.weight, value);
+                } else if (columnName === 'fish_sex') {
+                    setFieldValue(fields.sex, value);
+                } else if (columnName === 'fish_count') {
+                    setFieldValue(fields.count, value);
+                } else if (columnName === 'gonad_stage') {
+                    setFieldValue(fields.stage, value);
+                } else if (columnName === 'gonad_wt_g') {
+                    setFieldValue(fields.gwt, value);
+                } else if (columnName === 'spawn_patch') {
+                    setFieldValue(fields.spawn, value);
+                } else if (columnName === 'collected4ag') {
+                    setFieldValue(fields.ag, value);
+                }
+            });
+        });
+
+        if (visibleRowsSelect) {
+            const desired = Math.min(dataRows.length, 250);
+            const option = Array.from(visibleRowsSelect.options).find(function (opt) {
+                return parseInt(opt.value, 10) === desired;
+            });
+            if (option) {
+                visibleRowsSelect.value = option.value;
+            }
+            applyVisibleRows(Number.isNaN(desired) ? 25 : desired);
+        }
+
+        updateRowNumbers();
+        setCsvStatus('Loaded ' + dataRows.length + ' rows.', false);
+    }
+
+    if (addRowsButton) {
+        addRowsButton.addEventListener('click', function () {
+            addRows(25);
+        });
+    }
+
+    if (csvLoadButton && csvFileInput) {
+        csvLoadButton.addEventListener('click', function () {
+            if (!csvFileInput.files || !csvFileInput.files.length) {
+                setCsvStatus('Select a CSV file first.', true);
+                return;
+            }
+            const file = csvFileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const text = event.target && event.target.result ? String(event.target.result) : '';
+                loadCsvIntoFormset(text);
+            };
+            reader.onerror = function () {
+                setCsvStatus('Unable to read the CSV file.', true);
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    if (resetFormButton) {
+        resetFormButton.addEventListener('click', function () {
+            const confirmed = window.confirm('Resetting the entire form? Click OK to proceed.');
+            if (!confirmed) {
+                return;
+            }
+            fullResetForm();
+        });
+    }
+
+    function shouldDefaultSex(fields) {
+        if (!fields || !fields.sex) {
+            return false;
+        }
+        if ((fields.sex.value || '').trim() !== '') {
+            return false;
+        }
+
+        const speciesValue = fields.species ? String(fields.species.value || '').trim() : '';
+        const hasSpecies = speciesValue !== '';
+        const hasNumericData = [fields.length, fields.weight, fields.count, fields.gwt].some(function (field) {
+            return field && String(field.value || '').trim() !== '';
+        });
+        const hasStage = fields.stage && String(fields.stage.value || '').trim() !== '';
+        const hasFlags = (fields.spawn && fields.spawn.checked) || (fields.ag && fields.ag.checked);
+
+        return hasSpecies || hasNumericData || hasStage || hasFlags;
+    }
+
+    if (catchForm) {
+        catchForm.addEventListener('submit', function (event) {
+            if (eventSelect && String(eventSelect.value || '').trim() === '') {
+                event.preventDefault();
+                updateSubmitButtonState();
+                eventSelect.focus();
+                return;
+            }
+            const rows = getRows();
+            if (totalFormsInput) {
+                totalFormsInput.value = String(rows.length);
+            }
+            if (catchSnapshotInput) {
+                catchSnapshotInput.value = JSON.stringify(serializeRowsForSnapshot());
+            }
+            rows.forEach(function (row) {
+                const fields = getRowFields(row);
+                if (shouldDefaultSex(fields)) {
+                    fields.sex.value = '0';
+                    fields.sex.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        });
+    }
+
+    if (eventHasErrors && Array.isArray(catchSnapshotData) && catchSnapshotData.length) {
+        restoreSnapshotRows(catchSnapshotData);
+    }
+    
+            
+});
+</script>
+
+{% endblock extra_javascript %}

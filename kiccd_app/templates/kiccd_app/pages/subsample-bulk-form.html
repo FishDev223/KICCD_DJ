@@ -1,0 +1,876 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Add Subsample Data{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add Subsample Data' %}
+{% endblock page_title %}
+ 
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-2 mb-0 w-100">
+                <h5 class="d-none d-md-block text-muted mb-0">1) Provide details about the subsample's origin</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">Info about the Subsample's Origin</h4>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+ 
+                <div class="row p-md-1 g-md-1 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.cf_date }}
+                            <label class="form-label" for="id_cf_date">DATE</label>
+                        </div>
+                        {% if shared_form.cf_date.errors %}
+                            <div class="text-danger small">{{ shared_form.cf_date.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ shared_form.fisher }}
+                                <label class="form-label" for="id_fisher">FISHER</label>
+                            </div>
+                            {% if perms.kiccd_app.add_fisher %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addFisherBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addFisherModal"
+                                    title="Add a New Fisher" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if shared_form.fisher.errors %}
+                            <div class="text-danger small">{{ shared_form.fisher.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ shared_form.observer }}
+                                <label class="form-label" for="id_observer">OBSERVER</label>
+                            </div>
+                            {% if perms.kiccd_app.add_observer %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addObserverBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addObserverModal"
+                                    title="Add a New Observer" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if shared_form.observer.errors %}
+                            <div class="text-danger small">{{ shared_form.observer.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row p-md-1 g-md-1 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.basin }}
+                            <label class="form-label" for="id_basin">BASIN</label>
+                        </div>
+                        {% if shared_form.basin.errors %}
+                            <div class="text-danger small">{{ shared_form.basin.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.pool }}
+                            <label class="form-label" for="id_pool">POOL</label>
+                        </div>
+                        {% if shared_form.pool.errors %}
+                            <div class="text-danger small">{{ shared_form.pool.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.spp }}
+                            <label class="form-label" for="id_spp">SPECIES</label>
+                        </div>
+                        {% if shared_form.spp.errors %}
+                            <div class="text-danger small">{{ shared_form.spp.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-2 mb-0 w-100">
+                <h5 class="d-none d-md-block text-muted mb-0">2) Enter a Length & weight for all fish in the subsample.</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">Lengths & Weights of All Fish</h4>
+            </div>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+
+            {% for form in formset %}
+            <div class="row g-1 mb-md-1 mb-3 align-items-center">
+                <div class="border col-md-10 offset-md-1 rounded p-1 mb-0 bg-dark bg-opacity-10 csv-row">
+                    <div class="row g-1 mb-0">
+                        <div class="col-md-1 d-flex align-items-center justify-content-center">
+                            <p class="d-none d-md-block mt-2 fs-16">#{{ forloop.counter }}</p>
+                            <p class="d-block d-md-none mt-2 fs-16">FISH #{{ forloop.counter }}</p>
+                        </div>
+                        <div class="col-md-4 ">
+                            <div class="form-floating">
+                                {{ form.length_mm }}
+                                <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                            </div>
+                                {% if form.length_mm.errors %}
+                                    <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
+                                {% endif %}
+                        </div>
+                        <div class="col-md-4 ">
+                            <div class="form-floating">
+                                {{ form.weight_g }}
+                                <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                            </div>
+                                {% if form.weight_g.errors %}
+                                    <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
+                                {% endif %}
+                        </div>
+                        <div class="col-md-3 ">
+                            <div class="form-floating">
+                                {{ form.sex }}
+                                <label class="form-label" for="id_sex">SEX</label>
+                            </div>
+                                {% if form.sex.errors %}
+                                    <div class="text-danger small">{{ form.sex.errors|striptags }}</div>
+                                {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-md-10 offset-md-1 my-1">
+            <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="AddCsvHeading1">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddEventOne">
+                                Additional Data Loading Options
+                            </button>
+                        </h2>
+                        <div id="AddCsvOne" class="accordion-collapse collapse"
+                            aria-labelledby="AddCsvHeading1" data-bs-parent="#CSVLoadUI">
+                            <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                <div class="row g-2 align-items-stretch mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label mb-1" for="csv_file_input">Load from CSV</label>
+                                        <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div id="csv_status" class="text-muted"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-stretch mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label mb-1" for="csv_column_map">Column order (optional)</label>
+                                        <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="length_mm,weight_g,sex" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check mt-4">
+                                            <input id="csv_clear_existing" class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label" for="csv_clear_existing">Clear existing rows?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-success" id="subsampleSubmitBtn">
+                        <span id="subsampleSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                        SUBMIT
+                    </button>
+                <div>
+                    <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Are you sure you want to reset the entire form?')) this.form.reset();">RESET</button>
+                    <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+            </form>
+</div>
+
+<script>
+(function () {
+    var form = document.querySelector('form');
+    var submitBtn = document.getElementById('subsampleSubmitBtn');
+    var submitSpinner = document.getElementById('subsampleSubmitSpinner');
+    if (!form || !submitBtn) return;
+    form.addEventListener('submit', function () {
+        submitSpinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+}());
+</script>
+
+<!-- Add Fisher Modal -->
+<div class="modal fade" id="addFisherModal" tabindex="-1" aria-labelledby="addFisherModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFisherModalLabel"><i class="ti ti-user-plus me-1"></i> Add New Fisher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addFisherGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="modal_first_name" required>
+                        <label class="form-label" for="modal_first_name">FIRST NAME</label>
+                    </div>
+                    <div class="text-danger small d-none" id="err_first_name"></div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="modal_last_name" required>
+                        <label class="form-label" for="modal_last_name">LAST NAME</label>
+                    </div>
+                    <div class="text-danger small d-none" id="err_last_name"></div>
+                </div>
+                <div class="d-flex gap-4 justify-content-center mb-3 p-2 bg-dark bg-opacity-10 rounded">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="modal_contracted">
+                        <label class="form-check-label" for="modal_contracted">Contracted</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="modal_commercial_license" checked>
+                        <label class="form-check-label" for="modal_commercial_license">Comm. License</label>
+                    </div>
+                </div>
+                <div class="accordion accordion-flush" id="fisherModalOptional">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#modalOptionalCollapse" aria-expanded="false">
+                                <small><strong><u>Click for Optional Info:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="modalOptionalCollapse" class="accordion-collapse collapse" data-bs-parent="#fisherModalOptional">
+                            <div class="accordion-body p-2">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="modal_name">
+                                            <label class="form-label" for="modal_name">FULL NAME (override)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="modal_lookup">
+                                            <label class="form-label" for="modal_lookup">LOOKUP (override)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveFisherBtn">
+                    <span id="saveFisherSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var modal = document.getElementById('addFisherModal');
+    var saveBtn = document.getElementById('saveFisherBtn');
+    if (!saveBtn) return;
+    var spinner = document.getElementById('saveFisherSpinner');
+    var globalErrors = document.getElementById('addFisherGlobalErrors');
+
+    function clearModalErrors() {
+        globalErrors.classList.add('d-none');
+        globalErrors.textContent = '';
+        ['first_name', 'last_name'].forEach(function (f) {
+            var el = document.getElementById('err_' + f);
+            if (el) { el.textContent = ''; el.classList.add('d-none'); }
+            var inp = document.getElementById('modal_' + f);
+            if (inp) inp.classList.remove('is-invalid');
+        });
+    }
+
+    function resetModal() {
+        clearModalErrors();
+        document.getElementById('modal_first_name').value = '';
+        document.getElementById('modal_last_name').value = '';
+        document.getElementById('modal_contracted').checked = false;
+        document.getElementById('modal_commercial_license').checked = true;
+        document.getElementById('modal_name').value = '';
+        document.getElementById('modal_lookup').value = '';
+    }
+
+    modal.addEventListener('hidden.bs.modal', resetModal);
+
+    saveBtn.addEventListener('click', function () {
+        clearModalErrors();
+        var firstName = document.getElementById('modal_first_name').value.trim();
+        var lastName = document.getElementById('modal_last_name').value.trim();
+        var hasError = false;
+
+        if (!firstName) {
+            var e1 = document.getElementById('err_first_name');
+            e1.textContent = 'This field is required.';
+            e1.classList.remove('d-none');
+            document.getElementById('modal_first_name').classList.add('is-invalid');
+            hasError = true;
+        }
+        if (!lastName) {
+            var e2 = document.getElementById('err_last_name');
+            e2.textContent = 'This field is required.';
+            e2.classList.remove('d-none');
+            document.getElementById('modal_last_name').classList.add('is-invalid');
+            hasError = true;
+        }
+        if (hasError) return;
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData = new FormData();
+        formData.append('first_name', firstName);
+        formData.append('last_name', lastName);
+        if (document.getElementById('modal_contracted').checked) formData.append('contracted', 'on');
+        if (document.getElementById('modal_commercial_license').checked) formData.append('commercial_license', 'on');
+        var nameVal = document.getElementById('modal_name').value.trim();
+        var lookupVal = document.getElementById('modal_lookup').value.trim();
+        if (nameVal) formData.append('name', nameVal);
+        if (lookupVal) formData.append('lookup', lookupVal);
+
+        spinner.classList.remove('d-none');
+        saveBtn.disabled = true;
+
+        fetch("{% url 'kiccd_app:fisher_create_ajax' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            spinner.classList.add('d-none');
+            saveBtn.disabled = false;
+            if (data.success) {
+                var select = document.getElementById('id_fisher');
+                var newOpt = new Option(data.name, data.id, true, true);
+                if (window.jQuery && $(select).data('select2')) {
+                    $(select).append(newOpt).trigger('change');
+                } else {
+                    select.add(newOpt);
+                    select.value = data.id;
+                    select.dispatchEvent(new Event('change'));
+                }
+                bootstrap.Modal.getInstance(modal).hide();
+            } else {
+                var msgs = [];
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function (field) {
+                        var fieldErrs = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                        var errEl = document.getElementById('err_' + field);
+                        var inpEl = document.getElementById('modal_' + field);
+                        if (errEl) {
+                            errEl.textContent = fieldErrs.join(' ');
+                            errEl.classList.remove('d-none');
+                            if (inpEl) inpEl.classList.add('is-invalid');
+                        } else {
+                            msgs.push(fieldErrs.join(' '));
+                        }
+                    });
+                }
+                if (msgs.length) {
+                    globalErrors.textContent = msgs.join(' | ');
+                    globalErrors.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(function () {
+            spinner.classList.add('d-none');
+            saveBtn.disabled = false;
+            globalErrors.textContent = 'An unexpected error occurred. Please try again.';
+            globalErrors.classList.remove('d-none');
+        });
+    });
+}());
+</script>
+
+<!-- Add Observer Modal -->
+<div class="modal fade" id="addObserverModal" tabindex="-1" aria-labelledby="addObserverModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addObserverModalLabel"><i class="ti ti-user-plus me-1"></i> Add New Observer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addObserverGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="obs_first_name" required>
+                        <label class="form-label" for="obs_first_name">FIRST NAME</label>
+                    </div>
+                    <div class="text-danger small d-none" id="obs_err_first_name"></div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="obs_last_name" required>
+                        <label class="form-label" for="obs_last_name">LAST NAME</label>
+                    </div>
+                    <div class="text-danger small d-none" id="obs_err_last_name"></div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <select class="form-control" id="obs_agency" required>
+                            <option value="">...</option>
+                            {% for partner in partners %}
+                            <option value="{{ partner.pk }}">{{ partner.abbrev }}</option>
+                            {% endfor %}
+                        </select>
+                        <label class="form-label" for="obs_agency">AGENCY</label>
+                    </div>
+                    <div class="text-danger small d-none" id="obs_err_agency"></div>
+                </div>
+                <div class="accordion accordion-flush" id="observerModalOptional">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#obsOptionalCollapse" aria-expanded="false">
+                                <small><strong><u>Click for Optional Info:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="obsOptionalCollapse" class="accordion-collapse collapse" data-bs-parent="#observerModalOptional">
+                            <div class="accordion-body p-2">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="obs_name">
+                                    <label class="form-label" for="obs_name">FULL NAME (override)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveObserverBtn">
+                    <span id="saveObserverSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var obsModal = document.getElementById('addObserverModal');
+    var saveObsBtn = document.getElementById('saveObserverBtn');
+    if (!saveObsBtn) return;
+    var obsSpinner = document.getElementById('saveObserverSpinner');
+    var obsGlobalErrors = document.getElementById('addObserverGlobalErrors');
+    var obsFields = ['first_name', 'last_name', 'agency'];
+
+    function clearObsErrors() {
+        obsGlobalErrors.classList.add('d-none');
+        obsGlobalErrors.textContent = '';
+        obsFields.forEach(function (f) {
+            var el = document.getElementById('obs_err_' + f);
+            if (el) { el.textContent = ''; el.classList.add('d-none'); }
+            var inp = document.getElementById('obs_' + f);
+            if (inp) inp.classList.remove('is-invalid');
+        });
+    }
+
+    function resetObsModal() {
+        clearObsErrors();
+        document.getElementById('obs_first_name').value = '';
+        document.getElementById('obs_last_name').value = '';
+        document.getElementById('obs_agency').value = '';
+        document.getElementById('obs_name').value = '';
+    }
+
+    obsModal.addEventListener('hidden.bs.modal', resetObsModal);
+
+    saveObsBtn.addEventListener('click', function () {
+        clearObsErrors();
+        var firstName = document.getElementById('obs_first_name').value.trim();
+        var lastName = document.getElementById('obs_last_name').value.trim();
+        var agency = document.getElementById('obs_agency').value;
+        var hasError = false;
+
+        if (!firstName) {
+            var e1 = document.getElementById('obs_err_first_name');
+            e1.textContent = 'This field is required.';
+            e1.classList.remove('d-none');
+            document.getElementById('obs_first_name').classList.add('is-invalid');
+            hasError = true;
+        }
+        if (!lastName) {
+            var e2 = document.getElementById('obs_err_last_name');
+            e2.textContent = 'This field is required.';
+            e2.classList.remove('d-none');
+            document.getElementById('obs_last_name').classList.add('is-invalid');
+            hasError = true;
+        }
+        if (!agency) {
+            var e3 = document.getElementById('obs_err_agency');
+            e3.textContent = 'This field is required.';
+            e3.classList.remove('d-none');
+            document.getElementById('obs_agency').classList.add('is-invalid');
+            hasError = true;
+        }
+        if (hasError) return;
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData = new FormData();
+        formData.append('first_name', firstName);
+        formData.append('last_name', lastName);
+        formData.append('agency', agency);
+        var nameVal = document.getElementById('obs_name').value.trim();
+        if (nameVal) formData.append('name', nameVal);
+
+        obsSpinner.classList.remove('d-none');
+        saveObsBtn.disabled = true;
+
+        fetch("{% url 'kiccd_app:observer_create_ajax' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            obsSpinner.classList.add('d-none');
+            saveObsBtn.disabled = false;
+            if (data.success) {
+                var select = document.getElementById('id_observer');
+                var newOpt = new Option(data.name, data.id, true, true);
+                if (window.jQuery && $(select).data('select2')) {
+                    $(select).append(newOpt).trigger('change');
+                } else {
+                    select.add(newOpt);
+                    select.value = data.id;
+                    select.dispatchEvent(new Event('change'));
+                }
+                bootstrap.Modal.getInstance(obsModal).hide();
+            } else {
+                var msgs = [];
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function (field) {
+                        var fieldErrs = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                        var errEl = document.getElementById('obs_err_' + field);
+                        var inpEl = document.getElementById('obs_' + field);
+                        if (errEl) {
+                            errEl.textContent = fieldErrs.join(' ');
+                            errEl.classList.remove('d-none');
+                            if (inpEl) inpEl.classList.add('is-invalid');
+                        } else {
+                            msgs.push(fieldErrs.join(' '));
+                        }
+                    });
+                }
+                if (msgs.length) {
+                    obsGlobalErrors.textContent = msgs.join(' | ');
+                    obsGlobalErrors.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(function () {
+            obsSpinner.classList.add('d-none');
+            saveObsBtn.disabled = false;
+            obsGlobalErrors.textContent = 'An unexpected error occurred. Please try again.';
+            obsGlobalErrors.classList.remove('d-none');
+        });
+    });
+}());
+</script>
+{% endblock page_content %}
+
+
+{% block extra_javascript %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const basinSelect = document.getElementById('id_basin');
+    const poolSelect = document.getElementById('id_pool');
+    const csvFileInput = document.getElementById('csv_file_input');
+    const csvLoadButton = document.getElementById('csv_load_btn');
+    const csvStatus = document.getElementById('csv_status');
+    const csvColumnMap = document.getElementById('csv_column_map');
+    const csvClearExisting = document.getElementById('csv_clear_existing');
+
+    // Handle BASIN and POOL interdependency
+    if (basinSelect && poolSelect) {
+        basinSelect.addEventListener('change', function() {
+            const basinValue = this.value;
+            const basinInt = parseInt(basinValue);
+            const lowerPools = ['1', '2', '3', '4'];
+            const middlePools = ['5', '6', '7', '8', '9'];
+            const upperPools = ['10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
+            const noPool = ['20', '21'];
+            const allPools = lowerPools.concat(middlePools, upperPools);
+
+            for (let option of poolSelect.options) {
+                if (basinInt === 1) {
+                    option.disabled = !allPools.includes(option.value);
+                    poolSelect.value = ''; // Reset POOL select
+                } else if (basinInt === 2) {
+                    option.disabled = !middlePools.includes(option.value);
+                    poolSelect.value = ''; // Reset POOL select
+                } else if (basinInt === 3) {
+                    option.disabled = !upperPools.includes(option.value);
+                    poolSelect.value = ''; // Reset POOL select
+                } else if (basinInt === 4) {
+                    option.disabled = !lowerPools.includes(option.value);
+                    poolSelect.value = ''; // Reset POOL select
+                } else if (basinInt >= 5) {
+                    option.disabled = !noPool.includes(option.value);
+                    poolSelect.value = '21'; // Ensure "Not Applicable" is selected
+                } else {
+                    option.disabled = false;
+                    poolSelect.value = ''; // Reset POOL select
+                }
+            }
+        });
+    }
+
+    function getRows() {
+        return Array.from(document.querySelectorAll('.csv-row'));
+    }
+
+    function clearFormsetRows() {
+        const rows = getRows();
+        rows.forEach(function (row) {
+            const inputs = Array.from(row.querySelectorAll('input, select, textarea'));
+            inputs.forEach(function (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = false;
+                } else {
+                    field.value = '';
+                }
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let current = '';
+        let row = [];
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i += 1) {
+            const char = text[i];
+            const next = text[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && next === '"') {
+                    current += '"';
+                    i += 1;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
+
+            if (!inQuotes && char === ',') {
+                row.push(current.trim());
+                current = '';
+                continue;
+            }
+
+            if (!inQuotes && (char === '\n' || char === '\r')) {
+                if (char === '\r' && next === '\n') {
+                    i += 1;
+                }
+                row.push(current.trim());
+                if (row.some(function (cell) { return cell !== ''; })) {
+                    rows.push(row);
+                }
+                row = [];
+                current = '';
+                continue;
+            }
+
+            current += char;
+        }
+
+        if (current.length || row.length) {
+            row.push(current.trim());
+            if (row.some(function (cell) { return cell !== ''; })) {
+                rows.push(row);
+            }
+        }
+
+        return rows;
+    }
+
+    function isTruthy(value) {
+        const normalized = String(value || '').trim().toLowerCase();
+        return ['1', 'true', 'yes', 'y', 't'].includes(normalized);
+    }
+
+    function setFieldValue(field, value) {
+        if (!field) {
+            return;
+        }
+        if (field.type === 'checkbox') {
+            field.checked = isTruthy(value);
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+        field.value = value;
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function getRowFields(row) {
+        return {
+            length: row.querySelector('input[id*="length_mm"]'),
+            weight: row.querySelector('input[id*="weight_g"]'),
+            sex: row.querySelector('select[id*="sex"]')
+        };
+    }
+
+    function setCsvStatus(message, isError) {
+        if (!csvStatus) {
+            return;
+        }
+        csvStatus.textContent = message;
+        csvStatus.classList.toggle('text-danger', Boolean(isError));
+        csvStatus.classList.toggle('text-muted', !isError);
+    }
+
+    function getColumnOrder() {
+        const defaultOrder = [
+            'length_mm',
+            'weight_g',
+            'sex'
+        ];
+        const allowed = new Set(defaultOrder);
+        if (!csvColumnMap || !csvColumnMap.value.trim()) {
+            return { order: defaultOrder, error: '' };
+        }
+
+        const order = csvColumnMap.value
+            .split(',')
+            .map(function (value) { return value.trim(); })
+            .filter(function (value) { return value.length; });
+
+        const invalid = order.filter(function (value) { return !allowed.has(value); });
+        if (invalid.length) {
+            return { order: [], error: 'Unknown columns: ' + invalid.join(', ') };
+        }
+
+        const seen = new Set();
+        const duplicates = order.filter(function (value) {
+            if (seen.has(value)) {
+                return true;
+            }
+            seen.add(value);
+            return false;
+        });
+        if (duplicates.length) {
+            return { order: [], error: 'Duplicate columns: ' + Array.from(new Set(duplicates)).join(', ') };
+        }
+
+        return { order: order, error: '' };
+    }
+
+    function loadCsvIntoFormset(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length <= 1) {
+            setCsvStatus('No data rows found.', true);
+            return;
+        }
+
+        if (csvClearExisting && csvClearExisting.checked) {
+            clearFormsetRows();
+        }
+
+        const dataRows = rows.slice(1);
+        const mapping = getColumnOrder();
+        if (mapping.error) {
+            setCsvStatus(mapping.error, true);
+            return;
+        }
+        const columnOrder = mapping.order;
+        const formRows = getRows();
+        if (!formRows.length) {
+            setCsvStatus('No form rows found.', true);
+            return;
+        }
+
+        const loadCount = Math.min(dataRows.length, formRows.length);
+        for (let i = 0; i < loadCount; i += 1) {
+            const row = formRows[i];
+            const fields = getRowFields(row);
+            columnOrder.forEach(function (columnName, colIndex) {
+                const value = dataRows[i][colIndex] || '';
+                if (columnName === 'length_mm') {
+                    setFieldValue(fields.length, value);
+                } else if (columnName === 'weight_g') {
+                    setFieldValue(fields.weight, value);
+                } else if (columnName === 'sex') {
+                    setFieldValue(fields.sex, value);
+                }
+            });
+        }
+
+        if (dataRows.length > formRows.length) {
+            setCsvStatus('Loaded ' + loadCount + ' rows. ' + (dataRows.length - loadCount) + ' row(s) ignored.', false);
+        } else {
+            setCsvStatus('Loaded ' + loadCount + ' rows.', false);
+        }
+    }
+
+    if (csvLoadButton && csvFileInput) {
+        csvLoadButton.addEventListener('click', function () {
+            if (!csvFileInput.files || !csvFileInput.files.length) {
+                setCsvStatus('Select a CSV file first.', true);
+                return;
+            }
+            const file = csvFileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const text = event.target && event.target.result ? String(event.target.result) : '';
+                loadCsvIntoFormset(text);
+            };
+            reader.onerror = function () {
+                setCsvStatus('Unable to read the CSV file.', true);
+            };
+            reader.readAsText(file);
+        });
+    }
+});
+</script>
+{% endblock extra_javascript %}

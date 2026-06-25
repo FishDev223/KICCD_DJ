@@ -1,0 +1,220 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %} Filtered Subsamples{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/datetime/1.6.2/css/dataTables.dateTime.css" rel="stylesheet" integrity="sha384-7gVhgCBvVkFm8CjELsmoaaDJyWITKmo5b7imOimmD95IVzEyhS92YJ3jlcHfGc1l" crossorigin="anonymous">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Invasive Carp Subsample Data' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Filtered Subsample Data</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Filtered SS Data</h4>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add New<br>Subsample Data</em>"><i class="ri ri-add-circle-line align-middle me-1 fs-18"></i> ADD</a>
+                <a href="{% url 'kiccd_app:subsample_data' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>View Most Recent<br>Subsample Records</em>"><i class="ri ri-eye-line align-middle me-1 fs-18"></i> VIEW</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-1 align-items-end">
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ss-filter-year" class="form-select" name="year">
+                            <option value="">...</option>
+                            {% for year in year_options %}
+                            <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-year" class="form-label">YEAR</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ss-filter-season" class="form-select" name="season">
+                            <option value="">...</option>
+                            {% for season in season_options %}
+                            <option value="{{ season }}" {% if selected_season == season %}selected{% endif %}>{{ season }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-season" class="form-label">SEASON</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ss-filter-month" class="form-select" name="month">
+                            <option value="">...</option>
+                            {% for month in month_options %}
+                            <option value="{{ month.ic_month1 }}" {% if selected_month == month.ic_month1 %}selected{% endif %}>{{ month.ic_mon }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-month" class="form-label">MONTH</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ss-filter-basin" class="form-select" name="basin">
+                            <option value="">...</option>
+                            {% for basin in basin_options %}
+                            <option value="{{ basin.basin_id }}" {% if selected_basin == basin.basin_id %}selected{% endif %}>{{ basin.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-basin" class="form-label">BASIN</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ss-filter-pool" class="form-select" name="pool">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                            <option value="{{ pool.pool_id }}" {% if selected_pool == pool.pool_id %}selected{% endif %}>{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-pool" class="form-label">POOL</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ss-filter-species" class="form-select" name="species">
+                            <option value="">...</option>
+                            {% for species in species_options %}
+                            <option value="{{ species.spp_id }}" {% if selected_species == species.spp_id %}selected{% endif %}>{{ species.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-species" class="form-label">SPECIES</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="ss-filter-sex" class="form-select" name="sex">
+                            <option value="">...</option>
+                            {% for sex in sex_options %}
+                            <option value="{{ sex.sx_id }}" {% if selected_sex == sex.sx_id %}selected{% endif %}>{{ sex.abbrev }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-sex" class="form-label">SEX</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="ss-filter-fisher" class="form-select" name="fisher">
+                            <option value="">...</option>
+                            {% for fisher in fisher_options %}
+                            <option value="{{ fisher.fisher_id }}" {% if selected_fisher == fisher.fisher_id %}selected{% endif %}>{{ fisher.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ss-filter-fisher" class="form-label">FISHER</label>
+                    </div>
+                </div>
+
+                <div class="row g-2 align-items-center mt-1">
+                    <div class="col-6 col-md-2 offset-md-4">
+                        <button type="submit" name="apply" value="1" class="btn btn-sm btn-primary w-100">APPLY</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <a href="{% url 'kiccd_app:subsample_filtered' %}" class="btn btn-sm btn-secondary w-100">RESET</a>
+                    </div>
+                </div>
+            </form>
+
+            {% if filters_applied %}
+            <div class="mt-3 mb-2 text-muted small">Filtered records: {{ subsamples|length }}</div>
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Basin</th>
+                        <th>Pool</th>
+                        <th>Fisher</th>
+                        <th>Species</th>
+                        <th>Sex</th>
+                        <th>Length (mm)</th>
+                        <th>Length (in)</th>
+                        <th>Weight (g)</th>
+                        <th>Weight (kg)</th>
+                        <th>Weight (lb)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subsamples %}
+                    <tr>
+                        <td>{{ sub.datez }}</td>
+                        <td>{{ sub.basin.name }}</td>
+                        <td>{{ sub.pool.abbrev }}</td>
+                        <td>{{ sub.fisher.lookup }}</td>
+                        <td>{{ sub.spp.abbrev }}</td>
+                        <td>{{ sub.sex.abbrev }}</td>
+                        <td>{% if sub.length_mm %}{{ sub.length_mm }}{% else %}&mdash;{% endif %}</td>
+                        <td>{% if sub.length_in %}{{ sub.length_in }}{% else %}&mdash;{% endif %}</td>
+                        <td>{% if sub.weight_g %}{{ sub.weight_g }}{% else %}&mdash;{% endif %}</td>
+                        <td>{% if sub.weight_kg %}{{ sub.weight_kg }}{% else %}&mdash;{% endif %}</td>
+                        <td>{% if sub.weight_lb %}{{ sub.weight_lb }}{% else %}&mdash;{% endif %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="11" class="text-center">No records matched the selected filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="mt-4 alert alert-light mb-0"><em>Select some filters and click "APPLY" to view the records.</em></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    if ($('#basic-datatable').length) {
+        $('#basic-datatable').DataTable({
+            order: [],
+            keys: false,
+            fixedHeader: true,
+            pageLength: 50,
+            layout: {
+                topStart: { pageLength: { menu: [50, 100, 150, 200] } },
+                topEnd: { search: { placeholder: '' } },
+                bottomStart: 'info',
+                bottomEnd: 'paging',
+                bottom: { buttons: ['copy', 'csv', 'pdf'] }
+            },
+            language: {
+                paginate: {
+                    previous: "<i class='ti ti-chevron-left'>",
+                    next: "<i class='ti ti-chevron-right'>"
+                }
+            },
+            drawCallback: function () {
+                $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+            }
+        });
+    }
+});
+</script>
+{% endblock extra_javascript %}

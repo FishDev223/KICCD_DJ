@@ -1,0 +1,184 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Commercial Fishing Sites{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/datetime/1.6.2/css/dataTables.dateTime.css" rel="stylesheet" integrity="sha384-7gVhgCBvVkFm8CjELsmoaaDJyWITKmo5b7imOimmD95IVzEyhS92YJ3jlcHfGc1l" crossorigin="anonymous">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<style>
+    #modal-site-map { width: 100%; height: 420px; }
+    .mapboxgl-popup-content { padding: 10px 14px; font-size: 0.85rem; }
+</style>
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Commercial (ICHP) Sites' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">General locations used for commercial fishers in the ICHP program.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Commercial (ICHP) Sites</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:hp_site_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a ICHP Fishing Site</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i>NEW SITE</a>
+            </div>
+        </div>    
+        <div class="card-body">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>River Mi.</th>
+                        <th>Type</th>
+                        <th>Pool</th>
+                        <th>Tributary</th>
+                        <th>Basin|Waterbody</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for site in sites %}
+                    <tr>
+                        <td>{{ site.site_id }}</td>
+                        <td>
+                            <button type="button" class="btn btn-link p-0 text-start lh-sm"
+                                    data-bs-toggle="modal" data-bs-target="#siteMapModal"
+                                    data-name="{{ site.name }}"
+                                    data-lat="{{ site.latitude }}"
+                                    data-lng="{{ site.longitude }}">
+                                {{ site.name }}
+                            </button>
+                        </td>
+                        <td>{{ site.latitude }}</td>
+                        <td>{{ site.longitude }}</td>
+                        <td>{{ site.river_mi }}</td>
+                        <td>{{ site.type.name }}</td>
+                        <td>{{ site.pool.abbrev }}</td>
+                        <td>{{ site.trib.name }}</td>
+                        <td>{{ site.basin.name }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9">No records found.</td></tr>
+                {% endfor %}
+                </tbody>
+                
+            </table>
+        </div> <!-- end card body-->
+    </div> <!-- end card -->
+</div> <!-- end row-->
+
+<!-- Site Map Modal -->
+<div class="modal fade" id="siteMapModal" tabindex="-1" aria-labelledby="siteMapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title fw-semibold" id="siteMapModalLabel"></h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="modal-site-map"></div>
+                <div id="modalSiteCoords" class="px-3 py-2 border-top small text-muted"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+    // Default Datatable
+    $('#basic-datatable').DataTable({
+        keys: true,
+        fixedHeader: true,
+        pageLength: 50,
+         layout: {
+        topStart: {pageLength: {menu: [25, 50, 100, 200]}},
+        topEnd: {search: {placeholder: 'Search'}},
+        bottomStart: 'info',
+        bottomEnd: 'paging',
+        bottom: {buttons: ['copy', 'csv', 'pdf']}  
+        },      
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            }
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    table.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $(".dataTables_length select").addClass('form-select form-select-sm');
+    $(".dataTables_length label").addClass('form-label');
+});
+
+// --- Site Map Modal ---
+(function () {
+    'use strict';
+
+    const MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+    if (!MAPBOX_TOKEN) return;
+
+    const modal       = document.getElementById('siteMapModal');
+    const modalLabel  = document.getElementById('siteMapModalLabel');
+    const modalCoords = document.getElementById('modalSiteCoords');
+
+    let modalMap    = null;
+    let modalMarker = null;
+
+    modal.addEventListener('show.bs.modal', function (e) {
+        const btn = e.relatedTarget;
+        if (!btn) return;
+        modalLabel.textContent  = btn.dataset.name;
+        modal.dataset.lat       = btn.dataset.lat;
+        modal.dataset.lng       = btn.dataset.lng;
+        modalCoords.textContent = 'Lat: ' + btn.dataset.lat + '   |   Lon: ' + btn.dataset.lng;
+    });
+
+    modal.addEventListener('shown.bs.modal', function () {
+        const lat = parseFloat(modal.dataset.lat);
+        const lng = parseFloat(modal.dataset.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        if (!modalMap) {
+            mapboxgl.accessToken = MAPBOX_TOKEN;
+            modalMap = new mapboxgl.Map({
+                container: 'modal-site-map',
+                style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+                center: [lng, lat],
+                zoom: 13,
+            });
+            modalMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            modalMarker = new mapboxgl.Marker({ color: '#e6d00d' })
+                .setLngLat([lng, lat])
+                .addTo(modalMap);
+        } else {
+            modalMap.resize();
+            modalMarker.setLngLat([lng, lat]);
+            modalMap.flyTo({ center: [lng, lat], zoom: 13, speed: 1.6 });
+        }
+    });
+}());
+</script>
+{% endblock extra_javascript %}

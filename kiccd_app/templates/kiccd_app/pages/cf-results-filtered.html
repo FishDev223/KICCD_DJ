@@ -1,0 +1,396 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Filter CF Results{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/datetime/1.6.2/css/dataTables.dateTime.css" rel="stylesheet" integrity="sha384-7gVhgCBvVkFm8CjELsmoaaDJyWITKmo5b7imOimmD95IVzEyhS92YJ3jlcHfGc1l" crossorigin="anonymous">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Contract Fishing - Efforts & Harvest Summaries' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Filterable Contract Fishing Results</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Filterable CF Results</h4>
+        </div>
+        <div class="card-body"> 
+            <form id="cf-filter-form" class="row g-1 align-items-end">
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="cf-filter-pool" class="form-select" name="pool">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                            <option value="{{ pool.name }}">{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="cf-filter-pool" class="form-label">Pool</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="cf-filter-year" class="form-select" name="year">
+                            <option value="">...</option>
+                            {% for year in year_options %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="cf-filter-year" class="form-label d-none d-md-block">Year</label>
+                        <label for="cf-filter-year" class="form-label d-block d-md-none">Calendar Year</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="cf-filter-month" class="form-select" name="month">
+                            <option value="">...</option>
+                            {% for month in month_options %}
+                            <option value="{{ month.ic_month1 }}">{{ month.ic_mon }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="cf-filter-month" class="form-label">Month</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="cf-filter-week" class="form-select" name="week">
+                            <option value="">...</option>
+                            {% for week in week_options %}
+                            <option value="{{ week }}">{{ week }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="cf-filter-week" class="form-label">Week</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                    <select id="cf-filter-peak" class="form-select" name="peak_season">
+                        <option value="">...</option>
+                        {% for peak in peak_season_options %}
+                        <option value="{{ peak }}">{{ peak }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="cf-filter-peak" class="form-label d-none d-md-block">Peak CF SSN</label>
+                    <label for="cf-filter-peak" class="form-label d-block d-md-none">Peak CF Season</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="cf-filter-season" class="form-select" name="season">
+                            <option value="">...</option>
+                            {% for season in season_options %}
+                            <option value="{{ season }}">{{ season }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="cf-filter-season" class="form-label">Season</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2 offset-md-1">
+                    <div class="form-floating">
+                    <select id="cf-filter-fisher" class="form-select" name="fisher">
+                        <option value="">...</option>
+                        {% for fisher in fisher_options %}
+                        <option value="{{ fisher.name }}">{{ fisher.name }}</option>
+                        {% endfor %} 
+                    </select>
+                    <label for="cf-filter-fisher" class="form-label">Fisher</label>
+                </div>
+                </div>
+                <div class="row g-2 align-items-center">
+                <div class="col-6 col-md-2 offset-md-4">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">APPLY</button>
+                </div>
+                <div class="col-6 col-md-2">
+                    <button type="button" id="cf-filter-reset" class="btn btn-sm btn-secondary w-100">RESET</button>
+                </div>
+                </div>
+            </form>
+ 
+            <div class="mt-4" id="cf-effort-results">
+                <div class="alert alert-light mb-0"><em>Select filters and click "APPLY" to view results.</em></div>
+            </div>
+
+            <div class="mt-3" id="cf-harvest-results">
+                {% comment %} <div class="alert alert-light mb-0">Select filters and click "APPLY" to view harvest stats.</div> {% endcomment %}
+            </div>
+
+            <div class="mt-3" id="cf-targeted-accordion">
+                <div class="accordion" id="cf-targeted-accordion-items">
+                    {% for species in targeted_species %}
+                    <div class="accordion-item cf-targeted-item" data-species-name="{{ species.name }}">
+                        <h2 class="accordion-header" id="cf-targeted-header-{{ species.spp_id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cf-targeted-body-{{ species.spp_id }}" aria-expanded="false" aria-controls="cf-targeted-body-{{ species.spp_id }}">
+                                {{ species.name }}
+                            </button>
+                        </h2>
+                        <div id="cf-targeted-body-{{ species.spp_id }}" class="accordion-collapse collapse" aria-labelledby="cf-targeted-header-{{ species.spp_id }}" data-bs-parent="#cf-targeted-accordion-items">
+                            <div class="accordion-body"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    // Default Datatable
+    $('#basic-datatable').DataTable({
+        order: [],
+        keys: false,
+        fixedHeader: true,
+        pageLength: 50,
+        layout: {
+        topStart: {pageLength: {menu: [50, 100, 150, 200]}},
+        topEnd: {search: {placeholder: 'Search'}},
+        bottomStart: 'info',
+        bottomEnd: 'paging',
+        bottom: {buttons: ['copy', 'csv', 'pdf']}  
+        },      
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            }
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+
+    const formatValue = value => (value === null || value === undefined) ? 'N/A' : value;
+    const formatOneDecimal = value => (value === null || value === undefined) ? 'N/A' : Number(value).toFixed(1);
+
+    const copyTextToClipboard = text => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        return new Promise((resolve, reject) => {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.setAttribute('readonly', '');
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                if (successful) {
+                    resolve();
+                } else {
+                    reject(new Error('Copy command was unsuccessful.'));
+                }
+            } catch (error) {
+                document.body.removeChild(tempInput);
+                reject(error);
+            }
+        });
+    };
+
+    const buildPanelCopyText = $card => {
+        const lines = [];
+        const headerTitle = $card.find('.card-header strong').first().text().trim();
+
+        const filterMetrics = [];
+        $('#cf-filter-form .form-floating').each(function () {
+            const $group = $(this);
+            const $select = $group.find('select').first();
+            const selectedValue = $select.val();
+
+            if (!selectedValue) {
+                return;
+            }
+
+            const label = $group.find('label.form-label:visible').first().text().trim();
+            const selectedText = $select.find('option:selected').text().trim();
+            if (label && selectedText && selectedText !== '...') {
+                filterMetrics.push(`${label}=${selectedText}`);
+            }
+        });
+
+        if (headerTitle) {
+            if (filterMetrics.length) {
+                lines.push(`${headerTitle} (${filterMetrics.join('|')})`);
+            } else {
+                lines.push(headerTitle);
+            }
+        }
+
+        $card.find('.card-body strong').each(function () {
+            const $label = $(this);
+            const rawLabel = $label.text().trim();
+            const label = rawLabel.replace(/:\s*$/, '');
+            const value = $label.parent().clone().children('strong').remove().end().text().trim();
+
+            if (label || value) {
+                lines.push(`${label}\t${value}`.trim());
+            }
+        });
+
+        return lines.join('\n').trim();
+    };
+
+    const renderStatsCard = (stats, title) => `
+        <div class="card border">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <strong>${title}</strong>
+                <button type="button" class="btn btn-sm btn-outline-secondary js-copy-panel-btn">COPY</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-md-4 mb-3"><strong>Harvest Count:</strong> ${formatValue(stats.harvest_count)}</div>
+                    <div class="col-12 col-md-4 mb-3"><strong>Mean Length (mm):</strong> ${formatOneDecimal(stats.mean_length_mm)}</div>
+                    <div class="col-12 col-md-4 mb-3"><strong>Mean Weight (g):</strong> ${formatOneDecimal(stats.mean_weight_g)}</div>
+                    <div class="col-12 col-md-4 mb-3"><strong>Total Weight (g):</strong> ${formatOneDecimal(stats.total_weight_g)}</div>
+                    <div class="col-12 col-md-4 mb-3"><strong>Total Weight (kg):</strong> ${formatOneDecimal(stats.total_weight_kg)}</div>
+                    <div class="col-12 col-md-4 mb-3"><strong>Total Weight (lbs):</strong> ${formatOneDecimal(stats.total_weight_lbs)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const loadHarvestStats = (params, targetEl, title) => {
+        const url = '{% url "kiccd_app:cf_harvest_stats" %}?' + params.toString();
+        $(targetEl).html('<div class="alert alert-secondary mb-0">Loading harvest stats...</div>');
+
+        return fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data || !data.data || !data.data.stats) {
+                    $(targetEl).html('<div class="alert alert-warning mb-0">No data returned.</div>');
+                    return;
+                }
+                $(targetEl).html(renderStatsCard(data.data.stats, title));
+            })
+            .catch(() => {
+                $(targetEl).html('<div class="alert alert-danger mb-0">Failed to load harvest stats.</div>');
+            });
+    };
+
+    const renderEffortCard = stats => `
+        <div class="card border">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <strong>Fishing Efforts</strong>
+                <button type="button" class="btn btn-sm btn-outline-secondary js-copy-panel-btn">COPY</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-md-3 mb-3"><strong>Fisher Count:</strong> ${formatValue(stats.fisher_count)}</div>
+                    <div class="col-12 col-md-3 mb-3"><strong>Fisher Days:</strong> ${formatValue(stats.fisher_day_count)}</div>
+                    <div class="col-12 col-md-3 mb-3"><strong>Total Nets:</strong> ${formatValue(stats.net_count)}</div>
+                    <div class="col-12 col-md-3 mb-3"><strong>Total Net Length (ft):</strong> ${formatValue(stats.total_gear_length)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const loadEffortStats = (params, targetEl) => {
+        const url = '{% url "kiccd_app:cf_effort_stats" %}?' + params.toString();
+        $(targetEl).html('<div class="alert alert-secondary mb-0">Loading effort stats...</div>');
+
+        return fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data || !data.data || !data.data.stats) {
+                    $(targetEl).html('<div class="alert alert-warning mb-0">No data returned.</div>');
+                    return;
+                }
+                $(targetEl).html(renderEffortCard(data.data.stats));
+            })
+            .catch(() => {
+                $(targetEl).html('<div class="alert alert-danger mb-0">Failed to load effort stats.</div>');
+            });
+    };
+
+    const applyHarvestFilters = () => {
+        const params = new URLSearchParams($('#cf-filter-form').serialize());
+        params.delete('species');
+
+        loadHarvestStats(params, '#cf-harvest-results', 'Invasive Carp Harvest');
+        loadEffortStats(params, '#cf-effort-results');
+
+        $('.cf-targeted-item').each(function () {
+            const speciesName = $(this).data('species-name');
+            const speciesParams = new URLSearchParams(params.toString());
+            speciesParams.set('species', speciesName);
+            const body = $(this).find('.accordion-body');
+            loadHarvestStats(speciesParams, body, `${speciesName} Harvest`);
+        });
+    };
+
+    $('#cf-filter-form').on('submit', function (event) {
+        event.preventDefault();
+        applyHarvestFilters();
+    });
+
+    $('#cf-filter-reset').on('click', function () {
+        const form = document.getElementById('cf-filter-form');
+        if (form) {
+            form.reset();
+        }
+        $('#cf-effort-results').html(
+            '<div class="alert alert-light mb-0"><em>Select filters and click "APPLY" to view results.</em></div>'
+        );
+        $('#cf-harvest-results').html(
+            '<div></div>'
+        );
+        $('.cf-targeted-item .accordion-body').html(
+            '<div class="alert alert-light mb-0">Select filters and click "APPLY" to view harvest stats.</div>'
+        );
+    });
+
+    $(document).on('click', '.js-copy-panel-btn', function () {
+        const $button = $(this);
+        const $card = $button.closest('.card');
+        if (!$card.length) {
+            return;
+        }
+
+        const textToCopy = buildPanelCopyText($card);
+        if (!textToCopy) {
+            return;
+        }
+
+        copyTextToClipboard(textToCopy)
+            .then(() => {
+                const originalText = $button.text();
+                $button.text('COPIED');
+                setTimeout(() => {
+                    $button.text(originalText);
+                }, 1200);
+            })
+            .catch(() => {
+                $button.text('FAILED');
+                setTimeout(() => {
+                    $button.text('COPY');
+                }, 1200);
+            });
+    });
+});
+</script>
+{% endblock extra_javascript %} 

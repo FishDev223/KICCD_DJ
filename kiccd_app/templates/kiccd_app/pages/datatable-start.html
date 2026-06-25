@@ -1,0 +1,108 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Datatable Starter{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'vendor/datatables.net-fixedcolumns-bs5/css/fixedColumns.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'vendor/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'vendor/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'vendor/datatables.net-select-bs5/css/select.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Datatable Starter' %}
+{% endblock page_title %}
+
+{% block page_content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">KICCD Lookup Table</h4>
+                <p class="text-muted">
+					Lookup tables used throughout KICCD.
+                </p>
+
+                <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Column_1</th>
+                            <th>Column_2</th>
+                            <th>Column_3</th>
+                            <th>Column_4</th>
+                            <th>Column_5</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                        <tr>
+                            <td>01</td>
+                            <td>Col-1 Contents</td>
+                            <td>Col-2 Contents</td>
+                            <td>Col-3 Contents</td>
+                            <td>Col-4 Contents</td>
+                            <td>Col-5 Contents</td>
+                        </tr>
+                        <tr>
+                            <td>02</td>
+                            <td>Col-1 Contents</td>
+                            <td>Col-2 Contents</td>
+                            <td>Col-3 Contents</td>
+                            <td>Col-4 Contents</td>
+                            <td>Col-5 Contents</td>
+                        </tr>
+                        <tr>
+                            <td>03</td>
+                            <td>Col-1 Contents</td>
+                            <td>Col-2 Contents</td>
+                            <td>Col-3 Contents</td>
+                            <td>Col-4 Contents</td>
+                            <td>Col-5 Contents</td>
+                        </tr>
+                        <tr>
+                            <td>04</td>
+                            <td>Col-1 Contents</td>
+                            <td>Col-2 Contents</td>
+                            <td>Col-3 Contents</td>
+                            <td>Col-4 Contents</td>
+                            <td>Col-5 Contents</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+    </div><!-- end col-->
+</div> <!-- end row-->
+
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="{% static 'vendor/datatables.net/js/dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-fixedcolumns-bs5/js/fixedColumns.bootstrap5.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'vendor/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+<script src="{% static 'js/datatable_start.js' %}"></script>
+{% endblock extra_javascript %}

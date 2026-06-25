@@ -1,0 +1,1186 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Add Age & Growth Data{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add Age & Growth Data' %}
+{% endblock page_title %}
+ 
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-2 mb-0 w-100">
+                <h5 class="d-none d-md-block text-muted mb-0">1) Provide information about the sample collection.</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">Fish Sample Information</h4>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Date of Collection">
+                        <div class="form-floating">
+                            {{ shared_form.catch_date }}
+                            <label class="form-label" for="id_catch_date">DATE</label>
+                        </div>
+                        {% if shared_form.catch_date.errors %}
+                            <div class="text-danger small">{{ shared_form.catch_date.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.basin }}
+                            <label class="form-label" for="id_basin">BASIN</label>
+                        </div>
+                        {% if shared_form.basin.errors %}
+                            <div class="text-danger small">{{ shared_form.basin.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.pool }}
+                            <label class="form-label" for="id_pool">POOL</label>
+                        </div>
+                        {% if shared_form.pool.errors %}
+                            <div class="text-danger small">{{ shared_form.pool.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-7 mb-2 mb-md-0">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ shared_form.site }}
+                                <label class="form-label" for="id_site">SITE</label>
+                            </div>
+                            {% if perms.kiccd_app.add_samplesite %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addSiteBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addSiteModal"
+                                    title="Add a New Sample Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if shared_form.site.errors %}
+                            <div class="text-danger small">{{ shared_form.site.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-5 mb-2 mb-md-0">
+                        <div class="form-floating">
+                            {{ shared_form.spp }}
+                            <label class="form-label" for="id_spp">SPECIES</label>
+                        </div>
+                        {% if shared_form.spp.errors %}
+                            <div class="text-danger small">{{ shared_form.spp.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-2 mb-md-1" id="AddAGOptions">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventOne" aria-expanded="false" aria-controls="AddEventOne">
+                                    Optional Sample Info 
+                                </button>
+                            </h2>
+                            <div id="AddEventOne" class="accordion-collapse collapse" aria-labelledby="AddEventAccHeading1" data-bs-parent="#AddAGOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-1">
+										<div class="col-md-4 mb-2 mb-md-0 mt-2 mt-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*If NOT A&G project.">
+											<div class="form-floating">
+												{{ shared_form.project }}
+												<label class="form-label" for="id_project">PROJECT</label>
+											</div>
+											{% if shared_form.project.errors %}
+											<div class="text-danger small">{{ shared_form.project.errors|striptags }}</div>
+											{% endif %}
+										</div>
+										<div class="col-md-2 mb-2 mb-md-0 mt-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*If NOT the KDFWR">
+											<div class="form-floating">
+												{{ shared_form.agency }}
+												<label class="form-label" for="id_agency">AGENCY</label>
+											</div>
+											{% if shared_form.agency.errors %}
+											<div class="text-danger small">{{ shared_form.agency.errors|striptags }}</div>
+										{% endif %}
+										</div>
+										<div class="col-md-3 mb-2 mb-md-0 mt-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*If different from site LAT">
+											<div class="form-floating">
+												{{ shared_form.latitude }}
+												<label class="form-label" for="id_latitude">LATITUDE</label>
+											</div>
+											{% if shared_form.latitude.errors %}
+												<div class="text-danger small">{{ shared_form.latitude.errors|striptags }}</div>
+											{% endif %}
+										</div>
+										<div class="col-md-3 mb-0 mb-md-0 mt-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*If different from site LON">
+											<div class="form-floating">
+												{{ shared_form.longitude }}
+												<label class="form-label" for="id_longitude">LONGITUDE</label>
+											</div>
+											{% if shared_form.longitude.errors %}
+												<div class="text-danger small">{{ shared_form.longitude.errors|striptags }}</div>
+											{% endif %}
+										</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="card col-md-8 offset-md-2">
+        <div class="card-header border-bottom border-dashed d-flex">
+            <div class="row g-0 mb-0 w-100">
+                <div class="col-6">
+                    <h5 class="d-none d-md-block text-muted mb-0">2) Input size, sex and age information for each fish.</h5>
+                    <h4 class="d-block d-md-none mb-0 text-center">Size & Age Data</h4>
+                </div>
+                <div class="col-6 align-items-end d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
+                    <div class="row g-0 mb-0 w-99">
+                        <div class="col-5">
+                            <p class="mb-1 mt-1 text-muted fs-11"># ROWS:</p>
+                        </div>
+                        <div class="col-7">
+                            <select id="visible_rows" class="form-select form-select-sm">
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="75">75</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {{ formset.management_form }}
+
+            <div id="age-growth-formset">
+            {% for form in formset %}
+
+                <div class="border col-md-12 rounded p-1 mb-md-1 mb-2 bg-dark bg-opacity-10 csv-row">
+                    <div class="row g-md-2 g-0 mb-0 align-items-stretch">
+                        <div class="col-md-4">
+                            <div class="row g-md-2 g-0 mb-0 align-items-stretch">
+                                <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                        <p class="d-none d-md-block text-muted me-1 ms-2 mb-0 row-number">{{ forloop.counter }}.</p>
+                                        <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #{{ forloop.counter }}</p>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="form-floating">
+                                        {{ form.length_mm }}
+                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                    </div>
+                                    {% if form.length_mm.errors %}
+                                        <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                {{ form.weight_g }}
+                                <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                            </div>
+                            {% if form.weight_g.errors %}
+                                <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                {{ form.sex }}
+                                <label class="form-label" for="id_sex">SEX</label>
+                            </div>
+                            {% if form.sex.errors %}
+                                <div class="text-danger small">{{ form.sex.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-floating">
+                                {{ form.ic_age }}
+                                <label class="form-label" for="id_ic_age">AGE (yrs)</label>
+                            </div>
+                            {% if form.ic_age.errors %}
+                                <div class="text-danger small">{{ form.ic_age.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+
+            <div id="empty-form-template" class="d-none">
+                <div class="border col-md-12 rounded p-1 mb-md-1 mb-2 bg-dark bg-opacity-10 csv-row">
+                    <div class="row g-md-2 g-0 mb-0 align-items-stretch">
+                        <div class="col-md-4">
+                            <div class="row g-md-2 g-0 mb-0 align-items-stretch">
+                                <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                    <p class="d-none d-md-block text-muted me-1 ms-2 mb-0 row-number">.</p>
+                                    <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #</p>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="form-floating">
+                                        {{ formset.empty_form.length_mm }}
+                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                {{ formset.empty_form.weight_g }}
+                                <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                {{ formset.empty_form.sex }}
+                                <label class="form-label" for="id_sex">SEX</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-floating">
+                                {{ formset.empty_form.ic_age }}
+                                <label class="form-label" for="id_ic_age">AGE (yrs)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="AddCsvHeading1">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddEventOne">
+                                Additional Data Loading Options
+                            </button>
+                        </h2>
+                        <div id="AddCsvOne" class="accordion-collapse collapse"
+                            aria-labelledby="AddCsvHeading1" data-bs-parent="#CSVLoadUI">
+                            <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                <div class="row g-2 align-items-stretch mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label mb-1" for="csv_file_input">Load from CSV</label>
+                                        <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div id="csv_status" class="text-muted"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-stretch mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label mb-1" for="csv_column_map">Column order (optional)</label>
+                                        <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="length_mm,weight_g,sex,ic_age" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check mt-4">
+                                            <input id="csv_clear_existing" class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label" for="csv_clear_existing">Clear existing rows?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+                <button type="submit" class="btn btn-success" id="ageGrowthSubmitBtn">
+                    <span id="ageGrowthSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                    SUBMIT
+                </button>
+                <div>
+                    <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Are you sure you want to reset the entire form?')) this.form.reset();">RESET</button>
+                    <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+            </form>
+</div>
+
+<script>
+(function () {
+    var form = document.querySelector('form');
+    var submitBtn = document.getElementById('ageGrowthSubmitBtn');
+    var submitSpinner = document.getElementById('ageGrowthSubmitSpinner');
+    if (!form || !submitBtn) return;
+    form.addEventListener('submit', function () {
+        submitSpinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+}());
+</script>
+
+<!-- Add Sample Site Modal -->
+<div class="modal fade" id="addSiteModal" tabindex="-1" aria-labelledby="addSiteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSiteModalLabel"><i class="ti ti-map-pin-plus me-1"></i> Add New Sample Site</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addSiteGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="row g-2 mb-2">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="site_name" required>
+                            <label class="form-label" for="site_name">SITE NAME</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_name"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="site_latitude" step="0.00001" required>
+                            <label class="form-label" for="site_latitude">LATITUDE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_latitude"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="site_longitude" step="0.00001" required>
+                            <label class="form-label" for="site_longitude">LONGITUDE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_longitude"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_type" required>
+                                <option value="">...</option>
+                                {% for st in site_types %}
+                                <option value="{{ st.pk }}">{{ st.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_type">SITE TYPE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_type"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_pool" required>
+                                <option value="">...</option>
+                                {% for p in pools %}
+                                <option value="{{ p.pk }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_pool">POOL</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_pool"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_basin" required>
+                                <option value="">...</option>
+                                {% for b in basins %}
+                                <option value="{{ b.pk }}">{{ b.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_basin">BASIN</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_basin"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_trib" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label class="form-label" for="site_trib">TRIBUTARY / AREA</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_trib"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_state" required>
+                                <option value="">...</option>
+                                {% for s in states %}
+                                <option value="{{ s.pk }}">{{ s.abbrev }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_state">STATE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_state"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_county" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label class="form-label" for="site_county">COUNTY</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_county"></div>
+                    </div>
+                </div>
+                <div class="accordion accordion-flush" id="siteModalOptional">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteOptionalCollapse" aria-expanded="false">
+                                <small><strong><u>Click for Optional Info:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="siteOptionalCollapse" class="accordion-collapse collapse" data-bs-parent="#siteModalOptional">
+                            <div class="accordion-body p-2">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="site_river_mi" step="0.1">
+                                    <label class="form-label" for="site_river_mi">RIVER MILE</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveSiteBtn">
+                    <span id="saveSiteSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var siteModal = document.getElementById('addSiteModal');
+    var saveSiteBtn = document.getElementById('saveSiteBtn');
+    if (!saveSiteBtn) return;
+    var siteSpinner = document.getElementById('saveSiteSpinner');
+    var siteGlobalErrors = document.getElementById('addSiteGlobalErrors');
+    var siteRequiredFields = ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'trib', 'state', 'county'];
+
+    function clearSiteErrors() {
+        siteGlobalErrors.classList.add('d-none');
+        siteGlobalErrors.textContent = '';
+        siteRequiredFields.forEach(function (f) {
+            var el = document.getElementById('site_err_' + f);
+            if (el) { el.textContent = ''; el.classList.add('d-none'); }
+            var inp = document.getElementById('site_' + f);
+            if (inp) inp.classList.remove('is-invalid');
+        });
+    }
+
+    var countyBaseUrl = "{% url 'kiccd_app:api_counties_by_state' 0 %}";
+    function countyUrl(id) { return countyBaseUrl.replace('/0/', '/' + id + '/'); }
+
+    var tribBasinBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin' 0 %}";
+    var tribBothBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin_and_pool' 0 0 %}";
+    function tribUrl(basinId, poolId) {
+        if (basinId && poolId) {
+            return tribBothBaseUrl.replace('/0/0/', '/' + basinId + '/' + poolId + '/');
+        }
+        return tribBasinBaseUrl.replace('/0/', '/' + basinId + '/');
+    }
+
+    var siteStateEl = document.getElementById('site_state');
+    var siteCountyEl = document.getElementById('site_county');
+    var siteBasinEl = document.getElementById('site_basin');
+    var sitePoolEl = document.getElementById('site_pool');
+    var siteTribEl = document.getElementById('site_trib');
+
+    function clearCountyOptions() {
+        siteCountyEl.innerHTML = '<option value="">...</option>';
+        siteCountyEl.disabled = true;
+    }
+
+    function clearTribOptions() {
+        siteTribEl.innerHTML = '<option value="">...</option>';
+        siteTribEl.disabled = true;
+    }
+
+    function fetchTribs() {
+        var basinId = siteBasinEl.value;
+        var poolId = sitePoolEl.value;
+        if (!basinId) { clearTribOptions(); return; }
+        fetch(tribUrl(basinId, poolId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteTribEl.innerHTML = '';
+                var ph = document.createElement('option');
+                ph.value = ''; ph.text = '...';
+                siteTribEl.appendChild(ph);
+                (data.tribs || []).forEach(function (t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.id; opt.text = t.name;
+                    siteTribEl.appendChild(opt);
+                });
+                siteTribEl.disabled = false;
+            })
+            .catch(clearTribOptions);
+    }
+
+    function resetSiteModal() {
+        clearSiteErrors();
+        ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'river_mi'].forEach(function (f) {
+            var el = document.getElementById('site_' + f);
+            if (el) el.value = '';
+        });
+        siteStateEl.value = '';
+        clearCountyOptions();
+        siteBasinEl.value = '';
+        clearTribOptions();
+    }
+
+    siteModal.addEventListener('hidden.bs.modal', resetSiteModal);
+
+    siteStateEl.addEventListener('change', function () {
+        var stateId = this.value;
+        if (!stateId) { clearCountyOptions(); return; }
+        var pendingCounty = (siteStateEl.dataset.pendingCounty || '').trim();
+        siteStateEl.dataset.pendingCounty = '';
+        fetch(countyUrl(stateId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteCountyEl.innerHTML = '';
+                var ph = document.createElement('option');
+                ph.value = ''; ph.text = '...';
+                siteCountyEl.appendChild(ph);
+                (data.counties || []).forEach(function (c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.id; opt.text = c.name;
+                    siteCountyEl.appendChild(opt);
+                });
+                siteCountyEl.disabled = false;
+                if (pendingCounty) {
+                    var match = Array.from(siteCountyEl.options).find(function (o) {
+                        return o.text.trim().toLowerCase() === pendingCounty.toLowerCase();
+                    });
+                    if (match) siteCountyEl.value = match.value;
+                }
+            })
+            .catch(clearCountyOptions);
+    });
+
+    siteBasinEl.addEventListener('change', fetchTribs);
+    sitePoolEl.addEventListener('change', fetchTribs);
+
+    saveSiteBtn.addEventListener('click', function () {
+        clearSiteErrors();
+        var hasError = false;
+        siteRequiredFields.forEach(function (f) {
+            var inp = document.getElementById('site_' + f);
+            if (!inp || !inp.value.trim()) {
+                var errEl = document.getElementById('site_err_' + f);
+                if (errEl) { errEl.textContent = 'This field is required.'; errEl.classList.remove('d-none'); }
+                if (inp) inp.classList.add('is-invalid');
+                hasError = true;
+            }
+        });
+        if (hasError) return;
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData = new FormData();
+        formData.append('name', document.getElementById('site_name').value.trim());
+        formData.append('latitude', document.getElementById('site_latitude').value.trim());
+        formData.append('longitude', document.getElementById('site_longitude').value.trim());
+        formData.append('type', document.getElementById('site_type').value);
+        formData.append('pool', document.getElementById('site_pool').value);
+        formData.append('basin', document.getElementById('site_basin').value);
+        formData.append('trib', document.getElementById('site_trib').value);
+        formData.append('state', document.getElementById('site_state').value);
+        formData.append('county', document.getElementById('site_county').value);
+        var riverMi = document.getElementById('site_river_mi').value.trim();
+        if (riverMi) formData.append('river_mi', riverMi);
+
+        siteSpinner.classList.remove('d-none');
+        saveSiteBtn.disabled = true;
+
+        fetch("{% url 'kiccd_app:sample_site_create_ajax' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            siteSpinner.classList.add('d-none');
+            saveSiteBtn.disabled = false;
+            if (data.success) {
+                var select = document.getElementById('id_site');
+                var newOpt = new Option(data.name, data.id, true, true);
+                if (window.jQuery && $(select).data('select2')) {
+                    $(select).append(newOpt).trigger('change');
+                } else {
+                    select.add(newOpt);
+                    select.value = data.id;
+                    select.dispatchEvent(new Event('change'));
+                }
+                bootstrap.Modal.getInstance(siteModal).hide();
+            } else {
+                var msgs = [];
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function (field) {
+                        var fieldErrs = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                        var errEl = document.getElementById('site_err_' + field);
+                        var inpEl = document.getElementById('site_' + field);
+                        if (errEl) {
+                            errEl.textContent = fieldErrs.join(' ');
+                            errEl.classList.remove('d-none');
+                            if (inpEl) inpEl.classList.add('is-invalid');
+                        } else {
+                            msgs.push(fieldErrs.join(' '));
+                        }
+                    });
+                }
+                if (msgs.length) {
+                    siteGlobalErrors.textContent = msgs.join(' | ');
+                    siteGlobalErrors.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(function () {
+            siteSpinner.classList.add('d-none');
+            saveSiteBtn.disabled = false;
+            siteGlobalErrors.textContent = 'An unexpected error occurred. Please try again.';
+            siteGlobalErrors.classList.remove('d-none');
+        });
+    });
+
+    // --- Coordinate auto-fill: pool, basin, state, county ---
+    var _sitePoolCache = null;
+    var _siteBasinCache = null;
+    var _POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
+    var _BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
+    var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
+
+    function _fetchSitePoolBounds() {
+        if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
+        return fetch(_POOL_BOUNDS_URL).then(function(r){return r.json();})
+            .then(function(d){_sitePoolCache=d.features||[];return _sitePoolCache;})
+            .catch(function(){_sitePoolCache=[];return[];});
+    }
+    function _fetchSiteBasinBounds() {
+        if (_siteBasinCache !== null) return Promise.resolve(_siteBasinCache);
+        return fetch(_BASIN_BOUNDS_URL).then(function(r){return r.json();})
+            .then(function(d){_siteBasinCache=d.features||[];return _siteBasinCache;})
+            .catch(function(){_siteBasinCache=[];return[];});
+    }
+
+    function siteAutoFillFromCoords(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (isNaN(la) || isNaN(lo)) return;
+        if (_MBTOKEN) {
+            fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' + lo + ',' + la +
+                  '.json?types=region%2Cdistrict&access_token=' + _MBTOKEN)
+            .then(function(r){return r.json();})
+            .then(function(data){
+                var stateAbbrev = null, countyName = null;
+                (data.features||[]).forEach(function(f){
+                    if (f.place_type.indexOf('region')!==-1 && f.properties && f.properties.short_code) {
+                        var parts = f.properties.short_code.split('-');
+                        stateAbbrev = parts[parts.length-1].toUpperCase();
+                    }
+                    if (f.place_type.indexOf('district')!==-1 && f.text) {
+                        countyName = f.text
+                            .replace(/ County$/i,'').replace(/ Parish$/i,'')
+                            .replace(/ Borough$/i,'').replace(/ Census Area$/i,'')
+                            .replace(/ Municipality$/i,'').trim();
+                    }
+                });
+                if (!stateAbbrev) return;
+                var stateOpt = Array.from(siteStateEl.options).find(function(o){
+                    return o.text.trim().toUpperCase() === stateAbbrev;
+                });
+                if (!stateOpt) return;
+                siteStateEl.dataset.pendingCounty = countyName || '';
+                siteStateEl.value = stateOpt.value;
+                siteStateEl.dispatchEvent(new Event('change'));
+            }).catch(function(){});
+        }
+        if (!window.turf) return;
+        var pt = window.turf.point([lo, la]);
+        Promise.all([_fetchSitePoolBounds(), _fetchSiteBasinBounds()]).then(function(res){
+            var poolFeatures = res[0], basinFeatures = res[1];
+            var poolMatch = poolFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+            var basinMatch = basinFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+            if (poolMatch) {
+                var poolSel = document.getElementById('site_pool');
+                var pOpt = Array.from(poolSel.options).find(function(o){return String(o.value)===String(poolMatch.properties.pool_id);});
+                if (pOpt) poolSel.value = pOpt.value;
+            }
+            if (basinMatch) {
+                var bOpt = Array.from(siteBasinEl.options).find(function(o){return String(o.value)===String(basinMatch.properties.basin_id);});
+                if (bOpt) { siteBasinEl.value = bOpt.value; siteBasinEl.dispatchEvent(new Event('change')); }
+            }
+        });
+    }
+
+    var _siteLatEl = document.getElementById('site_latitude');
+    var _siteLngEl = document.getElementById('site_longitude');
+    if (_siteLatEl && _siteLngEl) {
+        function _trySiteAutoFill() { siteAutoFillFromCoords(_siteLatEl.value, _siteLngEl.value); }
+        _siteLatEl.addEventListener('change', _trySiteAutoFill);
+        _siteLngEl.addEventListener('change', _trySiteAutoFill);
+    }
+}());
+</script>
+
+{% endblock page_content %}
+
+
+{% block extra_javascript %}
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const basinSelect = document.getElementById('id_basin');
+    const poolSelect = document.getElementById('id_pool');
+    const siteSelect = document.getElementById('id_site');
+    const poolBase = "{% url 'kiccd_app:api_sample_sites_by_pool' 0 %}";
+    const basinBase = "{% url 'kiccd_app:api_sample_sites_by_basin' 0 %}";
+    const visibleRowsSelect = document.getElementById('visible_rows');
+    const formsetContainer = document.getElementById('age-growth-formset');
+    const emptyFormTemplate = document.getElementById('empty-form-template');
+    const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+    const csvFileInput = document.getElementById('csv_file_input');
+    const csvLoadButton = document.getElementById('csv_load_btn');
+    const csvStatus = document.getElementById('csv_status');
+    const csvColumnMap = document.getElementById('csv_column_map');
+    const csvClearExisting = document.getElementById('csv_clear_existing');
+    function poolUrl(id){ return poolBase.replace('/0/','/'+id+'/'); }
+    function basinUrl(id){ return basinBase.replace('/0/','/'+id+'/'); }
+
+    function clearSiteOptions() {
+        siteSelect.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.text = '...';
+        siteSelect.appendChild(placeholder);
+    }
+
+    if (basinSelect && poolSelect && siteSelect) {
+        basinSelect.addEventListener('change', function() {
+            const basinValue = this.value;
+            const basinInt = parseInt(basinValue);
+            const lowerPools = ['1', '2', '3', '4'];
+            const middlePools = ['5', '6', '7', '8', '9'];
+            const upperPools = ['10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
+            const noPool = ['20', '21'];
+            const allPools = lowerPools.concat(middlePools, upperPools);
+            let needBasinFetch = false;
+
+            for (let option of poolSelect.options) {
+                if (basinInt === 1) {
+                    option.disabled = !allPools.includes(option.value);
+                    poolSelect.value = '';
+                } else if (basinInt === 2) {
+                    option.disabled = !middlePools.includes(option.value);
+                    poolSelect.value = '';
+                } else if (basinInt === 3) {
+                    option.disabled = !upperPools.includes(option.value);
+                    poolSelect.value = '';
+                } else if (basinInt === 4) {
+                    option.disabled = !lowerPools.includes(option.value);
+                    poolSelect.value = '';
+                } else if (basinInt >= 5) {
+                    option.disabled = !noPool.includes(option.value);
+                    poolSelect.value = '';
+                    needBasinFetch = true;
+                } else {
+                    option.disabled = false;
+                    poolSelect.value = '';
+                }
+            }
+            if (needBasinFetch) {
+                poolSelect.value = '21'; // Ensure "Not Applicable" is selected
+                fetch(basinUrl(basinValue))
+                    .then(r => r.json())
+                    .then(data => {
+                        clearSiteOptions();
+                        (data.sample_sites || []).forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s.id;
+                            opt.text = s.name;
+                            siteSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(() => clearSiteOptions());
+            } else {
+                clearSiteOptions();
+            }
+        });
+        poolSelect.addEventListener('change', function() {
+            const basinValue = basinSelect.value;
+            const poolValue = this.value;
+            const basinInt = parseInt(basinValue);
+            const poolInt = parseInt(poolValue);
+           
+            if (basinValue && poolValue) {
+                if ([1,2,3,4].includes(basinInt)) {
+                    // if basinInt is 1, 2, 3 or 4, filter by pool                    
+                    fetch(poolUrl(poolValue))
+                        .then(r => r.json())
+                        .then(data => {
+                            clearSiteOptions();
+                            (data.sample_sites || []).forEach(s => {
+                                const opt = document.createElement('option');
+                                opt.value = s.id;
+                                opt.text = s.name;
+                                siteSelect.appendChild(opt);
+                            });
+                        })
+                        .catch(() => clearSiteOptions());
+                } else {
+                    fetch(basinUrl(basinValue))
+                        .then(r => r.json())
+                        .then(data => {
+                            clearSiteOptions();
+                            (data.sample_sites || []).forEach(s => {
+                                const opt = document.createElement('option');
+                                opt.value = s.id;
+                                opt.text = s.name;
+                                siteSelect.appendChild(opt);
+                            });
+                        })
+                        .catch(() => clearSiteOptions());
+                }
+            }
+        });
+
+        // Trigger initial population if values are preset
+        if (basinSelect.value) {
+            const event = new Event('change');
+            basinSelect.dispatchEvent(event);
+        }
+        if (poolSelect.value) {
+            const event = new Event('change');
+            poolSelect.dispatchEvent(event);
+        }
+    }
+
+    function getRows() {
+        return formsetContainer ? Array.from(formsetContainer.querySelectorAll('.csv-row')) : [];
+    }
+
+    function updateRowNumbers() {
+        const rows = getRows();
+        rows.forEach(function (row, index) {
+            const displayIndex = index + 1;
+            const numberEl = row.querySelector('.row-number');
+            const mobileNumberEl = row.querySelector('.row-number-mobile');
+            if (numberEl) {
+                numberEl.textContent = displayIndex + '.';
+            }
+            if (mobileNumberEl) {
+                mobileNumberEl.textContent = 'FISH #' + displayIndex;
+            }
+        });
+    }
+
+    function applyVisibleRows(count) {
+        const rows = getRows();
+        rows.forEach(function (row, index) {
+            if (!row) {
+                return;
+            }
+            if (index === 0) {
+                row.style.display = '';
+                return;
+            }
+            row.style.display = index < count ? '' : 'none';
+        });
+    }
+
+    function addRows(count) {
+        if (!emptyFormTemplate || !formsetContainer || !totalFormsInput) {
+            return;
+        }
+        let totalForms = parseInt(totalFormsInput.value, 10);
+        const batch = Number.isNaN(count) ? 0 : count;
+        for (let i = 0; i < batch; i += 1) {
+            const html = emptyFormTemplate.innerHTML.replace(/__prefix__/g, String(totalForms));
+            const temp = document.createElement('div');
+            temp.innerHTML = html.trim();
+            const row = temp.firstElementChild;
+            if (!row) {
+                continue;
+            }
+            formsetContainer.appendChild(row);
+            totalForms += 1;
+        }
+        totalFormsInput.value = totalForms;
+        updateRowNumbers();
+    }
+
+    function ensureRowCount(count) {
+        const rows = getRows();
+        const target = Number.isNaN(count) ? rows.length : count;
+        if (rows.length >= target) {
+            return;
+        }
+        addRows(target - rows.length);
+    }
+
+    if (visibleRowsSelect) {
+        visibleRowsSelect.addEventListener('change', function () {
+            const count = parseInt(this.value, 10);
+            ensureRowCount(count);
+            applyVisibleRows(count);
+        });
+        const initialCount = parseInt(visibleRowsSelect.value, 10);
+        ensureRowCount(Number.isNaN(initialCount) ? 25 : initialCount);
+        applyVisibleRows(Number.isNaN(initialCount) ? 25 : initialCount);
+    }
+
+    updateRowNumbers();
+
+    function clearFormsetRows() {
+        const rows = getRows();
+        rows.forEach(function (row) {
+            const inputs = Array.from(row.querySelectorAll('input, select, textarea'));
+            inputs.forEach(function (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = false;
+                } else {
+                    field.value = '';
+                }
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let current = '';
+        let row = [];
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i += 1) {
+            const char = text[i];
+            const next = text[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && next === '"') {
+                    current += '"';
+                    i += 1;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
+
+            if (!inQuotes && char === ',') {
+                row.push(current.trim());
+                current = '';
+                continue;
+            }
+
+            if (!inQuotes && (char === '\n' || char === '\r')) {
+                if (char === '\r' && next === '\n') {
+                    i += 1;
+                }
+                row.push(current.trim());
+                if (row.some(function (cell) { return cell !== ''; })) {
+                    rows.push(row);
+                }
+                row = [];
+                current = '';
+                continue;
+            }
+
+            current += char;
+        }
+
+        if (current.length || row.length) {
+            row.push(current.trim());
+            if (row.some(function (cell) { return cell !== ''; })) {
+                rows.push(row);
+            }
+        }
+
+        return rows;
+    }
+
+    function isTruthy(value) {
+        const normalized = String(value || '').trim().toLowerCase();
+        return ['1', 'true', 'yes', 'y', 't'].includes(normalized);
+    }
+
+    function setFieldValue(field, value) {
+        if (!field) {
+            return;
+        }
+        if (field.type === 'checkbox') {
+            field.checked = isTruthy(value);
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+        field.value = value;
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function getRowFields(row) {
+        return {
+            length: row.querySelector('input[id*="length_mm"]'),
+            weight: row.querySelector('input[id*="weight_g"]'),
+            sex: row.querySelector('select[id*="sex"]'),
+            age: row.querySelector('input[id*="ic_age"]')
+        };
+    }
+
+    function setCsvStatus(message, isError) {
+        if (!csvStatus) {
+            return;
+        }
+        csvStatus.textContent = message;
+        csvStatus.classList.toggle('text-danger', Boolean(isError));
+        csvStatus.classList.toggle('text-muted', !isError);
+    }
+
+    function getColumnOrder() {
+        const defaultOrder = [
+            'length_mm',
+            'weight_g',
+            'sex',
+            'ic_age'
+        ];
+        const allowed = new Set(defaultOrder);
+        if (!csvColumnMap || !csvColumnMap.value.trim()) {
+            return { order: defaultOrder, error: '' };
+        }
+
+        const order = csvColumnMap.value
+            .split(',')
+            .map(function (value) { return value.trim(); })
+            .filter(function (value) { return value.length; });
+
+        const invalid = order.filter(function (value) { return !allowed.has(value); });
+        if (invalid.length) {
+            return { order: [], error: 'Unknown columns: ' + invalid.join(', ') };
+        }
+
+        const seen = new Set();
+        const duplicates = order.filter(function (value) {
+            if (seen.has(value)) {
+                return true;
+            }
+            seen.add(value);
+            return false;
+        });
+        if (duplicates.length) {
+            return { order: [], error: 'Duplicate columns: ' + Array.from(new Set(duplicates)).join(', ') };
+        }
+
+        return { order: order, error: '' };
+    }
+
+    function loadCsvIntoFormset(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length <= 1) {
+            setCsvStatus('No data rows found.', true);
+            return;
+        }
+
+        if (csvClearExisting && csvClearExisting.checked) {
+            clearFormsetRows();
+        }
+
+        const dataRows = rows.slice(1);
+        const mapping = getColumnOrder();
+        if (mapping.error) {
+            setCsvStatus(mapping.error, true);
+            return;
+        }
+        const columnOrder = mapping.order;
+        ensureRowCount(dataRows.length);
+        const formRows = getRows();
+        if (!formRows.length) {
+            setCsvStatus('No form rows found.', true);
+            return;
+        }
+
+        const loadCount = Math.min(dataRows.length, formRows.length);
+        for (let i = 0; i < loadCount; i += 1) {
+            const row = formRows[i];
+            const fields = getRowFields(row);
+            columnOrder.forEach(function (columnName, colIndex) {
+                const value = dataRows[i][colIndex] || '';
+                if (columnName === 'length_mm') {
+                    setFieldValue(fields.length, value);
+                } else if (columnName === 'weight_g') {
+                    setFieldValue(fields.weight, value);
+                } else if (columnName === 'sex') {
+                    setFieldValue(fields.sex, value);
+                } else if (columnName === 'ic_age') {
+                    setFieldValue(fields.age, value);
+                }
+            });
+        }
+
+        if (dataRows.length > formRows.length) {
+            setCsvStatus('Loaded ' + loadCount + ' rows. ' + (dataRows.length - loadCount) + ' row(s) ignored.', false);
+        } else {
+            setCsvStatus('Loaded ' + loadCount + ' rows.', false);
+        }
+
+        if (visibleRowsSelect) {
+            const desired = Math.min(dataRows.length, 250);
+            const option = Array.from(visibleRowsSelect.options).find(function (opt) {
+                return parseInt(opt.value, 10) === desired;
+            });
+            if (option) {
+                visibleRowsSelect.value = option.value;
+            }
+            applyVisibleRows(Number.isNaN(desired) ? 25 : desired);
+        }
+
+        updateRowNumbers();
+    }
+
+    if (csvLoadButton && csvFileInput) {
+        csvLoadButton.addEventListener('click', function () {
+            if (!csvFileInput.files || !csvFileInput.files.length) {
+                setCsvStatus('Select a CSV file first.', true);
+                return;
+            }
+            const file = csvFileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const text = event.target && event.target.result ? String(event.target.result) : '';
+                loadCsvIntoFormset(text);
+            };
+            reader.onerror = function () {
+                setCsvStatus('Unable to read the CSV file.', true);
+            };
+            reader.readAsText(file);
+        });
+    }
+
+});
+</script>
+{% endblock extra_javascript %}

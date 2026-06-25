@@ -1,0 +1,7 @@
+Django==5.2.9
+python-dotenv==1.2.1
+psycopg2-binary==2.9.11
+whitenoise==6.11.0
+pyperclip==1.11.0
+waitress==3.0.2
+pywebview==6.1

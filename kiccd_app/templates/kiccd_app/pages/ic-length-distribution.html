@@ -1,0 +1,441 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}IC Length Distribution{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'css/apexcharts.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Length Distributions' %}
+{% endblock page_title %}
+ 
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <div>
+                <h5 class="d-none d-md-block text-muted mb-0">Length Frequency Charts for Agency Sampling</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">IC Length Histogram</h4>
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="ic-length-filter-form" method="get" class="row g-2 align-items-end mb-3">
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="dist-bin-size" name="bin_size" class="form-select" required>
+                            <option value="">...</option>
+                            {% for option in bin_size_options %}
+                                <option value="{{ option.value }}" {% if option.value == selected_bin_size %}selected{% endif %}>{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="dist-bin-size" class="form-label">BIN</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                    <select id="dist-species" name="species" class="form-select">
+                        <option value="">...</option>
+                        {% for species in species_options %}
+                            <option value="{{ species.spp_id }}" {% if species.spp_id|stringformat:"s" == selected_species %}selected{% endif %}>{{ species.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="dist-species" class="form-label">SPECIES</label>
+                </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                    <select id="dist-sex" name="sex" class="form-select">
+                        <option value="">...</option>
+                        {% for sex in sex_options %}
+                            <option value="{{ sex.sx_id }}" {% if sex.sx_id|stringformat:"s" == selected_sex %}selected{% endif %}>{{ sex.abbrev }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="dist-sex" class="form-label">SEX</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1 offset-md-1">
+                    <div class="form-floating">
+                        <select id="dist-year" name="year" class="form-select">
+                            <option value="">...</option>
+                            {% for year in year_options %}
+                                <option value="{{ year }}" {% if year|stringformat:"s" == selected_year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="dist-year" class="form-label">YEAR</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="dist-season" name="season" class="form-select">
+                            <option value="">...</option>
+                            {% for season in season_options %}
+                                <option value="{{ season }}" {% if season == selected_season %}selected{% endif %}>{{ season }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="dist-season" class="form-label">SEASON</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="dist-month" name="month" class="form-select">
+                            <option value="">...</option>
+                            {% for month in month_options %}
+                                <option value="{{ month.ic_month1 }}" {% if month.ic_month1|stringformat:"s" == selected_month %}selected{% endif %}>{{ month.ic_mon }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="dist-month" class="form-label">MONTH</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-1 offset-md-1">
+                    <div class="form-floating">
+                    <select id="dist-basin" name="basin" class="form-select">
+                        <option value="">...</option>
+                        {% for basin in basin_options %}
+                            <option value="{{ basin.basin_id }}" {% if basin.basin_id|stringformat:"s" == selected_basin %}selected{% endif %}>{{ basin.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="dist-basin" class="form-label">BASIN</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-1">
+                    <div class="form-floating">
+                        <select id="dist-pool" name="pool" class="form-select">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                                <option value="{{ pool.pool_id }}" {% if pool.pool_id|stringformat:"s" == selected_pool %}selected{% endif %}>{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="dist-pool" class="form-label">POOL</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <div class="form-floating">
+                        <select id="dist-site" name="site" class="form-select">
+                            <option value="">...</option>
+                            {% for site in site_options %}
+                                <option value="{{ site.site_id }}" {% if site.site_id|stringformat:"s" == selected_site %}selected{% endif %}>{{ site.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="dist-site" class="form-label">SITE</label>
+                    </div>
+                </div>
+
+
+                <div class="col-12 mt-2">
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-sm btn-primary px-4">APPLY</button>
+                        <a href="{% url 'kiccd_app:ic_length_dist' %}" class="btn btn-sm btn-secondary px-4">RESET</a>
+                    </div>
+                </div>
+            </form>
+
+            {% if validation_message %}
+                <div class="alert alert-warning mt-2">{{ validation_message }}</div>
+            {% endif %}
+
+            <div id="ic-length-count-histogram" class="apex-charts" data-colors="#ED7D31"></div>
+            <div id="ic-length-frequency-histogram" class="apex-charts mt-4" data-colors="#5a97f3"></div>
+            {{ count_chart_data|json_script:"icLengthCountHistogramData" }}
+            {{ frequency_chart_data|json_script:"icLengthFrequencyHistogramData" }}
+            {{ distribution_rows|json_script:"icLengthTableData" }}
+
+            <div id="ic-length-empty" class="alert alert-info mt-3 d-none">
+                {% if has_requested_filters %}
+                    No catch records matched the selected filters.
+                {% else %}
+                    Select one or more filters (including bin size) to generate the histograms.
+                {% endif %}
+            </div>
+
+            <div class="accordion mt-4" id="ic-dist-data-accordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="ic-dist-data-heading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ic-dist-data-collapse" aria-expanded="false" aria-controls="ic-dist-data-collapse">
+                            Length Distribution Table
+                            <span id="ic-dist-record-count-badge" class="badge bg-primary ms-auto">Fish Cnt: </span>
+                        </button>
+                    </h2>
+                    <div id="ic-dist-data-collapse" class="accordion-collapse collapse" aria-labelledby="ic-dist-data-heading" data-bs-parent="#ic-dist-data-accordion">
+                        <div class="accordion-body">
+                            <div class="mb-2">
+                                <button id="ic-dist-csv-download" type="button" class="btn btn-sm btn-outline-primary" style="font-size:1.2rem;padding:0.2rem 0.05rem 0.2rem 0.15rem;line-height:1.2;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Download Data</em>">
+                                   <i class="ri-download-line align-middle me-1 fs-18"></i>
+                                </button>
+                                <button id="ic-dist-copy-table" type="button" class="btn btn-sm btn-outline-secondary ms-1" style="font-size:1.2rem;padding:0.2rem 0.05rem 0.2rem 0.15rem;line-height:1.2;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Copy Data</em>">
+                                    <i class="ri-file-copy-line align-middle me-1 fs-18"></i>
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped table-bordered align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Bin ({{ length_unit }})</th>
+                                            <th>Bin Min ({{ length_unit }})</th>
+                                            <th>Bin Max ({{ length_unit }})</th>
+                                            <th>Count (N)</th>
+                                            <th>Frequency (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if distribution_rows %}
+                                            {% for row in distribution_rows %}
+                                                <tr>
+                                                    <td>{{ row.bin_label }}</td>
+                                                    <td>{{ row.bin_min }}</td>
+                                                    <td>{{ row.bin_max }}</td>
+                                                    <td>{{ row.count }}</td>
+                                                    <td>{{ row.length_frequency|floatformat:1 }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">No histogram data available yet.</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/apexcharts.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    const countChartData = JSON.parse(document.getElementById('icLengthCountHistogramData').textContent || '{}');
+    const frequencyChartData = JSON.parse(document.getElementById('icLengthFrequencyHistogramData').textContent || '{}');
+    const tableData = JSON.parse(document.getElementById('icLengthTableData').textContent || '[]');
+    const recordCountBadge = document.getElementById('ic-dist-record-count-badge');
+    const lengthUnit = '{{ length_unit|escapejs }}';
+    const categories = countChartData.categories || [];
+    const countSeries = countChartData.series || [];
+    const frequencySeries = frequencyChartData.series || [];
+    const csvButton = document.getElementById('ic-dist-csv-download');
+    const copyButton = document.getElementById('ic-dist-copy-table');
+
+    const toCsvCell = function (value) {
+        if (value === null || typeof value === 'undefined') {
+            return '';
+        }
+        const valueAsString = String(value);
+        if (/[",\n]/.test(valueAsString)) {
+            return '"' + valueAsString.replace(/"/g, '""') + '"';
+        }
+        return valueAsString;
+    };
+
+    const downloadCsv = function (filename, rows) {
+        const csvContent = rows.map(function (row) {
+            return row.map(toCsvCell).join(',');
+        }).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const copyToClipboard = async function (text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    };
+
+    const compileTableCsvRows = function () {
+        const rows = [['Bin (' + lengthUnit + ')', 'Min (' + lengthUnit + ')', 'Max (' + lengthUnit + ')', 'Count', 'Freq_%']];
+        tableData.forEach(function (row) {
+            rows.push([
+                row.bin_label || '',
+                row.bin_min,
+                row.bin_max,
+                row.count,
+                row.length_frequency
+            ]);
+        });
+        return rows;
+    };
+
+    if (recordCountBadge) {
+        const totalFishCount = tableData.reduce(function (sum, row) {
+            return sum + (Number(row.count) || 0);
+        }, 0);
+        recordCountBadge.textContent = 'Fish Cnt: ' + totalFishCount.toLocaleString('en-US');
+    }
+
+    if (csvButton) {
+        csvButton.disabled = !tableData.length;
+        csvButton.addEventListener('click', function () {
+            if (!tableData.length) {
+                return;
+            }
+            downloadCsv('ic_length_distribution_table_data.csv', compileTableCsvRows());
+        });
+    }
+
+    if (copyButton) {
+        copyButton.disabled = !tableData.length;
+        copyButton.addEventListener('click', async function () {
+            if (!tableData.length) {
+                return;
+            }
+
+            const csvRows = compileTableCsvRows();
+            const clipboardText = csvRows.map(function (row) {
+                return row.join('\t');
+            }).join('\n');
+
+            try {
+                await copyToClipboard(clipboardText);
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i class="ri-check-line align-middle me-1 fs-18"></i> Copied';
+                setTimeout(function () {
+                    copyButton.innerHTML = originalText;
+                }, 1600);
+            } catch (error) {
+                console.error('Clipboard copy failed:', error);
+            }
+        });
+    }
+
+    const hasCountData = countSeries.length && (countSeries[0].data || []).length;
+    const hasFrequencyData = frequencySeries.length && (frequencySeries[0].data || []).length;
+
+    if (!hasCountData || !hasFrequencyData) {
+        $('#ic-length-empty').removeClass('d-none');
+    }
+
+    if (hasCountData) {
+        let countColors = ['#ED7D31'];
+        const countDataColors = $('#ic-length-count-histogram').data('colors');
+        if (countDataColors) {
+            countColors = countDataColors.split(',').map(function (color) { return color.trim(); }).filter(Boolean);
+        }
+
+        const countOptions = {
+            chart: {
+                type: 'bar',
+                height: 420,
+                toolbar: { show: true }
+            },
+            title: {
+                text: 'Length Distribution (N)',
+                align: 'center',
+                style: { color: 'var(--ct-apex-axis-color)', fontSize: '16px', fontWeight: 500 }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '90%',
+                    borderRadius: 2
+                }
+            },
+            dataLabels: { enabled: false },
+            colors: countColors,
+            series: countSeries,
+            xaxis: {
+                categories: categories,
+                labels: { style: { colors: 'var(--ct-apex-axis-color)' }, rotate: -45, rotateAlways: false },
+                axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+                axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+                title: { text: 'Length Bin (' + lengthUnit + ')', style: { color: 'var(--ct-apex-axis-color)' } }
+            },
+            yaxis: {
+                labels: { style: { colors: 'var(--ct-apex-axis-color)' } },
+                axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+                axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+                title: { text: 'Count (N)', style: { color: 'var(--ct-apex-axis-color)' } }
+            }
+        };
+
+        const countChart = new ApexCharts(document.querySelector('#ic-length-count-histogram'), countOptions);
+        countChart.render();
+    }
+
+    if (hasFrequencyData) {
+        let frequencyColors = ['#5a97f3'];
+        const frequencyDataColors = $('#ic-length-frequency-histogram').data('colors');
+        if (frequencyDataColors) {
+            frequencyColors = frequencyDataColors.split(',').map(function (color) { return color.trim(); }).filter(Boolean);
+        }
+
+        const frequencyOptions = {
+            chart: {
+                type: 'bar',
+                height: 420,
+                toolbar: { show: true }
+            },
+            title: {
+                text: 'Length Frequency Distribution (%)',
+                align: 'center',
+                style: { color: 'var(--ct-apex-axis-color)', fontSize: '16px', fontWeight: 500 }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '90%',
+                    borderRadius: 2
+                }
+            },
+            dataLabels: { enabled: false },
+            colors: frequencyColors,
+            series: frequencySeries,
+            xaxis: {
+                categories: categories,
+                labels: { style: { colors: 'var(--ct-apex-axis-color)' }, rotate: -45, rotateAlways: false },
+                axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+                axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+                title: { text: 'Length Bin (' + lengthUnit + ')', style: { color: 'var(--ct-apex-axis-color)' } }
+            },
+            yaxis: {
+                labels: {
+                    style: { colors: 'var(--ct-apex-axis-color)' },
+                    formatter: function (val) { return Number(val).toFixed(1) + '%'; }
+                },
+                axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+                axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+                title: { text: 'Frequency (%)', style: { color: 'var(--ct-apex-axis-color)' } }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return Number(val).toFixed(2) + '%';
+                    }
+                }
+            }
+        };
+
+        const frequencyChart = new ApexCharts(document.querySelector('#ic-length-frequency-histogram'), frequencyOptions);
+        frequencyChart.render();
+    }
+
+});
+</script>
+{% endblock extra_javascript %}

@@ -1,0 +1,36 @@
+{% extends "kiccd_app/vertical.html" %}
+ 
+{% load static %}
+  
+{% block title %}Server Error{% endblock title %}
+
+{% block page_content %}
+<div class="row g-0 justify-content-center m-3 mt-5">
+    <div class="col-xxl-6 col-lg-6 col-md-6">
+      <a href="/" class="auth-brand d-flex justify-content-center mb-2 mt-5">
+          <img src="{% static 'images/logo-dark.png' %}" alt="dark logo" height="52" class="logo-dark">
+          <img src="{% static 'images/logo.png' %}" alt="logo light" height="52" class="logo-light">
+      </a>
+
+      <div class="card overflow-hidden text-center p-xxl-4 p-3 mb-5">
+        <div class="text-center mb-3">
+            <h1 class="text-error">500</h1>
+            <h3 class="mt-3 mb-2">Server Error</h3>
+            <p class="text-muted mb-4">
+              {% if user.is_authenticated %}
+                Sorry {{ request.user.first_name }}, but it looks like something went wrong on our end.<br><br>
+                If this problem persists, feel free to contact us. 
+              {% else %}
+                Apologies, but it looks like something went wrong on our end.<br><br>
+                If this problem persists, feel free to contact us. 
+              {% endif %}
+            </p>
+            <a href="/" class="btn btn-danger">
+                <i class="ti ti-home fs-16 me-1"></i> Back to Home
+            </a>                
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock page_content %}

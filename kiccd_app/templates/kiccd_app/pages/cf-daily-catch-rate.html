@@ -1,0 +1,289 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}CF Daily Catch Rate{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'css/apexcharts.css' %}" rel="stylesheet" type="text/css" />
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='CF Daily Catch Rates' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <div>
+                <h5 class="d-none d-md-block text-muted mb-0">Targeted Mean Daily Catch Rate</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">CF Daily Catch Rate</h4>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="cf-daily-rate-year" class="text-muted mb-0 small">Year</label>
+                <select id="cf-daily-rate-year" class="form-select form-select-sm" {% if not year_options %}disabled{% endif %}>
+                    {% if year_options %}
+                        {% for year in year_options %}
+                            <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">{{ selected_year }} (no data)</option>
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="cf-daily-rate-chart" class="apex-charts" data-colors="#ED7D31,#70AD47,#FFD966"></div>
+            {{ chart_data|json_script:"cfDailyRateChartData" }}
+            <div id="cf-daily-rate-empty" class="alert alert-info mt-3 d-none">No data available for the selected year.</div>
+            <div class="accordion mt-4" id="cf-daily-rate-accordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="cf-daily-rate-plotly-heading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cf-daily-rate-plotly-collapse" aria-expanded="false" aria-controls="cf-daily-rate-plotly-collapse">
+                            Alternative Chart (with Plotly error bars)
+                        </button>
+                    </h2>
+                    <div id="cf-daily-rate-plotly-collapse" class="accordion-collapse collapse" aria-labelledby="cf-daily-rate-plotly-heading" data-bs-parent="#cf-daily-rate-accordion">
+                        <div class="accordion-body">
+                            <div id="cf-daily-rate-chart-plotly" style="height: 600px;"></div>
+                            <div class="mt-3">
+                                <button id="cf-daily-rate-csv-download" type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Download Chart Data</em>">
+                                <i class="ri-download-line align-middle me-1 fs-18"></i> CSV Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+<script src="{% static 'js/apexcharts.min.js' %}"></script>
+<script src="{% static 'js/plotly-2.32.0.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    const chartData = JSON.parse(document.getElementById('cfDailyRateChartData').textContent || '{}');
+    const categories = chartData.categories || [];
+    const series = chartData.series || [];
+    const csvButton = document.getElementById('cf-daily-rate-csv-download');
+    const yearSelect = document.getElementById('cf-daily-rate-year');
+
+    const toCsvCell = function (value) {
+        if (value === null || typeof value === 'undefined') {
+            return '';
+        }
+        const valueAsString = String(value);
+        if (/[",\n]/.test(valueAsString)) {
+            return '"' + valueAsString.replace(/"/g, '""') + '"';
+        }
+        return valueAsString;
+    };
+
+    const downloadCsv = function (filename, rows) {
+        const csvContent = rows.map(function (row) {
+            return row.map(toCsvCell).join(',');
+        }).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const compileDailyRateCsvRows = function () {
+        const selectedYear = yearSelect ? yearSelect.value : '';
+        const rows = [['Year', 'Month', 'Species', 'Mean Daily Catch Rate', 'Error Std Error']];
+        series.forEach(function (seriesItem) {
+            (seriesItem.data || []).forEach(function (point, index) {
+                rows.push([
+                    selectedYear,
+                    point.x || categories[index] || '',
+                    seriesItem.name || '',
+                    Number(point.y) || 0,
+                    typeof point.se === 'number' ? point.se : ''
+                ]);
+            });
+        });
+        return rows;
+    };
+
+    if (!series.length) {
+        $('#cf-daily-rate-empty').removeClass('d-none');
+        if (csvButton) {
+            csvButton.disabled = true;
+        }
+        return;
+    }
+
+    if (csvButton) {
+        csvButton.addEventListener('click', function () {
+            const selectedYear = yearSelect && yearSelect.value ? yearSelect.value : 'all_years';
+            downloadCsv('cf_daily_catch_rate_chart_data_' + selectedYear + '.csv', compileDailyRateCsvRows());
+        });
+    }
+
+    let colors = ['#ED7D31', '#70AD47', '#FFD966'];
+    const dataColors = $('#cf-daily-rate-chart').data('colors');
+    if (dataColors) {
+        colors = dataColors.split(',').map(color => color.trim()).filter(Boolean);
+    }
+
+    const options = {
+        chart: {
+            type: 'bar',
+            height: 500,
+            toolbar: { show: true }
+        },
+        title: {
+            text: 'Contract Fishing Results | Mean Harvest Rates (Carp/Day)',
+            align: 'center',
+            style: { color: 'var(--ct-apex-axis-color)', fontSize: '16px', fontWeight: 500 }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '60%',
+                endingShape: 'rounded'
+            }
+        },
+        dataLabels: { enabled: false },
+        stroke: { show: true, width: 2, colors: ['transparent'] },
+        colors: colors,
+        series: series,
+        xaxis: {
+            categories: categories,
+            labels: { style: { colors: 'var(--ct-apex-axis-color)' } },
+            axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+            axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' }
+        },
+        yaxis: {
+            labels: { style: { colors: 'var(--ct-apex-axis-color)' }, formatter: function (val) { return Number(val).toFixed(2); } },
+            axisBorder: { show: true, color: 'var(--ct-apex-axis-color)' },
+            axisTicks: { show: true, color: 'var(--ct-apex-axis-color)' },
+            title: { text: 'Mean Harvest Rate (carp/day)', style: { color: 'var(--ct-apex-axis-color)', fontSize: '12px', fontWeight: 400, fontFamily: 'Arial, Helvetica, sans-serif', cssClass: 'apexcharts-yaxis-title' } }
+        },
+        legend: { position: 'bottom', horizontalAlign: 'center' },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val.toFixed(2);
+                }
+            }
+        }
+    };
+
+    const chart = new ApexCharts(document.querySelector('#cf-daily-rate-chart'), options);
+    chart.render();
+
+    const renderPlotly = function () {
+        const themeStyles = getComputedStyle(document.documentElement);
+        const axisColor = themeStyles.getPropertyValue('--ct-apex-axis-color').trim() || '#000000';
+        const plotBg = 'transparent';
+        const gridColor = themeStyles.getPropertyValue('--ct-border-color').trim() || 'rgba(0,0,0,0.1)';
+
+        const plotlyTraces = series.map(function (seriesItem, seriesIndex) {
+            const yValues = seriesItem.data.map(point => Number(point.y) || 0);
+            const errors = seriesItem.data.map(point => (typeof point.se === 'number' ? point.se : 0));
+            return {
+                type: 'bar',
+                name: seriesItem.name,
+                x: categories,
+                y: yValues,
+                marker: { color: colors[seriesIndex % colors.length] },
+                error_y: {
+                    type: 'data',
+                    array: errors,
+                    visible: true,
+                    thickness: 1,
+                    color: axisColor
+                }
+            };
+        });
+
+        Plotly.newPlot('cf-daily-rate-chart-plotly', plotlyTraces, {
+            title: { text: 'Contract Fishing Results | Mean Harvest Rates (Carp/Day)', x: 0.5, font: { color: axisColor } },
+            barmode: 'group',
+            bargap: 0.2,
+            bargroupgap: 0.1,
+            paper_bgcolor: plotBg,
+            plot_bgcolor: plotBg,
+            font: { color: axisColor },
+            xaxis: {
+                title: '',
+                tickfont: { color: axisColor },
+                linecolor: axisColor,
+                tickson: 'boundaries',
+                ticks: 'outside',
+                ticklen: 6,
+                tickwidth: 1,
+                tickcolor: axisColor,
+                mirror: false
+            },
+            yaxis: {
+                title: 'Mean Harvest Rate (carp/day)',
+                titlefont: { color: axisColor },
+                tickfont: { color: axisColor },
+                linecolor: axisColor,
+                mirror: false,
+                gridcolor: gridColor,
+                zerolinecolor: gridColor,
+                tickformat: '.1f'
+            },
+            legend: { orientation: 'h', y: -0.25, x: 0.5, xanchor: 'center', font: { color: axisColor } }
+        }, {
+            responsive: true,
+            displaylogo: false
+        });
+    };
+
+    let plotlyRendered = false;
+    const plotlyCollapse = document.getElementById('cf-daily-rate-plotly-collapse');
+    if (plotlyCollapse) {
+        plotlyCollapse.addEventListener('shown.bs.collapse', function () {
+            renderPlotly();
+            plotlyRendered = true;
+        });
+
+        if (plotlyCollapse.classList.contains('show')) {
+            renderPlotly();
+            plotlyRendered = true;
+        }
+    }
+
+    const themeObserver = new MutationObserver(function (mutations) {
+        for (const mutation of mutations) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                if (plotlyRendered) {
+                    renderPlotly();
+                }
+                break;
+            }
+        }
+    });
+
+    themeObserver.observe(document.documentElement, { attributes: true });
+
+    if (yearSelect && !yearSelect.disabled) {
+        yearSelect.addEventListener('change', function () {
+            const url = new URL(window.location.href);
+            if (this.value) {
+                url.searchParams.set('year', this.value);
+            } else {
+                url.searchParams.delete('year');
+            }
+            window.location.href = url.toString();
+        });
+    }
+});
+</script>
+{% endblock extra_javascript %}

@@ -1,0 +1,1320 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}New Sampling Event{% endblock title %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='Add a New Sampling Event' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+    <div class="card col-md-12">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <h5 class="d-none d-md-block text-muted mb-0">Add a recent sampling effort that was completed by agency staff.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Add a New Agency Sampling Effort.</h4>
+            <div class="d-flex gap-2">
+                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add New Sampling Results Instead...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> CATCH DATA</a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-1">
+                        <div class="form-floating">
+                            {{ form.event_date }}
+                            <label for="id_event_date" class="form-label">DATE</label>
+                        </div>
+                        {% if form.event_date.errors %}
+                            <div class="text-danger small">{{ form.event_date.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-1">
+                        <div class="form-floating">
+                            {{ form.project }}
+                            <label for="id_project" class="form-label">PROJECT</label>
+                        </div>
+                        {% if form.project.errors %}
+                            <div class="text-danger small">{{ form.project.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-1">
+                        <div class="form-floating">
+                            {{ form.agency }}
+                            <label for="id_agency" class="form-label">AGENCY</label>
+                        </div>
+                        {% if form.agency.errors %}
+                            <div class="text-danger small">{{ form.agency.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-1 mb-md-0 mt-2 mt-md-1">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ form.crew_lead }}
+                                <label for="id_crew_lead" class="form-label">CREW LEADER</label>
+                            </div>
+                            {% if perms.kiccd_app.add_crew %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addCrewLeadBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addCrewLeadModal"
+                                    title="Add a New Crew Leader" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if form.crew_lead.errors %}
+                            <div class="text-danger small">{{ form.crew_lead.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ form.gear }}
+                            <label for="id_gear" class="form-label">GEAR TYPE</label>
+                        </div>
+                        {% if form.gear.errors %}
+                            <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ form.effort_num }}
+                            <label for="id_effort_num" class="form-label">RUN/NET #</label>
+                        </div>
+                        {% if form.effort_num.errors %}
+                            <div class="text-danger small">{{ form.effort_num.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ form.effort_min }}
+                            <label for="id_effort_min" class="form-label">TOTAL EFFORT (min)</label>
+                        </div>
+                        {% if form.effort_min.errors %}
+                            <div class="text-danger small">{{ form.effort_min.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-2 offset-md-1 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                        {{ form.start_time }}
+                        <label for="id_start_time" class="form-label">START TIME (24h)</label>
+                        </div>
+                        {% if form.start_time.errors %}
+                            <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ form.end_time }}
+                            <label for="id_end_time" class="form-label">END TIME (24h)</label>
+                        </div>
+                        {% if form.end_time.errors %}
+                            <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
+                        {% endif %}    
+                    </div>
+                </div>
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-md-6 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ form.site }}
+                                <label for="id_site" class="form-label">SITE NAME</label>
+                            </div>
+                            {% if perms.kiccd_app.add_samplesite %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addSiteBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addSiteModal"
+                                    title="Add a New Sample Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if form.site.errors %}
+                            <div class="text-danger small">{{ form.site.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ form.latitude }}
+                            <label for="id_latitude" class="form-label">EVENT LATITUDE</label>
+                        </div>
+                        {% if form.latitude.errors %}
+                            <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-3 mb-3 mb-md-0 mt-2 mt-md-0">
+                        <div class="form-floating">
+                            {{ form.longitude }}
+                            <label for="id_longitude" class="form-label">EVENT LONGITUDE</label>
+                        </div>
+                        {% if form.longitude.errors %}
+                            <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-2 mb-md-1" id="AddEventOptions">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventOne" aria-expanded="false" aria-controls="AddEventOne">
+                                    Optional Electrofishing Details 
+                                </button>
+                            </h2>
+                            <div id="AddEventOne" class="accordion-collapse collapse"
+                                aria-labelledby="AddEventAccHeading1" data-bs-parent="#AddEventOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-2 mt-md-0">
+                                            <div class="form-floating">
+                                                {{ form.ef_duty_cycle }}
+                                                <label for="id_ef_duty_cycle" class="form-label d-none d-md-block">DUTY CYC</label>
+                                                <label for="id_ef_duty_cycle" class="form-label d-block d-md-none">DUTY CYCLE (%)</label>
+                                            </div>
+                                            {% if form.ef_duty_cycle.errors %}
+                                                <div class="text-danger small">{{ form.ef_duty_cycle.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.ef_pps_hertz }}
+                                            <label for="id_ef_pps_hertz" class="form-label d-none d-md-block">PPS</label>
+                                            <label for="id_ef_pps_hertz" class="form-label d-block d-md-none">HERTZ - PPS (Pulses per Second)</label>
+                                            </div>
+                                            {% if form.ef_pps_hertz.errors %}
+                                                <div class="text-danger small">{{ form.ef_pps_hertz.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.ef_voltage }}
+                                            <label for="id_ef_voltage" class="form-label">VOLTS</label>
+                                            </div>
+                                            {% if form.ef_voltage.errors %}
+                                                <div class="text-danger small">{{ form.ef_voltage.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.ef_amps }}
+                                            <label for="id_ef_amps" class="form-label">AMPS</label>
+                                            </div>
+                                            {% if form.ef_amps.errors %}
+                                                <div class="text-danger small">{{ form.ef_amps.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.ef_watts }}
+                                            <label for="id_ef_watts" class="form-label">WATTS</label>
+                                            </div>
+                                            {% if form.ef_watts.errors %}
+                                                <div class="text-danger small">{{ form.ef_watts.errors|striptags }}</div>
+                                            {% endif %}    
+                                        </div>
+                                        <div class="col-md-1 offset-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                                {{ form.dipper_cnt }}
+                                                <label for="id_dipper_cnt" class="form-label d-none d-md-block">DIPPERS</label>
+                                                <label for="id_dipper_cnt" class="form-label d-block d-md-none">DIPPER COUNT</label>
+                                            </div>
+                                            {% if form.dipper_cnt.errors %}
+                                                <div class="text-danger small">{{ form.dipper_cnt.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.bankside }}
+                                            <label for="id_bankside" class="form-label d-none d-md-block">BANK SIDE</label>
+                                            <label for="id_bankside" class="form-label d-block d-md-none">BANK SIDE & DIRECTION</label>
+                                            </div>
+                                            {% if form.bankside.errors %}
+                                                <div class="text-danger small">{{ form.bankside.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                                {{ form.run_distance }}
+                                                <label for="id_run_distance" class="form-label d-none d-md-block">BANK DIST (mi)</label>
+                                                <label for="id_run_distance" class="form-label d-block d-md-none">BANK DISTANCE (mi)</label>
+                                            </div>
+                                            {% if form.run_distance.errors %}
+                                                <div class="text-danger small">{{ form.run_distance.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventTwo" aria-expanded="false" aria-controls="AddEventTwo">
+                                    Additional Net Details
+                                </button>
+                            </h2>
+                            <div id="AddEventTwo" class="accordion-collapse collapse"
+                                aria-labelledby="AddEventAccHeading2" data-bs-parent="#AddEventOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+                                        <div class="col-md-2 offset-md-1 mb-1 mb-md-0 mt-2 mt-md-0">
+                                            <div class="form-floating">
+                                                {{ form.net_length_ft }}
+                                                <label for="id_net_length_ft" class="form-label d-none d-md-block">LENGTH (Ft)</label>
+                                                <label for="id_net_length_ft" class="form-label d-block d-md-none">NET LENGTH (Ft)</label>
+                                            </div>
+                                            {% if form.net_length_ft.errors %}
+                                                <div class="text-danger small">{{ form.net_length_ft.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.net_depth_ft }}
+                                            <label for="id_net_depth_ft" class="form-label d-none d-md-block">HEIGHT (Ft)</label>
+                                            <label for="id_net_depth_ft" class="form-label d-block d-md-none">NET HEIGHT (Ft)</label>
+                                            </div>
+                                            {% if form.net_depth_ft.errors %}
+                                                <div class="text-danger small">{{ form.net_depth_ft.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.mesh_size_in }}
+                                            <label for="id_mesh_size_in" class="form-label d-none d-md-block">MESH (in)</label>
+                                            <label for="id_mesh_size_in" class="form-label d-block d-md-none">MESH SIZE (in)</label>
+                                            </div>
+                                            {% if form.mesh_size_in.errors %}
+                                                <div class="text-danger small">{{ form.mesh_size_in.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.net_set_type }}
+                                            <label for="id_net_set_type" class="form-label d-none d-md-block">SET TYPE</label>
+                                            <label for="id_net_set_type" class="form-label d-block d-md-none">NET SET TYPE</label>
+                                            </div>
+                                            {% if form.net_set_type.errors %}
+                                                <div class="text-danger small">{{ form.net_set_type.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.egn_panel_num }}
+                                            <label for="id_egn_panel_num" class="form-label d-none d-md-block">PANEL #</label>
+                                            <label for="id_egn_panel_num" class="form-label d-block d-md-none">EGN PANEL NUMBER</label>
+                                            </div>
+                                            {% if form.egn_panel_num.errors %}
+                                                <div class="text-danger small">{{ form.egn_panel_num.errors|striptags }}</div>
+                                            {% endif %}    
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.event_loc_type }}
+                                            <label for="id_event_loc_type" class="form-label d-none d-md-block">NET LOCATION</label>
+                                            <label for="id_event_loc_type" class="form-label d-block d-md-none">NET SET LOCATION</label>
+                                            </div>
+                                            {% if form.event_loc_type.errors %}
+                                                <div class="text-danger small">{{ form.event_loc_type.errors|striptags }}</div>
+                                            {% endif %}    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventThree" aria-expanded="false"
+                                    aria-controls="AddEventThree">
+                                    Optional Environmental Measurements
+                                </button>
+                            </h2>
+                            <div id="AddEventThree" class="accordion-collapse collapse"
+                                aria-labelledby="AddEventAccHeading3" data-bs-parent="#AddEventOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+                                        
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.water_temp_f }}
+                                            <label for="id_water_temp_f" class="form-label d-none d-md-block">WATER TEMP (°F)</label>
+                                            <label for="id_water_temp_f" class="form-label d-block d-md-none">WATER TEMPERATURE (°F)</label>
+                                            </div>
+                                            {% if form.water_temp_f.errors %}
+                                                <div class="text-danger small">{{ form.water_temp_f.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                                {{ form.ef_cond }}
+                                                <label for="id_ef_cond" class="form-label">CONDUCTIVITY</label>
+                                            </div>
+                                            {% if form.ef_cond.errors %}
+                                                <div class="text-danger small">{{ form.ef_cond.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.water_ph }}
+                                            <label for="id_water_ph" class="form-label">pH</label>
+                                            </div>
+                                            {% if form.water_ph.errors %}
+                                                <div class="text-danger small">{{ form.water_ph.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.secchi_depth_in }}
+                                            <label for="id_secchi_depth_in" class="form-label d-none d-md-block">SECCHI Depth (in)</label>
+                                            <label for="id_secchi_depth_in" class="form-label d-block d-md-none">SECCHI DEPTH (in)</label>
+                                            </div>
+                                            {% if form.secchi_depth_in.errors %}
+                                                <div class="text-danger small">{{ form.secchi_depth_in.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.weather }}
+                                            <label for="id_weather" class="form-label d-none d-md-block">WEATHER</label>
+                                            <label for="id_weather" class="form-label d-block d-md-none">WEATHER CONDITIONS</label>
+                                            </div>
+                                            {% if form.weather.errors %}
+                                                <div class="text-danger small">{{ form.weather.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.air_temp_f }}
+                                            <label for="id_air_temp_f" class="form-label d-none d-md-block">AIR TEMP (°F)</label>
+                                            <label for="id_air_temp_f" class="form-label d-block d-md-none">AIR TEMPERATURE (°F)</label>
+                                            </div>
+                                            {% if form.air_temp_f.errors %}
+                                                <div class="text-danger small">{{ form.air_temp_f.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                            <div class="form-floating">
+                                            {{ form.wind_speed_mph }}
+                                            <label for="id_wind_speed_mph" class="form-label d-none d-md-block">WIND (MPH)</label>
+                                            <label for="id_wind_speed_mph" class="form-label d-block d-md-none">WIND SPEED (MPH)</label>
+                                            </div>
+                                            {% if form.wind_speed_mph.errors %}
+                                                <div class="text-danger small">{{ form.wind_speed_mph.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="col-4 offset-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
+                        <p class="mb-1 mt-md-0 text-muted fs-12">IC SIGHTED?</p>
+                        <div class="form-check form-switch">
+                            {{ form.carp_sighted }}
+                        </div>
+                        {% if form.carp_sighted.errors %}
+                            <div class="text-danger small">{{ form.carp_sighted.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-4 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Young-of-Year (YOY) IC Observed?">
+                        <p class="mb-1 mt-md-0 text-muted fs-12">YOY IC?</p>
+                        <div class="form-check form-switch">
+                            {{ form.yoy_sighted }}
+                        </div>
+                        {% if form.yoy_sighted.errors %}
+                            <div class="text-danger small">{{ form.yoy_sighted.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-success" id="sampleEventSubmitBtn">
+                        <span id="sampleEventSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                        SUBMIT
+                    </button>
+                    <div>
+                        <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:recent_cf_events' %}'">CANCEL</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.querySelector('form');
+    var submitBtn = document.getElementById('sampleEventSubmitBtn');
+    var submitSpinner = document.getElementById('sampleEventSubmitSpinner');
+    if (!form || !submitBtn) return;
+    form.addEventListener('submit', function () {
+        submitSpinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+}());
+</script>
+
+<!-- Add Sample Site Modal -->
+<div class="modal fade" id="addSiteModal" tabindex="-1" aria-labelledby="addSiteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSiteModalLabel"><i class="ti ti-map-pin-plus me-1"></i> Add New Sample Site</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addSiteGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="row g-2 mb-2">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="site_name" required>
+                            <label class="form-label" for="site_name">SITE NAME</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_name"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="site_latitude" step="0.00001" required>
+                            <label class="form-label" for="site_latitude">LATITUDE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_latitude"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="site_longitude" step="0.00001" required>
+                            <label class="form-label" for="site_longitude">LONGITUDE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_longitude"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_type" required>
+                                <option value="">...</option>
+                                {% for st in site_types %}
+                                <option value="{{ st.pk }}">{{ st.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_type">SITE TYPE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_type"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_pool" required>
+                                <option value="">...</option>
+                                {% for p in pools %}
+                                <option value="{{ p.pk }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_pool">POOL</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_pool"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_basin" required>
+                                <option value="">...</option>
+                                {% for b in basins %}
+                                <option value="{{ b.pk }}">{{ b.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_basin">BASIN</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_basin"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_trib" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label class="form-label" for="site_trib">TRIBUTARY / AREA</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_trib"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_state" required>
+                                <option value="">...</option>
+                                {% for s in states %}
+                                <option value="{{ s.pk }}">{{ s.abbrev }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="site_state">STATE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_state"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_county" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label class="form-label" for="site_county">COUNTY</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_county"></div>
+                    </div>
+                </div>
+                <div class="accordion accordion-flush" id="siteModalOptional">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteOptionalCollapse" aria-expanded="false">
+                                <small><strong><u>Click for Optional Info:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="siteOptionalCollapse" class="accordion-collapse collapse" data-bs-parent="#siteModalOptional">
+                            <div class="accordion-body p-2">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="site_river_mi" step="0.1">
+                                    <label class="form-label" for="site_river_mi">RIVER MILE</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion accordion-flush mt-1" id="siteModalCoordPicker">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteCoordPickerCollapse" aria-expanded="false">
+                                <small><strong><u>Click to Pick Coordinates on Map:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="siteCoordPickerCollapse" class="accordion-collapse collapse">
+                            <div class="accordion-body p-2">
+                                <p class="text-muted small mb-2">Click the map to set latitude &amp; longitude, or drag the marker to adjust. Coordinates will fill the fields above automatically.</p>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mb-2" id="siteCoordPickerLocBtn">
+                                    <i class="ti ti-current-location me-1"></i> Use My Location
+                                </button>
+                                <div id="site-coord-picker-map"></div>
+                                <div id="siteCoordPickerDisplay" class="text-muted small mt-1" style="display:none;">
+                                    Lat: <span id="siteCoordPickerLat"></span> &nbsp; Lng: <span id="siteCoordPickerLng"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveSiteBtn">
+                    <span id="saveSiteSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var siteModal = document.getElementById('addSiteModal');
+    var saveSiteBtn = document.getElementById('saveSiteBtn');
+    if (!saveSiteBtn) return;
+    var siteSpinner = document.getElementById('saveSiteSpinner');
+    var siteGlobalErrors = document.getElementById('addSiteGlobalErrors');
+    var siteRequiredFields = ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'trib', 'state', 'county'];
+
+    function clearSiteErrors() {
+        siteGlobalErrors.classList.add('d-none');
+        siteGlobalErrors.textContent = '';
+        siteRequiredFields.forEach(function (f) {
+            var el = document.getElementById('site_err_' + f);
+            if (el) { el.textContent = ''; el.classList.add('d-none'); }
+            var inp = document.getElementById('site_' + f);
+            if (inp) inp.classList.remove('is-invalid');
+        });
+    }
+
+    var countyBaseUrl = "{% url 'kiccd_app:api_counties_by_state' 0 %}";
+    function countyUrl(id) { return countyBaseUrl.replace('/0/', '/' + id + '/'); }
+
+    var tribBasinBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin' 0 %}";
+    var tribBothBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin_and_pool' 0 0 %}";
+    function tribUrl(basinId, poolId) {
+        if (basinId && poolId) {
+            return tribBothBaseUrl.replace('/0/0/', '/' + basinId + '/' + poolId + '/');
+        }
+        return tribBasinBaseUrl.replace('/0/', '/' + basinId + '/');
+    }
+
+    var siteStateEl = document.getElementById('site_state');
+    var siteCountyEl = document.getElementById('site_county');
+    var siteBasinEl = document.getElementById('site_basin');
+    var sitePoolEl = document.getElementById('site_pool');
+    var siteTribEl = document.getElementById('site_trib');
+
+    function clearCountyOptions() {
+        siteCountyEl.innerHTML = '<option value="">...</option>';
+        siteCountyEl.disabled = true;
+    }
+
+    function clearTribOptions() {
+        siteTribEl.innerHTML = '<option value="">...</option>';
+        siteTribEl.disabled = true;
+    }
+
+    function fetchTribs() {
+        var basinId = siteBasinEl.value;
+        var poolId = sitePoolEl.value;
+        if (!basinId) { clearTribOptions(); return; }
+        fetch(tribUrl(basinId, poolId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteTribEl.innerHTML = '';
+                var ph = document.createElement('option');
+                ph.value = ''; ph.text = '...';
+                siteTribEl.appendChild(ph);
+                (data.tribs || []).forEach(function (t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.id; opt.text = t.name;
+                    siteTribEl.appendChild(opt);
+                });
+                siteTribEl.disabled = false;
+            })
+            .catch(clearTribOptions);
+    }
+
+    function resetSiteModal() {
+        clearSiteErrors();
+        ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'river_mi'].forEach(function (f) {
+            var el = document.getElementById('site_' + f);
+            if (el) el.value = '';
+        });
+        siteStateEl.value = '';
+        clearCountyOptions();
+        siteBasinEl.value = '';
+        clearTribOptions();
+    }
+
+    siteModal.addEventListener('hidden.bs.modal', resetSiteModal);
+
+    siteStateEl.addEventListener('change', function () {
+        var stateId = this.value;
+        if (!stateId) { clearCountyOptions(); return; }
+        var pendingCounty = (siteStateEl.dataset.pendingCounty || '').trim();
+        siteStateEl.dataset.pendingCounty = '';
+        fetch(countyUrl(stateId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteCountyEl.innerHTML = '';
+                var ph = document.createElement('option');
+                ph.value = ''; ph.text = '...';
+                siteCountyEl.appendChild(ph);
+                (data.counties || []).forEach(function (c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.id; opt.text = c.name;
+                    siteCountyEl.appendChild(opt);
+                });
+                siteCountyEl.disabled = false;
+                if (pendingCounty) {
+                    var match = Array.from(siteCountyEl.options).find(function (o) {
+                        return o.text.trim().toLowerCase() === pendingCounty.toLowerCase();
+                    });
+                    if (match) siteCountyEl.value = match.value;
+                }
+            })
+            .catch(clearCountyOptions);
+    });
+
+    siteBasinEl.addEventListener('change', fetchTribs);
+    sitePoolEl.addEventListener('change', fetchTribs);
+
+    saveSiteBtn.addEventListener('click', function () {
+        clearSiteErrors();
+        var hasError = false;
+        siteRequiredFields.forEach(function (f) {
+            var inp = document.getElementById('site_' + f);
+            if (!inp || !inp.value.trim()) {
+                var errEl = document.getElementById('site_err_' + f);
+                if (errEl) { errEl.textContent = 'This field is required.'; errEl.classList.remove('d-none'); }
+                if (inp) inp.classList.add('is-invalid');
+                hasError = true;
+            }
+        });
+        if (hasError) return;
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData = new FormData();
+        formData.append('name', document.getElementById('site_name').value.trim());
+        formData.append('latitude', document.getElementById('site_latitude').value.trim());
+        formData.append('longitude', document.getElementById('site_longitude').value.trim());
+        formData.append('type', document.getElementById('site_type').value);
+        formData.append('pool', document.getElementById('site_pool').value);
+        formData.append('basin', document.getElementById('site_basin').value);
+        formData.append('trib', document.getElementById('site_trib').value);
+        formData.append('state', document.getElementById('site_state').value);
+        formData.append('county', document.getElementById('site_county').value);
+        var riverMi = document.getElementById('site_river_mi').value.trim();
+        if (riverMi) formData.append('river_mi', riverMi);
+
+        siteSpinner.classList.remove('d-none');
+        saveSiteBtn.disabled = true;
+
+        fetch("{% url 'kiccd_app:sample_site_create_ajax' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            siteSpinner.classList.add('d-none');
+            saveSiteBtn.disabled = false;
+            if (data.success) {
+                var select = document.getElementById('id_site');
+                var newOpt = new Option(data.name, data.id, true, true);
+                if (window.jQuery && $(select).data('select2')) {
+                    $(select).append(newOpt).trigger('change');
+                } else {
+                    select.add(newOpt);
+                    select.value = data.id;
+                    select.dispatchEvent(new Event('change'));
+                }
+                bootstrap.Modal.getInstance(siteModal).hide();
+            } else {
+                var msgs = [];
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function (field) {
+                        var fieldErrs = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                        var errEl = document.getElementById('site_err_' + field);
+                        var inpEl = document.getElementById('site_' + field);
+                        if (errEl) {
+                            errEl.textContent = fieldErrs.join(' ');
+                            errEl.classList.remove('d-none');
+                            if (inpEl) inpEl.classList.add('is-invalid');
+                        } else {
+                            msgs.push(fieldErrs.join(' '));
+                        }
+                    });
+                }
+                if (msgs.length) {
+                    siteGlobalErrors.textContent = msgs.join(' | ');
+                    siteGlobalErrors.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(function () {
+            siteSpinner.classList.add('d-none');
+            saveSiteBtn.disabled = false;
+            siteGlobalErrors.textContent = 'An unexpected error occurred. Please try again.';
+            siteGlobalErrors.classList.remove('d-none');
+        });
+    });
+
+    // --- Coordinate auto-fill: pool, basin, state, county ---
+    var _sitePoolCache = null;
+    var _siteBasinCache = null;
+    var _POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
+    var _BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
+    var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
+
+    function _fetchSitePoolBounds() {
+        if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
+        return fetch(_POOL_BOUNDS_URL).then(function(r){return r.json();})
+            .then(function(d){_sitePoolCache=d.features||[];return _sitePoolCache;})
+            .catch(function(){_sitePoolCache=[];return[];});
+    }
+    function _fetchSiteBasinBounds() {
+        if (_siteBasinCache !== null) return Promise.resolve(_siteBasinCache);
+        return fetch(_BASIN_BOUNDS_URL).then(function(r){return r.json();})
+            .then(function(d){_siteBasinCache=d.features||[];return _siteBasinCache;})
+            .catch(function(){_siteBasinCache=[];return[];});
+    }
+
+    function siteAutoFillFromCoords(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (isNaN(la) || isNaN(lo)) return;
+        if (_MBTOKEN) {
+            fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' + lo + ',' + la +
+                  '.json?types=region%2Cdistrict&access_token=' + _MBTOKEN)
+            .then(function(r){return r.json();})
+            .then(function(data){
+                var stateAbbrev = null, countyName = null;
+                (data.features||[]).forEach(function(f){
+                    if (f.place_type.indexOf('region')!==-1 && f.properties && f.properties.short_code) {
+                        var parts = f.properties.short_code.split('-');
+                        stateAbbrev = parts[parts.length-1].toUpperCase();
+                    }
+                    if (f.place_type.indexOf('district')!==-1 && f.text) {
+                        countyName = f.text
+                            .replace(/ County$/i,'').replace(/ Parish$/i,'')
+                            .replace(/ Borough$/i,'').replace(/ Census Area$/i,'')
+                            .replace(/ Municipality$/i,'').trim();
+                    }
+                });
+                if (!stateAbbrev) return;
+                var stateOpt = Array.from(siteStateEl.options).find(function(o){
+                    return o.text.trim().toUpperCase() === stateAbbrev;
+                });
+                if (!stateOpt) return;
+                siteStateEl.dataset.pendingCounty = countyName || '';
+                siteStateEl.value = stateOpt.value;
+                siteStateEl.dispatchEvent(new Event('change'));
+            }).catch(function(){});
+        }
+        if (!window.turf) return;
+        var pt = window.turf.point([lo, la]);
+        Promise.all([_fetchSitePoolBounds(), _fetchSiteBasinBounds()]).then(function(res){
+            var poolFeatures = res[0], basinFeatures = res[1];
+            var poolMatch = poolFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+            var basinMatch = basinFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+            if (poolMatch) {
+                var poolSel = document.getElementById('site_pool');
+                var pOpt = Array.from(poolSel.options).find(function(o){return String(o.value)===String(poolMatch.properties.pool_id);});
+                if (pOpt) poolSel.value = pOpt.value;
+            }
+            if (basinMatch) {
+                var bOpt = Array.from(siteBasinEl.options).find(function(o){return String(o.value)===String(basinMatch.properties.basin_id);});
+                if (bOpt) { siteBasinEl.value = bOpt.value; siteBasinEl.dispatchEvent(new Event('change')); }
+            }
+        });
+    }
+
+    window._siteAutoFillFromCoords = siteAutoFillFromCoords;
+    var _siteLatEl = document.getElementById('site_latitude');
+    var _siteLngEl = document.getElementById('site_longitude');
+    if (_siteLatEl && _siteLngEl) {
+        function _trySiteAutoFill() { siteAutoFillFromCoords(_siteLatEl.value, _siteLngEl.value); }
+        _siteLatEl.addEventListener('change', _trySiteAutoFill);
+        _siteLngEl.addEventListener('change', _trySiteAutoFill);
+    }
+}());
+</script>
+
+<!-- Add Crew Lead Modal -->
+<div class="modal fade" id="addCrewLeadModal" tabindex="-1" aria-labelledby="addCrewLeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCrewLeadModalLabel"><i class="ti ti-user-plus me-1"></i> Add New Crew Leader</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addCrewLeadGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="crew_leader" required>
+                        <label class="form-label" for="crew_leader">FULL NAME</label>
+                    </div>
+                    <div class="text-danger small d-none" id="crew_err_leader"></div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select class="form-control" id="crew_agency" required>
+                                <option value="">...</option>
+                                {% for partner in partners %}
+                                <option value="{{ partner.pk }}">{{ partner.abbrev }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="crew_agency">AGENCY</label>
+                        </div>
+                        <div class="text-danger small d-none" id="crew_err_agency"></div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-floating">
+                            <select class="form-control" id="crew_office" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label class="form-label" for="crew_office">OFFICE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="crew_err_office"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveCrewLeadBtn">
+                    <span id="saveCrewLeadSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var crewModal = document.getElementById('addCrewLeadModal');
+    var saveCrewBtn = document.getElementById('saveCrewLeadBtn');
+    if (!saveCrewBtn) return;
+    var crewSpinner = document.getElementById('saveCrewLeadSpinner');
+    var crewGlobalErrors = document.getElementById('addCrewLeadGlobalErrors');
+    var crewFields = ['leader', 'agency', 'office'];
+
+    function clearCrewErrors() {
+        crewGlobalErrors.classList.add('d-none');
+        crewGlobalErrors.textContent = '';
+        crewFields.forEach(function (f) {
+            var el = document.getElementById('crew_err_' + f);
+            if (el) { el.textContent = ''; el.classList.add('d-none'); }
+            var inp = document.getElementById('crew_' + f);
+            if (inp) inp.classList.remove('is-invalid');
+        });
+    }
+
+    var officeBaseUrl = "{% url 'kiccd_app:api_offices_by_agency' 0 %}";
+    function officeUrl(id) { return officeBaseUrl.replace('/0/', '/' + id + '/'); }
+
+    var crewAgencyEl = document.getElementById('crew_agency');
+    var crewOfficeEl = document.getElementById('crew_office');
+
+    function clearOfficeOptions() {
+        crewOfficeEl.innerHTML = '<option value="">...</option>';
+        crewOfficeEl.disabled = true;
+    }
+
+    function resetCrewModal() {
+        clearCrewErrors();
+        document.getElementById('crew_leader').value = '';
+        crewAgencyEl.value = '';
+        clearOfficeOptions();
+    }
+
+    crewModal.addEventListener('hidden.bs.modal', resetCrewModal);
+
+    crewAgencyEl.addEventListener('change', function () {
+        var agencyId = this.value;
+        if (!agencyId) { clearOfficeOptions(); return; }
+        fetch(officeUrl(agencyId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                crewOfficeEl.innerHTML = '';
+                var ph = document.createElement('option');
+                ph.value = ''; ph.text = '...';
+                crewOfficeEl.appendChild(ph);
+                (data.offices || []).forEach(function (o) {
+                    var opt = document.createElement('option');
+                    opt.value = o.id; opt.text = o.name;
+                    crewOfficeEl.appendChild(opt);
+                });
+                crewOfficeEl.disabled = false;
+            })
+            .catch(clearOfficeOptions);
+    });
+
+    saveCrewBtn.addEventListener('click', function () {
+        clearCrewErrors();
+        var leader = document.getElementById('crew_leader').value.trim();
+        var agency = crewAgencyEl.value;
+        var office = crewOfficeEl.value;
+        var hasError = false;
+
+        if (!leader) {
+            var e1 = document.getElementById('crew_err_leader');
+            e1.textContent = 'This field is required.';
+            e1.classList.remove('d-none');
+            document.getElementById('crew_leader').classList.add('is-invalid');
+            hasError = true;
+        }
+        if (!agency) {
+            var e2 = document.getElementById('crew_err_agency');
+            e2.textContent = 'This field is required.';
+            e2.classList.remove('d-none');
+            crewAgencyEl.classList.add('is-invalid');
+            hasError = true;
+        }
+        if (!office) {
+            var e3 = document.getElementById('crew_err_office');
+            e3.textContent = 'Select an agency first, then choose an office.';
+            e3.classList.remove('d-none');
+            crewOfficeEl.classList.add('is-invalid');
+            hasError = true;
+        }
+        if (hasError) return;
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData = new FormData();
+        formData.append('leader', leader);
+        formData.append('agency', agency);
+        formData.append('office', office);
+
+        crewSpinner.classList.remove('d-none');
+        saveCrewBtn.disabled = true;
+
+        fetch("{% url 'kiccd_app:crew_create_ajax' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData,
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            crewSpinner.classList.add('d-none');
+            saveCrewBtn.disabled = false;
+            if (data.success) {
+                var select = document.getElementById('id_crew_lead');
+                var newOpt = new Option(data.name, data.id, true, true);
+                if (window.jQuery && $(select).data('select2')) {
+                    $(select).append(newOpt).trigger('change');
+                } else {
+                    select.add(newOpt);
+                    select.value = data.id;
+                    select.dispatchEvent(new Event('change'));
+                }
+                bootstrap.Modal.getInstance(crewModal).hide();
+            } else {
+                var msgs = [];
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function (field) {
+                        var fieldErrs = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                        var errEl = document.getElementById('crew_err_' + field);
+                        var inpEl = document.getElementById('crew_' + field);
+                        if (errEl) {
+                            errEl.textContent = fieldErrs.join(' ');
+                            errEl.classList.remove('d-none');
+                            if (inpEl) inpEl.classList.add('is-invalid');
+                        } else {
+                            msgs.push(fieldErrs.join(' '));
+                        }
+                    });
+                }
+                if (msgs.length) {
+                    crewGlobalErrors.textContent = msgs.join(' | ');
+                    crewGlobalErrors.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(function () {
+            crewSpinner.classList.add('d-none');
+            saveCrewBtn.disabled = false;
+            crewGlobalErrors.textContent = 'An unexpected error occurred. Please try again.';
+            crewGlobalErrors.classList.remove('d-none');
+        });
+    });
+}());
+</script>
+{% endblock page_content %}
+
+{% block extra_css %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<style>
+    #site-coord-picker-map { width: 100%; height: 300px; cursor: crosshair; }
+</style>
+{% endblock extra_css %}
+
+{% block extra_javascript %}
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const agencySelect = document.getElementById('id_agency');
+	const crewSelect = document.getElementById('id_crew_lead');
+
+    if (!agencySelect || !crewSelect ) return;
+
+    // URL with placeholder 0; we'll replace the '0' segment with the selected id
+    const baseUrl = "{% url 'kiccd_app:api_crews_by_agency' 0 %}";
+    function buildUrl(id){
+        return baseUrl.replace('/0/','/'+id+'/');
+    }
+
+    function clearOptions(){
+        crewSelect.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.text = '...';
+        crewSelect.appendChild(opt);
+        crewSelect.disabled = true;
+    }
+
+    agencySelect.addEventListener('change', function(){
+        const agencyId = this.value;
+        if (!agencyId){
+            clearOptions();
+            return;
+        }
+        fetch(buildUrl(agencyId))
+            .then(r => r.json())
+            .then(data => {
+                crewSelect.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.text = '...';
+                crewSelect.appendChild(placeholder);
+                (data.crews || []).forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.id;
+                    opt.text = o.name;
+                    crewSelect.appendChild(opt);
+                });
+                crewSelect.disabled = false;
+            })
+            .catch(() => clearOptions());
+    });
+
+    // populate on load if an agency is pre-selected
+    if (agencySelect.value) {
+        agencySelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const siteSelect = $('#id_site');
+
+    if (siteSelect.length) {
+        siteSelect.select2({
+            placeholder: '...',
+            allowClear: true,
+            width: '100%',
+            minimumInputLength: 2,
+            ajax: {
+                url: "{% url 'kiccd_app:api_sample_sites_lookup' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results || [] };
+                },
+                cache: true
+            }
+        });
+        siteSelect.on('select2:open', function(){
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(t => new bootstrap.Tooltip(t));
+        });
+    }
+});
+</script>
+
+<script>
+(function () {
+    var pickerMap = null;
+    var pickerMarker = null;
+    var MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+
+    var collapseEl = document.getElementById('siteCoordPickerCollapse');
+    var siteModal = document.getElementById('addSiteModal');
+    if (!collapseEl || !siteModal) return;
+
+    function setCoords(lng, lat) {
+        var latInput = document.getElementById('site_latitude');
+        var lngInput = document.getElementById('site_longitude');
+        if (latInput) latInput.value = lat.toFixed(5);
+        if (lngInput) lngInput.value = lng.toFixed(5);
+        var dispLat = document.getElementById('siteCoordPickerLat');
+        var dispLng = document.getElementById('siteCoordPickerLng');
+        if (dispLat) dispLat.textContent = lat.toFixed(5);
+        if (dispLng) dispLng.textContent = lng.toFixed(5);
+        var display = document.getElementById('siteCoordPickerDisplay');
+        if (display) display.style.display = '';
+        if (window._siteAutoFillFromCoords) window._siteAutoFillFromCoords(lat, lng);
+    }
+
+    collapseEl.addEventListener('shown.bs.collapse', function () {
+        if (pickerMap) {
+            pickerMap.resize();
+            return;
+        }
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+        pickerMap = new mapboxgl.Map({
+            container: 'site-coord-picker-map',
+            style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+            center: [-85.5, 37.8],
+            zoom: 6
+        });
+        pickerMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+        var latInput = document.getElementById('site_latitude');
+        var lngInput = document.getElementById('site_longitude');
+        if (latInput && latInput.value && lngInput && lngInput.value) {
+            var lat = parseFloat(latInput.value);
+            var lng = parseFloat(lngInput.value);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                pickerMap.setCenter([lng, lat]);
+                pickerMap.setZoom(13);
+                pickerMarker = new mapboxgl.Marker({ draggable: true }).setLngLat([lng, lat]).addTo(pickerMap);
+                pickerMarker.on('dragend', function () {
+                    var ll = pickerMarker.getLngLat();
+                    setCoords(ll.lng, ll.lat);
+                });
+            }
+        }
+
+        pickerMap.on('click', function (e) {
+            var lng = e.lngLat.lng;
+            var lat = e.lngLat.lat;
+            if (pickerMarker) {
+                pickerMarker.setLngLat([lng, lat]);
+            } else {
+                pickerMarker = new mapboxgl.Marker({ draggable: true }).setLngLat([lng, lat]).addTo(pickerMap);
+                pickerMarker.on('dragend', function () {
+                    var ll = pickerMarker.getLngLat();
+                    setCoords(ll.lng, ll.lat);
+                });
+            }
+            setCoords(lng, lat);
+        });
+    });
+
+    var locBtn = document.getElementById('siteCoordPickerLocBtn');
+    if (locBtn) {
+        locBtn.addEventListener('click', function () {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                var lat = pos.coords.latitude;
+                var lng = pos.coords.longitude;
+                if (pickerMap) {
+                    pickerMap.flyTo({ center: [lng, lat], zoom: 13 });
+                    if (pickerMarker) {
+                        pickerMarker.setLngLat([lng, lat]);
+                    } else {
+                        pickerMarker = new mapboxgl.Marker({ draggable: true }).setLngLat([lng, lat]).addTo(pickerMap);
+                        pickerMarker.on('dragend', function () {
+                            var ll = pickerMarker.getLngLat();
+                            setCoords(ll.lng, ll.lat);
+                        });
+                    }
+                    setCoords(lng, lat);
+                }
+            });
+        });
+    }
+
+    siteModal.addEventListener('hidden.bs.modal', function () {
+        var bsCollapse = bootstrap.Collapse.getInstance(collapseEl);
+        if (bsCollapse) bsCollapse.hide();
+        var display = document.getElementById('siteCoordPickerDisplay');
+        if (display) display.style.display = 'none';
+        if (pickerMarker) {
+            pickerMarker.remove();
+            pickerMarker = null;
+        }
+    });
+}());
+</script>
+{% endblock extra_javascript %}
