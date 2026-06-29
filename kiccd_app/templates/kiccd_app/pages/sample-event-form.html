@@ -36,18 +36,26 @@
             <form method="post" novalidate>
                 {% csrf_token %}
 
-                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
-                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-1">
-                        <div class="form-floating">
-                            {{ form.event_date }}
-                            <label for="id_event_date" class="form-label">DATE</label>
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ form.event_date }}
+                                <label for="id_event_date" class="form-label">DATE</label>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm p-0"
+                                    title="Today's Date"
+                                    style="height:20px;width:20px;min-width:20px;font-size:0.65rem;"
+                                    onclick="document.getElementById('id_event_date').value=new Date().toISOString().slice(0,10);">
+                                <i class="ti ti-calendar-check"></i>
+                            </button>
                         </div>
                         {% if form.event_date.errors %}
                             <div class="text-danger small">{{ form.event_date.errors|striptags }}</div>
                         {% endif %}
                     </div>
 
-                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-1">
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                             {{ form.project }}
                             <label for="id_project" class="form-label">PROJECT</label>
@@ -57,7 +65,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-1">
+                    <div class="col-md-2 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                             {{ form.agency }}
                             <label for="id_agency" class="form-label">AGENCY</label>
@@ -67,7 +75,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="col-md-4 mb-1 mb-md-0 mt-2 mt-md-1">
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ form.crew_lead }}
@@ -86,58 +94,81 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
-                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-0">
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
-                            {{ form.gear }}
-                            <label for="id_gear" class="form-label">GEAR TYPE</label>
+                        {{ form.gear }}
+                        <label for="id_gear" class="form-label">GEAR TYPE</label>
                         </div>
                         {% if form.gear.errors %}
-                            <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
+                        <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    
-                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
-                        <div class="form-floating">
-                            {{ form.effort_num }}
-                            <label for="id_effort_num" class="form-label">RUN/NET #</label>
+                    <div class="col-md-4 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="col-6 p-md-2 p-2">
+                                <div class="form-floating">
+                                {{ form.effort_num }}
+                                <label for="id_effort_num" class="form-label">RUN/NET #</label>
+                                </div>
+                                {% if form.effort_num.errors %}
+                                <div class="text-danger small">{{ form.effort_num.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-6 p-md-2 p-2">
+                                <div class="form-floating">
+                                {{ form.effort_min }}
+                                <label for="id_effort_min" class="form-label">TOTAL EFFORT (min)</label>
+                                </div>
+                                {% if form.effort_min.errors %}
+                                <div class="text-danger small">{{ form.effort_min.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% if form.effort_num.errors %}
-                            <div class="text-danger small">{{ form.effort_num.errors|striptags }}</div>
-                        {% endif %}
                     </div>
-                    
-                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
-                        <div class="form-floating">
-                            {{ form.effort_min }}
-                            <label for="id_effort_min" class="form-label">TOTAL EFFORT (min)</label>
+                    <div class="col-md-5 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="offset-md-1 col-md-5 col-sm-6 p-md-2 p-2">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                    {{ form.start_time }}
+                                    <label for="id_start_time" class="form-label">START TIME (24h)</label>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm p-0"
+                                            title="Current local time"
+                                            style="height:20px;width:20px;min-width:20px;font-size:0.65rem;"
+                                            onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_start_time'));">
+                                        <i class="ti ti-clock"></i>
+                                    </button>
+                                </div>
+                                {% if form.start_time.errors %}
+                                    <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5 col-sm-6 p-md-2 p-2">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ form.end_time }}
+                                        <label for="id_end_time" class="form-label">END TIME (24h)</label>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm p-0"
+                                            title="Current local time"
+                                            style="height:20px;width:20px;min-width:20px;font-size:0.65rem;"
+                                            onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_end_time'));">
+                                        <i class="ti ti-clock"></i>
+                                    </button>
+                                </div>
+                                {% if form.end_time.errors %}
+                                    <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
+                                {% endif %}    
+                                </div>
                         </div>
-                        {% if form.effort_min.errors %}
-                            <div class="text-danger small">{{ form.effort_min.errors|striptags }}</div>
-                        {% endif %}
                     </div>
-                    
-                    <div class="col-md-2 offset-md-1 mb-1 mb-md-0 mt-2 mt-md-0">
-                        <div class="form-floating">
-                        {{ form.start_time }}
-                        <label for="id_start_time" class="form-label">START TIME (24h)</label>
-                        </div>
-                        {% if form.start_time.errors %}
-                            <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
-                        <div class="form-floating">
-                            {{ form.end_time }}
-                            <label for="id_end_time" class="form-label">END TIME (24h)</label>
-                        </div>
-                        {% if form.end_time.errors %}
-                            <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
-                        {% endif %}    
-                    </div>
+
                 </div>
-                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
-                    <div class="col-md-6 mb-1 mb-md-0 mt-2 mt-md-0">
+                <div class="row g-2 mb-md-2 mb-2">
+                    <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ form.site }}
@@ -156,40 +187,53 @@
                         {% endif %}
                     </div>
                     
-                    <div class="col-md-3 mb-1 mb-md-0 mt-2 mt-md-0">
-                        <div class="form-floating">
-                            {{ form.latitude }}
-                            <label for="id_latitude" class="form-label">EVENT LATITUDE</label>
+                    <div class="col-md-6 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="col-md-5 offset-md-1 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                    {{ form.latitude }}
+                                    <label for="id_latitude" class="form-label">EVENT LATITUDE</label>
+                                </div>
+                                {% if form.latitude.errors %}
+                                    <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                    {{ form.longitude }}
+                                    <label for="id_longitude" class="form-label">EVENT LONGITUDE</label>
+                                </div>
+                                {% if form.longitude.errors %}
+                                    <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                                {% endif %}                   
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center ps-md-0 pe-md-2 pb-2 pt-md-2 pt-1 ps-5 pe-5">
+                                <button id="eventMyLocationBtn" type="button"
+                                        class="btn btn-outline-primary text-nowrap w-sm-100"
+                                        style="height:calc(30px);"
+                                        title="Use my location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                            </div>
                         </div>
-                        {% if form.latitude.errors %}
-                            <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                        {% endif %}
                     </div>
-                    
-                    <div class="col-md-3 mb-3 mb-md-0 mt-2 mt-md-0">
-                        <div class="form-floating">
-                            {{ form.longitude }}
-                            <label for="id_longitude" class="form-label">EVENT LONGITUDE</label>
-                        </div>
-                        {% if form.longitude.errors %}
-                            <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
+                   
+
                 </div>
-                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
+                <div class="row g-2 mb-2 mt-2 pt-1 pt-md-0 bg-dark bg-opacity-10">
                     <div class="accordion accordion-flush mb-2 mb-md-1" id="AddEventOptions">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="AddEventAccHeading1">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#AddEventOne" aria-expanded="false" aria-controls="AddEventOne">
-                                    Optional Electrofishing Details 
+                                    Electrofishing Details
                                 </button>
                             </h2>
                             <div id="AddEventOne" class="accordion-collapse collapse"
                                 aria-labelledby="AddEventAccHeading1" data-bs-parent="#AddEventOptions">
                                 <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
                                     <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-2 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                                 {{ form.ef_duty_cycle }}
                                                 <label for="id_ef_duty_cycle" class="form-label d-none d-md-block">DUTY CYC</label>
@@ -199,7 +243,7 @@
                                                 <div class="text-danger small">{{ form.ef_duty_cycle.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.ef_pps_hertz }}
                                             <label for="id_ef_pps_hertz" class="form-label d-none d-md-block">PPS</label>
@@ -209,7 +253,7 @@
                                                 <div class="text-danger small">{{ form.ef_pps_hertz.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.ef_voltage }}
                                             <label for="id_ef_voltage" class="form-label">VOLTS</label>
@@ -218,7 +262,7 @@
                                                 <div class="text-danger small">{{ form.ef_voltage.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.ef_amps }}
                                             <label for="id_ef_amps" class="form-label">AMPS</label>
@@ -227,7 +271,7 @@
                                                 <div class="text-danger small">{{ form.ef_amps.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.ef_watts }}
                                             <label for="id_ef_watts" class="form-label">WATTS</label>
@@ -236,7 +280,7 @@
                                                 <div class="text-danger small">{{ form.ef_watts.errors|striptags }}</div>
                                             {% endif %}    
                                         </div>
-                                        <div class="col-md-1 offset-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 offset-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                                 {{ form.dipper_cnt }}
                                                 <label for="id_dipper_cnt" class="form-label d-none d-md-block">DIPPERS</label>
@@ -246,7 +290,7 @@
                                                 <div class="text-danger small">{{ form.dipper_cnt.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.bankside }}
                                             <label for="id_bankside" class="form-label d-none d-md-block">BANK SIDE</label>
@@ -256,7 +300,7 @@
                                                 <div class="text-danger small">{{ form.bankside.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-1 p-md-1">
                                             <div class="form-floating">
                                                 {{ form.run_distance }}
                                                 <label for="id_run_distance" class="form-label d-none d-md-block">BANK DIST (mi)</label>
@@ -274,14 +318,14 @@
                             <h2 class="accordion-header" id="AddEventAccHeading2">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#AddEventTwo" aria-expanded="false" aria-controls="AddEventTwo">
-                                    Additional Net Details
+                                    Net Gear Details
                                 </button>
                             </h2>
                             <div id="AddEventTwo" class="accordion-collapse collapse"
                                 aria-labelledby="AddEventAccHeading2" data-bs-parent="#AddEventOptions">
                                 <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
                                     <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
-                                        <div class="col-md-2 offset-md-1 mb-1 mb-md-0 mt-2 mt-md-0">
+                                        <div class="col-md-2 offset-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                                 {{ form.net_length_ft }}
                                                 <label for="id_net_length_ft" class="form-label d-none d-md-block">LENGTH (Ft)</label>
@@ -291,7 +335,7 @@
                                                 <div class="text-danger small">{{ form.net_length_ft.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.net_depth_ft }}
                                             <label for="id_net_depth_ft" class="form-label d-none d-md-block">HEIGHT (Ft)</label>
@@ -301,7 +345,7 @@
                                                 <div class="text-danger small">{{ form.net_depth_ft.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.mesh_size_in }}
                                             <label for="id_mesh_size_in" class="form-label d-none d-md-block">MESH (in)</label>
@@ -311,7 +355,7 @@
                                                 <div class="text-danger small">{{ form.mesh_size_in.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.net_set_type }}
                                             <label for="id_net_set_type" class="form-label d-none d-md-block">SET TYPE</label>
@@ -321,7 +365,7 @@
                                                 <div class="text-danger small">{{ form.net_set_type.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.egn_panel_num }}
                                             <label for="id_egn_panel_num" class="form-label d-none d-md-block">PANEL #</label>
@@ -331,7 +375,7 @@
                                                 <div class="text-danger small">{{ form.egn_panel_num.errors|striptags }}</div>
                                             {% endif %}    
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-1 p-md-1">
                                             <div class="form-floating">
                                             {{ form.event_loc_type }}
                                             <label for="id_event_loc_type" class="form-label d-none d-md-block">NET LOCATION</label>
@@ -350,7 +394,7 @@
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#AddEventThree" aria-expanded="false"
                                     aria-controls="AddEventThree">
-                                    Optional Environmental Measurements
+                                    Environmental Information
                                 </button>
                             </h2>
                             <div id="AddEventThree" class="accordion-collapse collapse"
@@ -358,7 +402,7 @@
                                 <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
                                     <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
                                         
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-2 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.water_temp_f }}
                                             <label for="id_water_temp_f" class="form-label d-none d-md-block">WATER TEMP (°F)</label>
@@ -368,7 +412,7 @@
                                                 <div class="text-danger small">{{ form.water_temp_f.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                                 {{ form.ef_cond }}
                                                 <label for="id_ef_cond" class="form-label">CONDUCTIVITY</label>
@@ -377,7 +421,7 @@
                                                 <div class="text-danger small">{{ form.ef_cond.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.water_ph }}
                                             <label for="id_water_ph" class="form-label">pH</label>
@@ -386,7 +430,7 @@
                                                 <div class="text-danger small">{{ form.water_ph.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.secchi_depth_in }}
                                             <label for="id_secchi_depth_in" class="form-label d-none d-md-block">SECCHI Depth (in)</label>
@@ -396,7 +440,7 @@
                                                 <div class="text-danger small">{{ form.secchi_depth_in.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.weather }}
                                             <label for="id_weather" class="form-label d-none d-md-block">WEATHER</label>
@@ -406,7 +450,7 @@
                                                 <div class="text-danger small">{{ form.weather.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-2 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
                                             <div class="form-floating">
                                             {{ form.air_temp_f }}
                                             <label for="id_air_temp_f" class="form-label d-none d-md-block">AIR TEMP (°F)</label>
@@ -416,7 +460,7 @@
                                                 <div class="text-danger small">{{ form.air_temp_f.errors|striptags }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-1 mb-1 mb-md-0 mt-1 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-1 p-md-1">
                                             <div class="form-floating">
                                             {{ form.wind_speed_mph }}
                                             <label for="id_wind_speed_mph" class="form-label d-none d-md-block">WIND (MPH)</label>
@@ -432,8 +476,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="row p-md-2 p-0 mt-0 mb-md-0 bg-dark bg-opacity-10">
-                    <div class="col-4 offset-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
+                <div class="row g-2 mb-2">
+                    <div class="col-4 offset-2 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
                         <p class="mb-1 mt-md-0 text-muted fs-12">IC SIGHTED?</p>
                         <div class="form-check form-switch">
                             {{ form.carp_sighted }}
@@ -442,7 +486,7 @@
                             <div class="text-danger small">{{ form.carp_sighted.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-4 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Young-of-Year (YOY) IC Observed?">
+                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Young-of-Year (YOY) IC Observed?">
                         <p class="mb-1 mt-md-0 text-muted fs-12">YOY IC?</p>
                         <div class="form-check form-switch">
                             {{ form.yoy_sighted }}
@@ -482,7 +526,7 @@
 
 <!-- Add Sample Site Modal -->
 <div class="modal fade" id="addSiteModal" tabindex="-1" aria-labelledby="addSiteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addSiteModalLabel"><i class="ti ti-map-pin-plus me-1"></i> Add New Sample Site</h5>
@@ -490,33 +534,45 @@
             </div>
             <div class="modal-body">
                 <div id="addSiteGlobalErrors" class="alert alert-danger d-none"></div>
+                <!-- Site Name -->
                 <div class="row g-2 mb-2">
                     <div class="col-12">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="site_name" required>
-                            <label class="form-label" for="site_name">SITE NAME</label>
+                            <label for="site_name">SITE NAME</label>
                         </div>
                         <div class="text-danger small d-none" id="site_err_name"></div>
                     </div>
                 </div>
+                <!-- Lat / Lng / My Location / Site Type -->
                 <div class="row g-2 mb-2">
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="number" class="form-control" id="site_latitude" step="0.00001" required>
-                            <label class="form-label" for="site_latitude">LATITUDE</label>
+                    <div class="col-md-7">
+                        <div class="row g-1">
+                            <div class="col-md-5">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="site_latitude" step="0.00001">
+                                    <label for="site_latitude">LATITUDE</label>
+                                </div>
+                                <div class="text-danger small d-none" id="site_err_latitude"></div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="site_longitude" step="0.00001">
+                                    <label for="site_longitude">LONGITUDE</label>
+                                </div>
+                                <div class="text-danger small d-none" id="site_err_longitude"></div>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <button id="site_myLocationBtn" type="button"
+                                        class="btn btn-outline-primary text-nowrap w-100"
+                                        style="height:calc(2.5rem + 2px);"
+                                        title="Use my current location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="text-danger small d-none" id="site_err_latitude"></div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="number" class="form-control" id="site_longitude" step="0.00001" required>
-                            <label class="form-label" for="site_longitude">LONGITUDE</label>
-                        </div>
-                        <div class="text-danger small d-none" id="site_err_longitude"></div>
-                    </div>
-                </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="form-floating">
                             <select class="form-control" id="site_type" required>
                                 <option value="">...</option>
@@ -524,48 +580,20 @@
                                 <option value="{{ st.pk }}">{{ st.name }}</option>
                                 {% endfor %}
                             </select>
-                            <label class="form-label" for="site_type">SITE TYPE</label>
+                            <label for="site_type">SITE TYPE</label>
                         </div>
                         <div class="text-danger small d-none" id="site_err_type"></div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <select class="form-control" id="site_pool" required>
-                                <option value="">...</option>
-                                {% for p in pools %}
-                                <option value="{{ p.pk }}">{{ p.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <label class="form-label" for="site_pool">POOL</label>
-                        </div>
-                        <div class="text-danger small d-none" id="site_err_pool"></div>
-                    </div>
                 </div>
+                <!-- River MI / State / County -->
                 <div class="row g-2 mb-2">
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         <div class="form-floating">
-                            <select class="form-control" id="site_basin" required>
-                                <option value="">...</option>
-                                {% for b in basins %}
-                                <option value="{{ b.pk }}">{{ b.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <label class="form-label" for="site_basin">BASIN</label>
+                            <input type="number" class="form-control" id="site_river_mi" step="0.1">
+                            <label for="site_river_mi">RIVER MILE</label>
                         </div>
-                        <div class="text-danger small d-none" id="site_err_basin"></div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <select class="form-control" id="site_trib" required disabled>
-                                <option value="">...</option>
-                            </select>
-                            <label class="form-label" for="site_trib">TRIBUTARY / AREA</label>
-                        </div>
-                        <div class="text-danger small d-none" id="site_err_trib"></div>
-                    </div>
-                </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="form-floating">
                             <select class="form-control" id="site_state" required>
                                 <option value="">...</option>
@@ -573,21 +601,58 @@
                                 <option value="{{ s.pk }}">{{ s.abbrev }}</option>
                                 {% endfor %}
                             </select>
-                            <label class="form-label" for="site_state">STATE</label>
+                            <label for="site_state">STATE</label>
                         </div>
                         <div class="text-danger small d-none" id="site_err_state"></div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="form-floating">
                             <select class="form-control" id="site_county" required disabled>
                                 <option value="">...</option>
                             </select>
-                            <label class="form-label" for="site_county">COUNTY</label>
+                            <label for="site_county">COUNTY</label>
                         </div>
                         <div class="text-danger small d-none" id="site_err_county"></div>
                     </div>
                 </div>
-                <div class="accordion accordion-flush" id="siteModalOptional">
+                <!-- Pool / Basin / Trib -->
+                <div class="row g-2 mb-2">
+                    <div class="col-md-3">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_pool" required>
+                                <option value="">...</option>
+                                {% for p in pools %}
+                                <option value="{{ p.pk }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="site_pool">POOL</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_pool"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_basin" required>
+                                <option value="">...</option>
+                                {% for b in basins %}
+                                <option value="{{ b.pk }}">{{ b.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="site_basin">BASIN</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_basin"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_trib" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label for="site_trib">TRIBUTARY / AREA</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_trib"></div>
+                    </div>
+                </div>
+                <!-- Optional: site_code / woody_debris / submersed_av -->
+                <div class="accordion accordion-flush mb-1" id="siteModalOptional">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteOptionalCollapse" aria-expanded="false">
@@ -596,14 +661,31 @@
                         </h2>
                         <div id="siteOptionalCollapse" class="accordion-collapse collapse" data-bs-parent="#siteModalOptional">
                             <div class="accordion-body p-2">
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" id="site_river_mi" step="0.1">
-                                    <label class="form-label" for="site_river_mi">RIVER MILE</label>
+                                <div class="row g-2">
+                                    <div class="col-md-5">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="site_site_code" maxlength="8">
+                                            <label for="site_site_code">SITE CODE</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex flex-column align-items-center justify-content-center">
+                                        <p class="mb-1 fs-11">WOODY DEBRIS?</p>
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" class="form-check-input" id="site_woody_debris" role="switch">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex flex-column align-items-center justify-content-center">
+                                        <p class="mb-1 fs-11">SUBMERGED VEG?</p>
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" class="form-check-input" id="site_submersed_av" role="switch">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- Map picker -->
                 <div class="accordion accordion-flush mt-1" id="siteModalCoordPicker">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
@@ -613,13 +695,13 @@
                         </h2>
                         <div id="siteCoordPickerCollapse" class="accordion-collapse collapse">
                             <div class="accordion-body p-2">
-                                <p class="text-muted small mb-2">Click the map to set latitude &amp; longitude, or drag the marker to adjust. Coordinates will fill the fields above automatically.</p>
-                                <button type="button" class="btn btn-sm btn-outline-secondary mb-2" id="siteCoordPickerLocBtn">
-                                    <i class="ti ti-current-location me-1"></i> Use My Location
-                                </button>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="text-muted small">Click anywhere on the map to set coordinates. Drag the marker to adjust.</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="siteCoordPickerLocBtn">&#128205; Use My Location</button>
+                                </div>
                                 <div id="site-coord-picker-map"></div>
-                                <div id="siteCoordPickerDisplay" class="text-muted small mt-1" style="display:none;">
-                                    Lat: <span id="siteCoordPickerLat"></span> &nbsp; Lng: <span id="siteCoordPickerLng"></span>
+                                <div id="siteCoordPickerDisplay" class="mt-2 small text-center text-muted d-none">
+                                    Selected &mdash; Lat: <strong id="siteCoordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="siteCoordPickerLng"></strong>
                                 </div>
                             </div>
                         </div>
@@ -639,10 +721,10 @@
 
 <script>
 (function () {
-    var siteModal = document.getElementById('addSiteModal');
-    var saveSiteBtn = document.getElementById('saveSiteBtn');
+    var siteModal    = document.getElementById('addSiteModal');
+    var saveSiteBtn  = document.getElementById('saveSiteBtn');
     if (!saveSiteBtn) return;
-    var siteSpinner = document.getElementById('saveSiteSpinner');
+    var siteSpinner      = document.getElementById('saveSiteSpinner');
     var siteGlobalErrors = document.getElementById('addSiteGlobalErrors');
     var siteRequiredFields = ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'trib', 'state', 'county'];
 
@@ -657,68 +739,22 @@
         });
     }
 
+    var siteStateEl  = document.getElementById('site_state');
+    var siteCountyEl = document.getElementById('site_county');
+    var siteBasinEl  = document.getElementById('site_basin');
+    var sitePoolEl   = document.getElementById('site_pool');
+    var siteTribEl   = document.getElementById('site_trib');
+    var siteLatEl    = document.getElementById('site_latitude');
+    var siteLngEl    = document.getElementById('site_longitude');
+
+    // --- County AJAX ---
     var countyBaseUrl = "{% url 'kiccd_app:api_counties_by_state' 0 %}";
     function countyUrl(id) { return countyBaseUrl.replace('/0/', '/' + id + '/'); }
-
-    var tribBasinBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin' 0 %}";
-    var tribBothBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin_and_pool' 0 0 %}";
-    function tribUrl(basinId, poolId) {
-        if (basinId && poolId) {
-            return tribBothBaseUrl.replace('/0/0/', '/' + basinId + '/' + poolId + '/');
-        }
-        return tribBasinBaseUrl.replace('/0/', '/' + basinId + '/');
-    }
-
-    var siteStateEl = document.getElementById('site_state');
-    var siteCountyEl = document.getElementById('site_county');
-    var siteBasinEl = document.getElementById('site_basin');
-    var sitePoolEl = document.getElementById('site_pool');
-    var siteTribEl = document.getElementById('site_trib');
 
     function clearCountyOptions() {
         siteCountyEl.innerHTML = '<option value="">...</option>';
         siteCountyEl.disabled = true;
     }
-
-    function clearTribOptions() {
-        siteTribEl.innerHTML = '<option value="">...</option>';
-        siteTribEl.disabled = true;
-    }
-
-    function fetchTribs() {
-        var basinId = siteBasinEl.value;
-        var poolId = sitePoolEl.value;
-        if (!basinId) { clearTribOptions(); return; }
-        fetch(tribUrl(basinId, poolId))
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                siteTribEl.innerHTML = '';
-                var ph = document.createElement('option');
-                ph.value = ''; ph.text = '...';
-                siteTribEl.appendChild(ph);
-                (data.tribs || []).forEach(function (t) {
-                    var opt = document.createElement('option');
-                    opt.value = t.id; opt.text = t.name;
-                    siteTribEl.appendChild(opt);
-                });
-                siteTribEl.disabled = false;
-            })
-            .catch(clearTribOptions);
-    }
-
-    function resetSiteModal() {
-        clearSiteErrors();
-        ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'river_mi'].forEach(function (f) {
-            var el = document.getElementById('site_' + f);
-            if (el) el.value = '';
-        });
-        siteStateEl.value = '';
-        clearCountyOptions();
-        siteBasinEl.value = '';
-        clearTribOptions();
-    }
-
-    siteModal.addEventListener('hidden.bs.modal', resetSiteModal);
 
     siteStateEl.addEventListener('change', function () {
         var stateId = this.value;
@@ -748,9 +784,240 @@
             .catch(clearCountyOptions);
     });
 
-    siteBasinEl.addEventListener('change', fetchTribs);
-    sitePoolEl.addEventListener('change', fetchTribs);
+    // --- Trib AJAX (basin + pool driven) with pendingTrib support ---
+    var tribBasinBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin' 0 %}";
+    var tribBothBaseUrl  = "{% url 'kiccd_app:api_tribs_by_basin_and_pool' 0 0 %}";
+    function tribUrl(basinId, poolId) {
+        if (basinId && poolId) {
+            return tribBothBaseUrl.replace('/0/0/', '/' + basinId + '/' + poolId + '/');
+        }
+        return tribBasinBaseUrl.replace('/0/', '/' + basinId + '/');
+    }
 
+    function clearTribOptions() {
+        siteTribEl.innerHTML = '<option value="">...</option>';
+        siteTribEl.disabled = true;
+    }
+
+    function fetchTribs() {
+        var basinId = siteBasinEl.value;
+        var poolId  = sitePoolEl.value;
+        if (!basinId) { clearTribOptions(); return; }
+        fetch(tribUrl(basinId, poolId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteTribEl.innerHTML = '';
+                var ph = document.createElement('option');
+                ph.value = ''; ph.text = '...';
+                siteTribEl.appendChild(ph);
+                (data.tribs || []).forEach(function (t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.id; opt.text = t.name;
+                    siteTribEl.appendChild(opt);
+                });
+                siteTribEl.disabled = false;
+                var pendingTrib = (siteTribEl.dataset.pendingTrib || '').trim();
+                siteTribEl.dataset.pendingTrib = '';
+                if (pendingTrib) {
+                    var match = Array.from(siteTribEl.options).find(function (o) {
+                        return String(o.value) === String(pendingTrib);
+                    });
+                    if (match) siteTribEl.value = match.value;
+                }
+            })
+            .catch(clearTribOptions);
+    }
+
+    siteBasinEl.addEventListener('change', fetchTribs);
+    sitePoolEl.addEventListener('change', function () { if (siteBasinEl.value) fetchTribs(); });
+
+    // --- Boundary & River Mile caches ---
+    var _sitePoolCache    = null;
+    var _siteBasinCache   = null;
+    var _siteTribCacheMap = {};
+    var _siteRmCacheMap   = {};
+    var _POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
+    var _BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
+    var _TRIB_BOUNDS_URL  = "{% url 'kiccd_app:api_trib_boundaries' %}";
+    var _RM_POINTS_URL    = "{% url 'kiccd_app:api_river_mile_points' %}";
+    var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
+
+    function _fetchSitePoolBounds() {
+        if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
+        return fetch(_POOL_BOUNDS_URL).then(function(r){return r.json();})
+            .then(function(d){_sitePoolCache=d.features||[];return _sitePoolCache;})
+            .catch(function(){_sitePoolCache=[];return[];});
+    }
+    function _fetchSiteBasinBounds() {
+        if (_siteBasinCache !== null) return Promise.resolve(_siteBasinCache);
+        return fetch(_BASIN_BOUNDS_URL).then(function(r){return r.json();})
+            .then(function(d){_siteBasinCache=d.features||[];return _siteBasinCache;})
+            .catch(function(){_siteBasinCache=[];return[];});
+    }
+    function _fetchSiteTribBounds(basinId, poolId) {
+        var key = 'b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+        if (_siteTribCacheMap[key] !== undefined) return Promise.resolve(_siteTribCacheMap[key]);
+        var url = _TRIB_BOUNDS_URL, params = [];
+        if (basinId != null) params.push('basin_id='+basinId);
+        if (poolId  != null) params.push('pool_id=' +poolId);
+        if (params.length) url += '?'+params.join('&');
+        return fetch(url).then(function(r){return r.json();})
+            .then(function(d){_siteTribCacheMap[key]=d.features||[];return _siteTribCacheMap[key];})
+            .catch(function(){_siteTribCacheMap[key]=[];return[];});
+    }
+    function _fetchSiteRmPoints(basinId, poolId) {
+        var key = 'b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+        if (_siteRmCacheMap[key] !== undefined) return Promise.resolve(_siteRmCacheMap[key]);
+        var url = _RM_POINTS_URL, params = [];
+        if (basinId != null) params.push('basin_id='+basinId);
+        if (poolId  != null) params.push('pool_id=' +poolId);
+        if (params.length) url += '?'+params.join('&');
+        return fetch(url).then(function(r){return r.json();})
+            .then(function(d){_siteRmCacheMap[key]=d.features||[];return _siteRmCacheMap[key];})
+            .catch(function(){_siteRmCacheMap[key]=[];return[];});
+    }
+
+    function siteAutoFillFromCoords(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (isNaN(la) || isNaN(lo)) return;
+
+        // Reverse geocode for state / county
+        if (_MBTOKEN) {
+            fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+lo+','+la+
+                  '.json?types=region%2Cdistrict&access_token='+_MBTOKEN)
+            .then(function(r){return r.json();})
+            .then(function(data){
+                var stateAbbrev = null, countyName = null;
+                (data.features||[]).forEach(function(f){
+                    if (f.place_type.indexOf('region')!==-1 && f.properties && f.properties.short_code) {
+                        var parts = f.properties.short_code.split('-');
+                        stateAbbrev = parts[parts.length-1].toUpperCase();
+                    }
+                    if (f.place_type.indexOf('district')!==-1 && f.text) {
+                        countyName = f.text
+                            .replace(/ County$/i,'').replace(/ Parish$/i,'')
+                            .replace(/ Borough$/i,'').replace(/ Census Area$/i,'')
+                            .replace(/ Municipality$/i,'').trim();
+                    }
+                });
+                if (!stateAbbrev) return;
+                var stateOpt = Array.from(siteStateEl.options).find(function(o){
+                    return o.text.trim().toUpperCase() === stateAbbrev;
+                });
+                if (!stateOpt) return;
+                siteStateEl.dataset.pendingCounty = countyName || '';
+                siteStateEl.value = stateOpt.value;
+                siteStateEl.dispatchEvent(new Event('change'));
+            }).catch(function(){});
+        }
+
+        if (!window.turf) return;
+        var pt = window.turf.point([lo, la]);
+
+        Promise.all([_fetchSitePoolBounds(), _fetchSiteBasinBounds()])
+        .then(function(res) {
+            var poolFeatures = res[0], basinFeatures = res[1];
+
+            // Pool autofill
+            var poolMatch = poolFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+            if (poolMatch) {
+                var pOpt = Array.from(sitePoolEl.options).find(function(o){return String(o.value)===String(poolMatch.properties.pool_id);});
+                if (pOpt) sitePoolEl.value = pOpt.value;
+            } else {
+                var naOpt = Array.from(sitePoolEl.options).find(function(o){return o.text.trim().toLowerCase()==='not applicable';});
+                if (naOpt) sitePoolEl.value = naOpt.value;
+            }
+
+            // Basin autofill — dispatches 'change' which triggers fetchTribs
+            var basinMatch = basinFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+            if (basinMatch) {
+                var bOpt = Array.from(siteBasinEl.options).find(function(o){return String(o.value)===String(basinMatch.properties.basin_id);});
+                if (bOpt) { siteBasinEl.value = bOpt.value; siteBasinEl.dispatchEvent(new Event('change')); }
+            }
+
+            var basinId = basinMatch ? basinMatch.properties.basin_id : null;
+            var poolId  = poolMatch  ? poolMatch.properties.pool_id   : null;
+            if (basinId == null && poolId == null) return Promise.resolve({ tribFeatures: [], rmFeatures: [] });
+
+            return Promise.all([
+                _fetchSiteTribBounds(basinId, poolId),
+                _fetchSiteRmPoints(basinId, poolId)
+            ]).then(function(r){ return { tribFeatures: r[0], rmFeatures: r[1] }; });
+        })
+        .then(function(results) {
+            // Trib boundary lookup with pendingTrib mechanism
+            var tribFeatures = (results && results.tribFeatures) || [];
+            if (tribFeatures.length) {
+                var tribMatch = tribFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
+                if (tribMatch) {
+                    var tribId = String(tribMatch.properties.trib_id);
+                    siteTribEl.dataset.pendingTrib = tribId;
+                    var existing = Array.from(siteTribEl.options).find(function(o){return String(o.value)===tribId;});
+                    if (existing) siteTribEl.value = existing.value;
+                }
+            }
+            // River mile nearest-point
+            var rmFeatures = (results && results.rmFeatures) || [];
+            if (rmFeatures.length && window.turf) {
+                var fc      = window.turf.featureCollection(rmFeatures);
+                var nearest = window.turf.nearestPoint(pt, fc);
+                if (nearest) {
+                    var rmEl = document.getElementById('site_river_mi');
+                    if (rmEl) rmEl.value = nearest.properties.mile;
+                }
+            }
+        })
+        .catch(function(e){ console.error('Site autofill error:', e); });
+    }
+
+    window._siteAutoFillFromCoords = siteAutoFillFromCoords;
+
+    // Manual lat/lng change listeners
+    if (siteLatEl && siteLngEl) {
+        function _trySiteAutoFill() { siteAutoFillFromCoords(siteLatEl.value, siteLngEl.value); }
+        siteLatEl.addEventListener('change', _trySiteAutoFill);
+        siteLngEl.addEventListener('change', _trySiteAutoFill);
+    }
+
+    // --- Carry over event lat/lng to modal on open ---
+    if (siteModal) {
+        siteModal.addEventListener('show.bs.modal', function () {
+            var evtLat = document.getElementById('id_latitude');
+            var evtLng = document.getElementById('id_longitude');
+            if (evtLat && evtLng && evtLat.value && evtLng.value && siteLatEl && siteLngEl && !siteLatEl.value && !siteLngEl.value) {
+                siteLatEl.value = parseFloat(evtLat.value).toFixed(5);
+                siteLngEl.value = parseFloat(evtLng.value).toFixed(5);
+            }
+        });
+        siteModal.addEventListener('shown.bs.modal', function () {
+            if (siteLatEl && siteLngEl && siteLatEl.value && siteLngEl.value) {
+                siteAutoFillFromCoords(siteLatEl.value, siteLngEl.value);
+            }
+        });
+    }
+
+    // --- Reset on modal close ---
+    function resetSiteModal() {
+        clearSiteErrors();
+        ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'river_mi', 'site_code'].forEach(function (f) {
+            var el = document.getElementById('site_' + f);
+            if (el) el.value = '';
+        });
+        var wdEl  = document.getElementById('site_woody_debris');
+        var savEl = document.getElementById('site_submersed_av');
+        if (wdEl)  wdEl.checked  = false;
+        if (savEl) savEl.checked = false;
+        siteStateEl.value = '';
+        clearCountyOptions();
+        siteBasinEl.value = '';
+        clearTribOptions();
+        siteTribEl.dataset.pendingTrib    = '';
+        siteStateEl.dataset.pendingCounty = '';
+    }
+
+    if (siteModal) { siteModal.addEventListener('hidden.bs.modal', resetSiteModal); }
+
+    // --- Save button ---
     saveSiteBtn.addEventListener('click', function () {
         clearSiteErrors();
         var hasError = false;
@@ -766,18 +1033,22 @@
         if (hasError) return;
 
         var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        var formData = new FormData();
-        formData.append('name', document.getElementById('site_name').value.trim());
-        formData.append('latitude', document.getElementById('site_latitude').value.trim());
+        var formData  = new FormData();
+        formData.append('name',      document.getElementById('site_name').value.trim());
+        formData.append('latitude',  document.getElementById('site_latitude').value.trim());
         formData.append('longitude', document.getElementById('site_longitude').value.trim());
-        formData.append('type', document.getElementById('site_type').value);
-        formData.append('pool', document.getElementById('site_pool').value);
-        formData.append('basin', document.getElementById('site_basin').value);
-        formData.append('trib', document.getElementById('site_trib').value);
-        formData.append('state', document.getElementById('site_state').value);
-        formData.append('county', document.getElementById('site_county').value);
-        var riverMi = document.getElementById('site_river_mi').value.trim();
-        if (riverMi) formData.append('river_mi', riverMi);
+        formData.append('type',      document.getElementById('site_type').value);
+        formData.append('pool',      document.getElementById('site_pool').value);
+        formData.append('basin',     document.getElementById('site_basin').value);
+        formData.append('trib',      document.getElementById('site_trib').value);
+        formData.append('state',     document.getElementById('site_state').value);
+        formData.append('county',    document.getElementById('site_county').value);
+        var riverMi  = document.getElementById('site_river_mi').value.trim();
+        var siteCode = document.getElementById('site_site_code').value.trim();
+        if (riverMi)  formData.append('river_mi',   riverMi);
+        if (siteCode) formData.append('site_code',  siteCode);
+        if (document.getElementById('site_woody_debris').checked)  formData.append('woody_debris', 'on');
+        if (document.getElementById('site_submersed_av').checked)  formData.append('submersed_av', 'on');
 
         siteSpinner.classList.remove('d-none');
         saveSiteBtn.disabled = true;
@@ -831,84 +1102,6 @@
             siteGlobalErrors.classList.remove('d-none');
         });
     });
-
-    // --- Coordinate auto-fill: pool, basin, state, county ---
-    var _sitePoolCache = null;
-    var _siteBasinCache = null;
-    var _POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
-    var _BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
-    var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
-
-    function _fetchSitePoolBounds() {
-        if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
-        return fetch(_POOL_BOUNDS_URL).then(function(r){return r.json();})
-            .then(function(d){_sitePoolCache=d.features||[];return _sitePoolCache;})
-            .catch(function(){_sitePoolCache=[];return[];});
-    }
-    function _fetchSiteBasinBounds() {
-        if (_siteBasinCache !== null) return Promise.resolve(_siteBasinCache);
-        return fetch(_BASIN_BOUNDS_URL).then(function(r){return r.json();})
-            .then(function(d){_siteBasinCache=d.features||[];return _siteBasinCache;})
-            .catch(function(){_siteBasinCache=[];return[];});
-    }
-
-    function siteAutoFillFromCoords(lat, lng) {
-        var la = parseFloat(lat), lo = parseFloat(lng);
-        if (isNaN(la) || isNaN(lo)) return;
-        if (_MBTOKEN) {
-            fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' + lo + ',' + la +
-                  '.json?types=region%2Cdistrict&access_token=' + _MBTOKEN)
-            .then(function(r){return r.json();})
-            .then(function(data){
-                var stateAbbrev = null, countyName = null;
-                (data.features||[]).forEach(function(f){
-                    if (f.place_type.indexOf('region')!==-1 && f.properties && f.properties.short_code) {
-                        var parts = f.properties.short_code.split('-');
-                        stateAbbrev = parts[parts.length-1].toUpperCase();
-                    }
-                    if (f.place_type.indexOf('district')!==-1 && f.text) {
-                        countyName = f.text
-                            .replace(/ County$/i,'').replace(/ Parish$/i,'')
-                            .replace(/ Borough$/i,'').replace(/ Census Area$/i,'')
-                            .replace(/ Municipality$/i,'').trim();
-                    }
-                });
-                if (!stateAbbrev) return;
-                var stateOpt = Array.from(siteStateEl.options).find(function(o){
-                    return o.text.trim().toUpperCase() === stateAbbrev;
-                });
-                if (!stateOpt) return;
-                siteStateEl.dataset.pendingCounty = countyName || '';
-                siteStateEl.value = stateOpt.value;
-                siteStateEl.dispatchEvent(new Event('change'));
-            }).catch(function(){});
-        }
-        if (!window.turf) return;
-        var pt = window.turf.point([lo, la]);
-        Promise.all([_fetchSitePoolBounds(), _fetchSiteBasinBounds()]).then(function(res){
-            var poolFeatures = res[0], basinFeatures = res[1];
-            var poolMatch = poolFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
-            var basinMatch = basinFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt,f);});
-            if (poolMatch) {
-                var poolSel = document.getElementById('site_pool');
-                var pOpt = Array.from(poolSel.options).find(function(o){return String(o.value)===String(poolMatch.properties.pool_id);});
-                if (pOpt) poolSel.value = pOpt.value;
-            }
-            if (basinMatch) {
-                var bOpt = Array.from(siteBasinEl.options).find(function(o){return String(o.value)===String(basinMatch.properties.basin_id);});
-                if (bOpt) { siteBasinEl.value = bOpt.value; siteBasinEl.dispatchEvent(new Event('change')); }
-            }
-        });
-    }
-
-    window._siteAutoFillFromCoords = siteAutoFillFromCoords;
-    var _siteLatEl = document.getElementById('site_latitude');
-    var _siteLngEl = document.getElementById('site_longitude');
-    if (_siteLatEl && _siteLngEl) {
-        function _trySiteAutoFill() { siteAutoFillFromCoords(_siteLatEl.value, _siteLngEl.value); }
-        _siteLatEl.addEventListener('change', _trySiteAutoFill);
-        _siteLngEl.addEventListener('change', _trySiteAutoFill);
-    }
 }());
 </script>
 
@@ -1173,6 +1366,16 @@ document.addEventListener('DOMContentLoaded', function(){
             .catch(() => clearOptions());
     });
 
+    // Default to KDFWR on first load, then populate crews.
+    if (!agencySelect.value) {
+        const defaultAgency = Array.from(agencySelect.options).find(function (option) {
+            return option.text.trim().toUpperCase() === 'KDFWR';
+        });
+        if (defaultAgency) {
+            agencySelect.value = defaultAgency.value;
+        }
+    }
+
     // populate on load if an agency is pre-selected
     if (agencySelect.value) {
         agencySelect.dispatchEvent(new Event('change'));
@@ -1213,107 +1416,164 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <script>
 (function () {
-    var pickerMap = null;
+    var evtLocBtn = document.getElementById('eventMyLocationBtn');
+    if (!evtLocBtn || !navigator.geolocation) return;
+    evtLocBtn.addEventListener('click', function () {
+        evtLocBtn.disabled = true;
+        var origHtml = evtLocBtn.innerHTML;
+        evtLocBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                var latEl = document.getElementById('id_latitude');
+                var lngEl = document.getElementById('id_longitude');
+                if (latEl) latEl.value = pos.coords.latitude.toFixed(5);
+                if (lngEl) lngEl.value = pos.coords.longitude.toFixed(5);
+                evtLocBtn.disabled = false;
+                evtLocBtn.innerHTML = origHtml;
+            },
+            function () {
+                alert('Unable to retrieve your location.');
+                evtLocBtn.disabled = false;
+                evtLocBtn.innerHTML = origHtml;
+            }
+        );
+    });
+}());
+</script>
+
+<script>
+(function () {
+    'use strict';
+    var pickerMap    = null;
     var pickerMarker = null;
     var MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+    if (!MAPBOX_TOKEN) return;
 
     var collapseEl = document.getElementById('siteCoordPickerCollapse');
-    var siteModal = document.getElementById('addSiteModal');
+    var siteModal  = document.getElementById('addSiteModal');
     if (!collapseEl || !siteModal) return;
 
-    function setCoords(lng, lat) {
-        var latInput = document.getElementById('site_latitude');
-        var lngInput = document.getElementById('site_longitude');
+    var latInput = document.getElementById('site_latitude');
+    var lngInput = document.getElementById('site_longitude');
+    var locBtn   = document.getElementById('siteCoordPickerLocBtn');
+    var display  = document.getElementById('siteCoordPickerDisplay');
+    var dispLat  = document.getElementById('siteCoordPickerLat');
+    var dispLng  = document.getElementById('siteCoordPickerLng');
+
+    function placeMarker(lng, lat) {
         if (latInput) latInput.value = lat.toFixed(5);
         if (lngInput) lngInput.value = lng.toFixed(5);
-        var dispLat = document.getElementById('siteCoordPickerLat');
-        var dispLng = document.getElementById('siteCoordPickerLng');
         if (dispLat) dispLat.textContent = lat.toFixed(5);
         if (dispLng) dispLng.textContent = lng.toFixed(5);
-        var display = document.getElementById('siteCoordPickerDisplay');
-        if (display) display.style.display = '';
+        if (display) display.classList.remove('d-none');
+        if (pickerMarker) {
+            pickerMarker.setLngLat([lng, lat]);
+        } else {
+            pickerMarker = new mapboxgl.Marker({ color: '#e6d00d', draggable: true })
+                .setLngLat([lng, lat])
+                .addTo(pickerMap);
+            pickerMarker.on('dragend', function () {
+                var pos = pickerMarker.getLngLat();
+                if (latInput) latInput.value = pos.lat.toFixed(5);
+                if (lngInput) lngInput.value = pos.lng.toFixed(5);
+                if (dispLat) dispLat.textContent = pos.lat.toFixed(5);
+                if (dispLng) dispLng.textContent = pos.lng.toFixed(5);
+                if (display) display.classList.remove('d-none');
+                if (window._siteAutoFillFromCoords) window._siteAutoFillFromCoords(pos.lat, pos.lng);
+            });
+        }
         if (window._siteAutoFillFromCoords) window._siteAutoFillFromCoords(lat, lng);
     }
 
     collapseEl.addEventListener('shown.bs.collapse', function () {
-        if (pickerMap) {
-            pickerMap.resize();
-            return;
-        }
+        if (pickerMap) { pickerMap.resize(); return; }
         mapboxgl.accessToken = MAPBOX_TOKEN;
+        var initLat = parseFloat(latInput ? latInput.value : '');
+        var initLng = parseFloat(lngInput ? lngInput.value : '');
+        var hasCoords = !isNaN(initLat) && !isNaN(initLng);
+
         pickerMap = new mapboxgl.Map({
             container: 'site-coord-picker-map',
             style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
-            center: [-85.5, 37.8],
-            zoom: 6
+            center: hasCoords ? [initLng, initLat] : [-85.5, 37.8],
+            zoom: hasCoords ? 13 : 6,
         });
         pickerMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        pickerMap.getCanvas().style.cursor = 'crosshair';
 
-        var latInput = document.getElementById('site_latitude');
-        var lngInput = document.getElementById('site_longitude');
-        if (latInput && latInput.value && lngInput && lngInput.value) {
-            var lat = parseFloat(latInput.value);
-            var lng = parseFloat(lngInput.value);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                pickerMap.setCenter([lng, lat]);
-                pickerMap.setZoom(13);
-                pickerMarker = new mapboxgl.Marker({ draggable: true }).setLngLat([lng, lat]).addTo(pickerMap);
-                pickerMarker.on('dragend', function () {
-                    var ll = pickerMarker.getLngLat();
-                    setCoords(ll.lng, ll.lat);
-                });
-            }
+        if (hasCoords) {
+            pickerMap.on('load', function () { placeMarker(initLng, initLat); });
         }
 
         pickerMap.on('click', function (e) {
-            var lng = e.lngLat.lng;
-            var lat = e.lngLat.lat;
-            if (pickerMarker) {
-                pickerMarker.setLngLat([lng, lat]);
-            } else {
-                pickerMarker = new mapboxgl.Marker({ draggable: true }).setLngLat([lng, lat]).addTo(pickerMap);
-                pickerMarker.on('dragend', function () {
-                    var ll = pickerMarker.getLngLat();
-                    setCoords(ll.lng, ll.lat);
-                });
-            }
-            setCoords(lng, lat);
+            placeMarker(e.lngLat.lng, e.lngLat.lat);
         });
     });
 
-    var locBtn = document.getElementById('siteCoordPickerLocBtn');
     if (locBtn) {
         locBtn.addEventListener('click', function () {
-            if (!navigator.geolocation) return;
-            navigator.geolocation.getCurrentPosition(function (pos) {
-                var lat = pos.coords.latitude;
-                var lng = pos.coords.longitude;
-                if (pickerMap) {
-                    pickerMap.flyTo({ center: [lng, lat], zoom: 13 });
-                    if (pickerMarker) {
-                        pickerMarker.setLngLat([lng, lat]);
+            if (!navigator.geolocation) { alert('Geolocation is not supported by this browser.'); return; }
+            locBtn.disabled    = true;
+            locBtn.textContent = 'Locating\u2026';
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    var lat = pos.coords.latitude, lng = pos.coords.longitude;
+                    if (pickerMap) {
+                        placeMarker(lng, lat);
+                        pickerMap.flyTo({ center: [lng, lat], zoom: 13, speed: 1.6 });
                     } else {
-                        pickerMarker = new mapboxgl.Marker({ draggable: true }).setLngLat([lng, lat]).addTo(pickerMap);
-                        pickerMarker.on('dragend', function () {
-                            var ll = pickerMarker.getLngLat();
-                            setCoords(ll.lng, ll.lat);
-                        });
+                        if (latInput) latInput.value = lat.toFixed(5);
+                        if (lngInput) lngInput.value = lng.toFixed(5);
+                        if (window._siteAutoFillFromCoords) window._siteAutoFillFromCoords(lat, lng);
                     }
-                    setCoords(lng, lat);
+                    locBtn.disabled    = false;
+                    locBtn.textContent = '\u{1F4CD} Use My Location';
+                },
+                function () {
+                    alert('Unable to retrieve your location.');
+                    locBtn.disabled    = false;
+                    locBtn.textContent = '\u{1F4CD} Use My Location';
                 }
-            });
+            );
+        });
+    }
+
+    // Modal-level "My Location" button next to lat/lng fields
+    var myLocationBtn = document.getElementById('site_myLocationBtn');
+    if (myLocationBtn) {
+        myLocationBtn.addEventListener('click', function () {
+            if (!navigator.geolocation) { alert('Geolocation is not supported by this browser.'); return; }
+            myLocationBtn.disabled = true;
+            var origHtml = myLocationBtn.innerHTML;
+            myLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Locating&hellip;';
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    var lat = pos.coords.latitude, lng = pos.coords.longitude;
+                    if (pickerMap) {
+                        placeMarker(lng, lat);
+                        pickerMap.flyTo({ center: [lng, lat], zoom: 13, speed: 1.6 });
+                    } else {
+                        if (latInput) latInput.value = lat.toFixed(5);
+                        if (lngInput) lngInput.value = lng.toFixed(5);
+                        if (window._siteAutoFillFromCoords) window._siteAutoFillFromCoords(lat, lng);
+                    }
+                    myLocationBtn.disabled = false;
+                    myLocationBtn.innerHTML = origHtml;
+                },
+                function () {
+                    alert('Unable to retrieve your location.');
+                    myLocationBtn.disabled = false;
+                    myLocationBtn.innerHTML = origHtml;
+                }
+            );
         });
     }
 
     siteModal.addEventListener('hidden.bs.modal', function () {
         var bsCollapse = bootstrap.Collapse.getInstance(collapseEl);
         if (bsCollapse) bsCollapse.hide();
-        var display = document.getElementById('siteCoordPickerDisplay');
-        if (display) display.style.display = 'none';
-        if (pickerMarker) {
-            pickerMarker.remove();
-            pickerMarker = null;
-        }
+        if (display) display.classList.add('d-none');
+        if (pickerMarker) { pickerMarker.remove(); pickerMarker = null; }
     });
 }());
 </script>

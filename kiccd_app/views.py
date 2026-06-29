@@ -3837,6 +3837,40 @@ def trib_boundaries(request):
     return JsonResponse({'type': 'FeatureCollection', 'features': features})
 
 
+def river_mile_points(request):
+    """Return RiverMile records as a GeoJSON FeatureCollection for client-side nearest-point lookup.
+
+    Accepts optional query parameters to filter server-side:
+      basin_id — return only river miles belonging to this basin
+      pool_id  — return only river miles belonging to this pool
+    Both may be combined. With no parameters the full set is returned.
+    """
+    qs = RiverMile.objects.all()
+    basin_id = request.GET.get('basin_id')
+    pool_id  = request.GET.get('pool_id')
+    if basin_id:
+        qs = qs.filter(basin_id=basin_id)
+    if pool_id:
+        qs = qs.filter(pool_id=pool_id)
+    features = []
+    for rm in qs.values('rm_id', 'mile', 'latitude', 'longitude', 'basin_id', 'pool_id', 'rm_point'):
+        if rm['rm_point']:
+            geometry = rm['rm_point']
+        else:
+            geometry = {'type': 'Point', 'coordinates': [float(rm['longitude']), float(rm['latitude'])]}
+        features.append({
+            'type': 'Feature',
+            'geometry': geometry,
+            'properties': {
+                'rm_id':    rm['rm_id'],
+                'mile':     float(rm['mile']),
+                'basin_id': rm['basin_id'],
+                'pool_id':  rm['pool_id'],
+            }
+        })
+    return JsonResponse({'type': 'FeatureCollection', 'features': features})
+
+
 def huc12_boundaries(request):
     """Return all HUC12 records with their boundary as a GeoJSON FeatureCollection for client-side spatial lookup."""
     features = []

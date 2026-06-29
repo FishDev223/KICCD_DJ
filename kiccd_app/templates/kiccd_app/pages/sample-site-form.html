@@ -37,7 +37,7 @@
 
             <form method="post" novalidate>
                     {% csrf_token %}
-                <div class="row g-2">
+                <div class="row g-2 mb-md-0 mb-2">
                     <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                         {{ form.name }}
@@ -48,44 +48,56 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="row g-2">
-                    <div class="col-md-4 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.latitude }}
-                        <label for="id_latitude" class="form-label">LATITUDE</label>
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-7 offset-md-1 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                {{ form.latitude }}
+                                <label for="id_latitude" class="form-label">LATITUDE</label>
+                                </div>
+                                
+                                {% if form.latitude.errors %}
+                                    <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-md-2 pt-1 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                {{ form.longitude }}
+                                <label for="id_longitude" class="form-label">LONGITUDE</label>
+                                </div>
+                                {% if form.longitude.errors %}
+                                    <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center ps-md-0 pe-md-2 pb-2 pt-md-2 pt-1 ps-5 pe-5">
+                                <button id="myLocationBtn" type="button"
+                                        class="btn btn-outline-primary text-nowrap w-100"
+                                        style="height:calc(2.5rem + 2px);"
+                                        title="Use my current location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                            </div>
                         </div>
-                        
-                        {% if form.latitude.errors %}
-                            <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                        {% endif %}
                     </div>
-                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.longitude }}
-                        <label for="id_longitude" class="form-label">LONGITUDE</label>
-                        </div>
-                        {% if form.longitude.errors %}
-                            <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-2 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.river_mi }}
-                        <label for="id_river_mi" class="form-label">RIVER MI</label>
-                        </div>
-                        {% if form.river_mi.errors %}
-                            <div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                         {{ form.type }}
                         <label for="id_type" class="form-label">SITE TYPE</label>
                         </div>
                         {% if form.type.errors %}
                             <div class="text-danger small">{{ form.type.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
+						<div class="form-floating">
+                        {{ form.river_mi }}
+                        <label for="id_river_mi" class="form-label">RIVER MI</label>
+                        </div>
+                        {% if form.river_mi.errors %}
+                            <div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
                         {% endif %}
                     </div>
                     <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
@@ -106,8 +118,8 @@
                             <div class="text-danger small">{{ form.county.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                </div>
-                <div class="row g-2">
+                </div> 
+                <div class="row g-2 mb-md-0 mb-2">
                     <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                         {{ form.pool }}
@@ -136,7 +148,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="row g-2">
+                <div class="row g-2 mb-md-0 mb-2">
                     <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="accordion  accordion-flush mb-2 mb-md-1" id="fisherOptionalAccordion">
                             <div class="accordion-item">
@@ -182,7 +194,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row g-2">
+                <div class="row g-2 mb-md-0 mb-2">
                     <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="accordion accordion-flush mb-2 mb-md-1" id="coordPickerAccordion">
                             <div class="accordion-item">
@@ -380,7 +392,19 @@ document.addEventListener('DOMContentLoaded', function(){
             });
             var poolSel = document.getElementById('id_pool');
             if (!poolSel) return;
-            if (!match) return;
+            if (!match) {
+                // No pool boundary contains this point — default to "Not Applicable"
+                var naOpt = Array.from(poolSel.options).find(function(o) {
+                    return o.text.trim().toLowerCase() === 'not applicable';
+                });
+                if (naOpt) {
+                    poolSel.value = naOpt.value;
+                    if (window.$ && $(poolSel).data('select2')) {
+                        $(poolSel).trigger('change.select2');
+                    }
+                }
+                return;
+            }
             var opt = Array.from(poolSel.options).find(function(o) {
                 return String(o.value) === String(match.properties.pool_id);
             });
@@ -416,25 +440,44 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     }
 
-    // --- Trib auto-fill via Turf.js boundary lookup ---
+    // --- Trib auto-fill via filtered boundary lookup ---
     const TRIB_BOUNDS_URL = "{% url 'kiccd_app:api_trib_boundaries' %}";
-    let tribBoundsCache = null;
+    var tribCacheMap = {};   // keyed 'b{basin_id}_p{pool_id}'
 
-    function fetchTribBoundaries() {
-        if (tribBoundsCache !== null) return Promise.resolve(tribBoundsCache);
-        return fetch(TRIB_BOUNDS_URL)
+    function fetchFilteredTribBoundaries(basinId, poolId) {
+        var key = 'b' + (basinId != null ? basinId : '') + '_p' + (poolId != null ? poolId : '');
+        if (tribCacheMap[key] !== undefined) return Promise.resolve(tribCacheMap[key]);
+        var url = TRIB_BOUNDS_URL;
+        var params = [];
+        if (basinId != null) params.push('basin_id=' + basinId);
+        if (poolId  != null) params.push('pool_id='  + poolId);
+        if (params.length)   url += '?' + params.join('&');
+        return fetch(url)
             .then(function(r) { return r.json(); })
-            .then(function(d) { tribBoundsCache = d.features || []; return tribBoundsCache; })
-            .catch(function() { tribBoundsCache = []; return []; });
+            .then(function(d) { tribCacheMap[key] = d.features || []; return tribCacheMap[key]; })
+            .catch(function() { tribCacheMap[key] = []; return []; });
     }
 
     function autoFillTrib(lat, lng) {
         var la = parseFloat(lat), lo = parseFloat(lng);
         if (!window.turf || isNaN(la) || isNaN(lo)) return;
-        fetchTribBoundaries().then(function(features) {
-            if (!features.length) return;
-            var pt    = window.turf.point([lo, la]);
-            var match = features.find(function(f) {
+        var pt = window.turf.point([lo, la]);
+        Promise.all([fetchBasinBoundaries(), fetchPoolBoundaries()])
+        .then(function(results) {
+            var basinMatch = results[0].find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            var poolMatch = results[1].find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            var basinId = basinMatch ? basinMatch.properties.basin_id : null;
+            var poolId  = poolMatch  ? poolMatch.properties.pool_id   : null;
+            if (basinId == null && poolId == null) return Promise.resolve([]);
+            return fetchFilteredTribBoundaries(basinId, poolId);
+        })
+        .then(function(tribFeatures) {
+            if (!tribFeatures || !tribFeatures.length) return;
+            var match = tribFeatures.find(function(f) {
                 return f.geometry && window.turf.booleanPointInPolygon(pt, f);
             });
             if (!match) return;
@@ -448,13 +491,62 @@ document.addEventListener('DOMContentLoaded', function(){
                 return String(o.value) === tribId;
             });
             if (existing) { tribSelect.value = existing.value; }
-        });
+        })
+        .catch(function(e) { console.error('Trib boundary lookup failed:', e); });
+    }
+
+    // --- River Mile auto-fill via nearest-point lookup ---
+    const RM_POINTS_URL = "{% url 'kiccd_app:api_river_mile_points' %}";
+    var rmCacheMap = {};   // keyed 'b{basin_id}_p{pool_id}'
+
+    function fetchFilteredRiverMilePoints(basinId, poolId) {
+        var key = 'b' + (basinId != null ? basinId : '') + '_p' + (poolId != null ? poolId : '');
+        if (rmCacheMap[key] !== undefined) return Promise.resolve(rmCacheMap[key]);
+        var url = RM_POINTS_URL;
+        var params = [];
+        if (basinId != null) params.push('basin_id=' + basinId);
+        if (poolId  != null) params.push('pool_id='  + poolId);
+        if (params.length)   url += '?' + params.join('&');
+        return fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { rmCacheMap[key] = d.features || []; return rmCacheMap[key]; })
+            .catch(function() { rmCacheMap[key] = []; return []; });
+    }
+
+    function autoFillRiverMile(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (!window.turf || isNaN(la) || isNaN(lo)) return;
+        var pt = window.turf.point([lo, la]);
+        Promise.all([fetchBasinBoundaries(), fetchPoolBoundaries()])
+        .then(function(results) {
+            var basinMatch = results[0].find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            var poolMatch = results[1].find(function(f) {
+                return f.geometry && window.turf.booleanPointInPolygon(pt, f);
+            });
+            var basinId = basinMatch ? basinMatch.properties.basin_id : null;
+            var poolId  = poolMatch  ? poolMatch.properties.pool_id   : null;
+            if (basinId == null && poolId == null) return Promise.resolve([]);
+            return fetchFilteredRiverMilePoints(basinId, poolId);
+        })
+        .then(function(rmFeatures) {
+            if (!rmFeatures || !rmFeatures.length) return;
+            var fc      = window.turf.featureCollection(rmFeatures);
+            var nearest = window.turf.nearestPoint(pt, fc);
+            if (!nearest) return;
+            var mile = nearest.properties.mile;
+            var riverMiInput = document.getElementById('id_river_mi');
+            if (riverMiInput) { riverMiInput.value = mile; }
+        })
+        .catch(function(e) { console.error('River mile lookup failed:', e); });
     }
 
     // Expose for the coordinate picker IIFE
-    window._autoFillPool  = autoFillPool;
-    window._autoFillBasin = autoFillBasin;
-    window._autoFillTrib  = autoFillTrib;
+    window._autoFillPool        = autoFillPool;
+    window._autoFillBasin       = autoFillBasin;
+    window._autoFillTrib        = autoFillTrib;
+    window._autoFillRiverMile   = autoFillRiverMile;
 
     // Manual lat/lng change listeners
     var latField = document.getElementById('id_latitude');
@@ -464,6 +556,7 @@ document.addEventListener('DOMContentLoaded', function(){
             autoFillPool(latField.value, lngField.value);
             autoFillBasin(latField.value, lngField.value);
             autoFillTrib(latField.value, lngField.value);
+            autoFillRiverMile(latField.value, lngField.value);
         }
         latField.addEventListener('change', tryFillFromCoords);
         lngField.addEventListener('change', tryFillFromCoords);
@@ -510,15 +603,17 @@ document.addEventListener('DOMContentLoaded', function(){
                 dispLat.textContent = pos.lat.toFixed(6);
                 dispLng.textContent = pos.lng.toFixed(6);
                 reverseGeocodeAndFill(pos.lng, pos.lat);
-                if (window._autoFillPool)  window._autoFillPool(pos.lat, pos.lng);
-                if (window._autoFillBasin) window._autoFillBasin(pos.lat, pos.lng);
-                if (window._autoFillTrib)  window._autoFillTrib(pos.lat, pos.lng);
+                if (window._autoFillPool)       window._autoFillPool(pos.lat, pos.lng);
+                if (window._autoFillBasin)      window._autoFillBasin(pos.lat, pos.lng);
+                if (window._autoFillTrib)       window._autoFillTrib(pos.lat, pos.lng);
+                if (window._autoFillRiverMile)  window._autoFillRiverMile(pos.lat, pos.lng);
             });
         }
         reverseGeocodeAndFill(lng, lat);
-        if (window._autoFillPool)  window._autoFillPool(lat, lng);
-        if (window._autoFillBasin) window._autoFillBasin(lat, lng);
-        if (window._autoFillTrib)  window._autoFillTrib(lat, lng);
+        if (window._autoFillPool)       window._autoFillPool(lat, lng);
+        if (window._autoFillBasin)      window._autoFillBasin(lat, lng);
+        if (window._autoFillTrib)       window._autoFillTrib(lat, lng);
+        if (window._autoFillRiverMile)  window._autoFillRiverMile(lat, lng);
     }
 
     function reverseGeocodeAndFill(lng, lat) {
@@ -610,6 +705,47 @@ document.addEventListener('DOMContentLoaded', function(){
                     alert('Unable to retrieve your location.');
                     locBtn.disabled    = false;
                     locBtn.textContent = '\u{1F4CD} Use My Location';
+                }
+            );
+        });
+    }
+
+    // --- "My Location" button in the main form row ---
+    const myLocationBtn = document.getElementById('myLocationBtn');
+    if (myLocationBtn) {
+        myLocationBtn.addEventListener('click', function () {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+            myLocationBtn.disabled = true;
+            var origHtml = myLocationBtn.innerHTML;
+            myLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Locating&hellip;';
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    var lat = pos.coords.latitude;
+                    var lng = pos.coords.longitude;
+                    if (pickerMap) {
+                        // Accordion map is open — placeMarker handles fields + autofill
+                        placeMarker(lng, lat);
+                        pickerMap.flyTo({ center: [lng, lat], zoom: 13, speed: 1.6 });
+                    } else {
+                        // Map not yet initialised — populate fields and run autofill directly
+                        latInput.value = lat.toFixed(6);
+                        lngInput.value = lng.toFixed(6);
+                        reverseGeocodeAndFill(lng, lat);
+                        if (window._autoFillPool)       window._autoFillPool(lat, lng);
+                        if (window._autoFillBasin)      window._autoFillBasin(lat, lng);
+                        if (window._autoFillTrib)       window._autoFillTrib(lat, lng);
+                        if (window._autoFillRiverMile)  window._autoFillRiverMile(lat, lng);
+                    }
+                    myLocationBtn.disabled = false;
+                    myLocationBtn.innerHTML = origHtml;
+                },
+                function () {
+                    alert('Unable to retrieve your location.');
+                    myLocationBtn.disabled = false;
+                    myLocationBtn.innerHTML = origHtml;
                 }
             );
         });

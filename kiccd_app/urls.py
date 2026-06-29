@@ -118,6 +118,7 @@ urlpatterns = [
     path('api/pool-boundaries/', _views.pool_boundaries, name='api_pool_boundaries'),
     path('api/basin-boundaries/', _views.basin_boundaries, name='api_basin_boundaries'),
     path('api/trib-boundaries/', _views.trib_boundaries, name='api_trib_boundaries'),
+    path('api/river-mile-points/', _views.river_mile_points, name='api_river_mile_points'),
     path('api/huc12-boundaries/', _views.huc12_boundaries, name='api_huc12_boundaries'),
     path('api/fishing-sites-hp-by-basin/<int:basin_id>/', _views.FishingSites_HP_by_basin, name='api_fishing_sites_hp_by_basin'),
     path('api/sample-sites-by-basin/<int:basin_id>/', _views.SampleSite_by_basin, name='api_sample_sites_by_basin'),

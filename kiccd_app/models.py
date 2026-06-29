@@ -122,6 +122,26 @@ class Huc12(models.Model):
         return f"{self.huc12_name} ({self.huc12})"
 
 
+class RiverMile(models.Model):
+    rm_id = models.AutoField("ID", primary_key=True, db_comment='ID for a river mile location.')
+    mile = models.DecimalField("River Mile", max_digits=6, decimal_places=1, blank=False, null=False, db_comment='River mile value for the location.')
+    latitude = models.DecimalField("Latitude", max_digits=9, decimal_places=6, blank=False, null=False, db_comment='Latitude coordinate for the river mile location.')
+    longitude = models.DecimalField("Longitude", max_digits=9, decimal_places=6, blank=False, null=False, db_comment='Longitude coordinate for the river mile location.')
+    basin = models.ForeignKey("Basin", on_delete=models.PROTECT, blank=False, null=False, db_comment='Foreign key to the basin for the river mile location.')
+    pool = models.ForeignKey("Pool", on_delete=models.PROTECT, blank=False, null=False, db_comment='Foreign key to the pool for the river mile location.')
+    rm_point = models.JSONField("Point", blank=True, null=True, db_comment='GeoJSON point for the river mile location.')
+    last_update = models.DateTimeField(auto_now=True, db_comment='Date-time of creation or update.')
+
+    class Meta:
+        db_table = 'river_mile'
+        db_table_comment = 'River mile locations within the Ohio River and Mississippi Basins.'
+        verbose_name = '(Lookup) River Mile'
+        verbose_name_plural = '(Lookup) River Miles'
+
+    def __str__(self):
+        return f"RM #: {self.mile}"
+
+
 class State(models.Model):
     state_id = models.IntegerField("ID", primary_key=True, unique=True, blank=False, null=False, db_comment='ID for a state within the OH River Basin.')
     name = models.CharField("Name", max_length=15, blank=False, null=False, db_comment='Full name of the ORB state.')
@@ -263,7 +283,7 @@ class SiteType(models.Model):
         verbose_name_plural = '(Lookup) Site Types'
 
     def __str__(self):
-        return self.abbrev
+        return self.name
 
 
 class SitePurpose(models.Model):
@@ -1201,9 +1221,9 @@ class IchpCatch(models.Model):
 
         if not self.harvest_cnt:
             if self.reported_weight_lb and self.reported_weight_lb > 0:
-                ss_mean_wgt = Subsample.mean_weight_lb(self.event.datez.cal_year, self.event.basin.basin_id, self.event.pool.pool_id, self.species.spp_id)
+                ss_mean_wgt = Subsample.mean_weight_lb(self.event.datez.cal_year, self.event.basin.basin_id, self.event.site.pool.pool_id, self.species.spp_id)
                 if ss_mean_wgt is None:
-                    ss_mean_wgt = Subsample.mean_weight_lb(self.event.datez.cal_year - 1, self.event.basin.basin_id, self.event.pool.pool_id, self.species.spp_id)
+                    ss_mean_wgt = Subsample.mean_weight_lb(self.event.datez.cal_year - 1, self.event.basin.basin_id, self.event.site.pool.pool_id, self.species.spp_id)
 
                 if ss_mean_wgt is not None and ss_mean_wgt > 0:
                     est_harvest_cnt = Decimal(self.reported_weight_lb) / Decimal(ss_mean_wgt)
@@ -1212,11 +1232,11 @@ class IchpCatch(models.Model):
                     print(f"No {self.species.abbrev} subsamples from {self.event.basin.name} in {self.event.datez.cal_year} or {self.event.datez.cal_year - 1}. Using default weights to estimate harvest count.")
                     if self.species.name == "Silver Carp":  # Silver Carp
                         if self.event.basin.name == "Lake Barkley_CMB":
-                            def_wgt = '14.0'  # default weight (lbs) for Silver Carp in Lake Barkley
+                            def_wgt = '12.0'  # default weight (lbs) for Silver Carp in Lake Barkley
                         elif self.event.basin.name == "Kentucky Lake_TNR":
-                            def_wgt = '13.5'  # default weight (lbs) for Silver Carp in Kentucky Lake
+                            def_wgt = '11.5'  # default weight (lbs) for Silver Carp in Kentucky Lake
                         else:
-                            def_wgt = '13.0'  # default weight (lbs) for Silver Carp in other basins
+                            def_wgt = '10.0'  # default weight (lbs) for Silver Carp in other basins
                         est_harvest_cnt = Decimal(self.reported_weight_lb) / Decimal(def_wgt)
                         self.harvest_cnt = int(est_harvest_cnt.to_integral_value(rounding='ROUND_HALF_UP'))
                     elif self.species.name == "Bighead Carp":  # Bighead Carp
