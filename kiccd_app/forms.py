@@ -451,12 +451,12 @@ class CfEventBatchInfoForm(forms.Form):
         })
     )
     fisher = forms.ModelChoiceField(
-        queryset=Fisher.objects.order_by('last_name', 'first_name'),
+        queryset=Fisher.objects.order_by('-active', 'last_name', 'first_name'),
         widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select a fisher'}),
         empty_label='...'
     )
     observer = forms.ModelChoiceField(
-        queryset=Observer.objects.order_by('last_name', 'first_name'),
+        queryset=Observer.objects.order_by('-active', 'last_name', 'first_name'),
         widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select an observer'}),
         empty_label='...'
     )
@@ -1201,7 +1201,7 @@ class IchpEventBatchInfoForm(forms.Form):
         })
     )
     fisher = forms.ModelChoiceField(
-        queryset=Fisher.objects.order_by('last_name', 'first_name'),
+        queryset=Fisher.objects.order_by('-active', 'last_name', 'first_name'),
         widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
         empty_label='...'
     )
@@ -1211,7 +1211,7 @@ class IchpEventBatchInfoForm(forms.Form):
         empty_label='...'
     )
     gear = forms.ModelChoiceField(
-        queryset=Gear.objects.order_by('gear_id'),
+        queryset=Gear.objects.order_by('priority'),
         widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
         empty_label='...'
     )

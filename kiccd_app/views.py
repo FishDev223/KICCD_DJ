@@ -3906,7 +3906,7 @@ def offices_by_agency(request, agency_id):
 def crews_by_agency(request, agency_id):
     """AJAX endpoint: return crew list for a given agency."""
     try:
-        crews_qs = Crew.objects.filter(agency_id=agency_id).order_by('leader')
+        crews_qs = Crew.objects.filter(agency_id=agency_id).order_by('-active', 'leader')
         crews = [{'id': c.crew_id, 'name': c.leader} for c in crews_qs]
         return JsonResponse({'crews': crews})
     except Exception:
@@ -3971,14 +3971,26 @@ def sample_sites_lookup(request):
 
 @login_required
 def sample_sites_geojson(request):
-    """GeoJSON FeatureCollection of all SampleSite records that have coordinates."""
+    """GeoJSON FeatureCollection of SampleSite records that have coordinates.
+
+    Accepts optional query parameters to filter server-side before returning:
+      basin_id — return only sample sites belonging to this basin
+      pool_id  — return only sample sites belonging to this pool
+    Both may be combined.
+    """
     qs = (
         SampleSite.objects
         .select_related('pool', 'basin')
         .exclude(latitude__isnull=True)
         .exclude(longitude__isnull=True)
-        .order_by('pool__pool_id', 'river_mi')
     )
+    basin_id = request.GET.get('basin_id')
+    pool_id = request.GET.get('pool_id')
+    if basin_id:
+        qs = qs.filter(basin_id=basin_id)
+    if pool_id:
+        qs = qs.filter(pool_id=pool_id)
+    qs = qs.order_by('pool__pool_id', 'river_mi')
     features = []
     for site in qs:
         features.append({

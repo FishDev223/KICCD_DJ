@@ -169,11 +169,13 @@ class Gear(models.Model):
     gear_id = models.AutoField("ID", primary_key=True, db_comment='ID for a fish sampling gear type used in ORB Invasive Carp Projects.')
     name = models.CharField("Name", max_length=55, blank=False, null=False, db_comment='Name of the fish sampling gear.')
     code = models.SmallIntegerField("Agency Code", blank=True, null=True, db_comment='Official KDFWR code number for the gear type.')
+    priority = models.SmallIntegerField("Priority", blank=True, null=True, db_comment='Priority of the fish sampling gear type.')
     last_update = models.DateTimeField(auto_now=True, db_comment='Date-time of creation or update.')
 
     class Meta:
         db_table = 'gear'
         db_table_comment = 'Specific gear types used to sample fish in lakes, rivers and/or streams. Adapted from KFAS.'
+        ordering = ['priority']
         verbose_name = '(Lookup) Gear'
         verbose_name_plural = '(Lookup) Gear'
 
@@ -365,6 +367,7 @@ class Crew(models.Model):
     agency = models.ForeignKey(Partner, on_delete=models.PROTECT, db_comment='ID for the agency or institution.')
     office = models.ForeignKey(Office, on_delete=models.PROTECT, db_comment='ID for the office where the crew leader is based.')
     leader = models.CharField("Crew Leader", max_length=100, blank=True, null=True, db_comment='Full name of the crew leader.')
+    active = models.BooleanField("Active", blank=False, null=False, default=True, db_default=True, db_comment='Identifies if the crew is currently active in the program.')
     added_on = models.DateTimeField(auto_now=True, db_comment='Date-time of creation or update.')
 
     class Meta:
@@ -385,12 +388,14 @@ class Fisher(models.Model):
     lookup = models.CharField("Lookup Name", max_length=50, blank=True, null=True, db_comment='Lookup name of contract fisher (First initial + Last name).')
     contracted = models.BooleanField("Contracted", blank=False, null=False, default=False, db_default=False, db_comment='Identifies if participant of contract fishing program.)')
     commercial_license = models.BooleanField("Comm. License", blank=False, null=False, default=True, db_default=True, db_comment='Identifies if participant has valid commercial fishing license.')
+    active = models.BooleanField("Active", blank=False, null=False, default=True, db_default=True, db_comment='Identifies if the contract fisher is currently active in the program.')
     last_update = models.DateTimeField(auto_now=True, db_comment='Date-time of creation or update.')
 
 
     class Meta:
         db_table = 'fishers'
         db_table_comment = 'Information on commercial and/or contract fishers that participate in Invasive Carp removal efforts.'
+        ordering = ('-active', 'last_name', 'first_name',)
         verbose_name = '(Lookup) Fisher'
         verbose_name_plural = '(Lookup) Fishers'
     
@@ -437,11 +442,13 @@ class Observer(models.Model):
     first_name = models.CharField("First Name", max_length=20, blank=False, null=False, db_comment='First name of the agency observer.')
     last_name = models.CharField("Last Name", max_length=20, blank=False, null=False, db_comment='Last name of the agency observer.')
     name = models.CharField("Full Name", max_length=30, blank=True, null=True, db_comment='Full name of the agency observer.')
+    active = models.BooleanField("Active", blank=False, null=False, default=True, db_default=True, db_comment='Identifies if the agency observer is currently active in the program.')
     last_update = models.DateTimeField(auto_now=True, db_comment='Date-time of creation or update.')
 
     class Meta:
         db_table = 'observers'
         db_table_comment = 'Information on agency staff that monitor the fishing conducted for the Invasive Carp Contract Fishing Program.'
+        ordering = ('-active', 'last_name', 'first_name',)
         verbose_name = '(CF) Observer'
         verbose_name_plural = '(CF) Observers'
 

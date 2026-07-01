@@ -43,9 +43,9 @@
                                 {{ form.event_date }}
                                 <label for="id_event_date" class="form-label">DATE</label>
                             </div>
-                            <button type="button" class="btn btn-outline-secondary btn-sm p-0"
+                            <button type="button" class="btn btn-outline-secondary btn-sm p-2"
                                     title="Today's Date"
-                                    style="height:20px;width:20px;min-width:20px;font-size:0.65rem;"
+                                    style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
                                     onclick="document.getElementById('id_event_date').value=new Date().toISOString().slice(0,10);">
                                 <i class="ti ti-calendar-check"></i>
                             </button>
@@ -55,7 +55,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-3 col-sm-8 col p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                             {{ form.project }}
                             <label for="id_project" class="form-label">PROJECT</label>
@@ -65,7 +65,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="col-md-2 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-2 col-sm-4 col p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                             {{ form.agency }}
                             <label for="id_agency" class="form-label">AGENCY</label>
@@ -82,9 +82,9 @@
                                 <label for="id_crew_lead" class="form-label">CREW LEADER</label>
                             </div>
                             {% if perms.kiccd_app.add_crew %}
-                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addCrewLeadBtn"
+                            <button type="button" class="btn btn-outline-success btn-sm p-1" id="addCrewLeadBtn"
                                     data-bs-toggle="modal" data-bs-target="#addCrewLeadModal"
-                                    title="Add a New Crew Leader" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                    title="Add a New Crew Leader" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
                                 <i class="ti ti-plus"></i>
                             </button>
                             {% endif %}
@@ -135,10 +135,10 @@
                                     {{ form.start_time }}
                                     <label for="id_start_time" class="form-label">START TIME (24h)</label>
                                     </div>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm p-0"
-                                            title="Current local time"
-                                            style="height:20px;width:20px;min-width:20px;font-size:0.65rem;"
-                                            onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_start_time'));">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                            title="Current time - Effort (min)"
+                                            style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                            onclick="(function(startEl, effortEl){var d=new Date();var minutes=parseInt(effortEl && effortEl.value, 10);if (!isNaN(minutes)) {d.setMinutes(d.getMinutes() - minutes);} var h=String(d.getHours()).padStart(2,'0'); var m=String(d.getMinutes()).padStart(2,'0'); startEl.value=h+':'+m;})(document.getElementById('id_start_time'), document.getElementById('id_effort_min'));">
                                         <i class="ti ti-clock"></i>
                                     </button>
                                 </div>
@@ -152,9 +152,9 @@
                                         {{ form.end_time }}
                                         <label for="id_end_time" class="form-label">END TIME (24h)</label>
                                     </div>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm p-0"
+                                    <button type="button" class="btn btn-outline-secondary btn-sm p-2"
                                             title="Current local time"
-                                            style="height:20px;width:20px;min-width:20px;font-size:0.65rem;"
+                                            style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
                                             onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_end_time'));">
                                         <i class="ti ti-clock"></i>
                                     </button>
@@ -168,55 +168,65 @@
 
                 </div>
                 <div class="row g-2 mb-md-2 mb-2">
+                    <div class="col-md-6 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="col-md-1 d-flex align-items-center ps-md-1 pe-md-2 pb-md-2 pb-0 pt-md-2 pt-2 ps-5 pe-5">
+                                <button id="eventMyLocationBtn" type="button"
+                                        class="btn btn-outline-secondary w-sm-100"
+                                        style="height:36px;min-width:25px;font-size:1.00rem;"
+                                        title="Use my location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                    {{ form.latitude }}
+                                    <label for="id_latitude" class="form-label">LATITUDE</label>
+                                </div>
+                                {% if form.latitude.errors %}
+                                    <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pb-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                    {{ form.longitude }}
+                                    <label for="id_longitude" class="form-label">LONGITUDE</label>
+                                </div>
+                                {% if form.longitude.errors %}
+                                    <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                                {% endif %}                   
+                            </div>
+
+                        </div>
+                    </div>
                     <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="d-flex gap-1 align-items-center">
+                            <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
+                                    title="Find nearest site..."
+                                    style="height:36px;min-width:25px;font-size:1.00rem;">
+                                    <i class="ti ti-search"></i>
+                            </button>
+
                             <div class="form-floating flex-grow-1">
                                 {{ form.site }}
                                 <label for="id_site" class="form-label">SITE NAME</label>
                             </div>
+                            
                             {% if perms.kiccd_app.add_samplesite %}
-                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addSiteBtn"
+                            <button type="button" class="btn btn-outline-success btn-sm p-1" id="addSiteBtn"
                                     data-bs-toggle="modal" data-bs-target="#addSiteModal"
-                                    title="Add a New Sample Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                    title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
                                 <i class="ti ti-plus"></i>
                             </button>
                             {% endif %}
+
                         </div>
                         {% if form.site.errors %}
                             <div class="text-danger small">{{ form.site.errors|striptags }}</div>
                         {% endif %}
                     </div>
                     
-                    <div class="col-md-6 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="col-md-5 offset-md-1 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                    {{ form.latitude }}
-                                    <label for="id_latitude" class="form-label">EVENT LATITUDE</label>
-                                </div>
-                                {% if form.latitude.errors %}
-                                    <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                    {{ form.longitude }}
-                                    <label for="id_longitude" class="form-label">EVENT LONGITUDE</label>
-                                </div>
-                                {% if form.longitude.errors %}
-                                    <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                                {% endif %}                   
-                            </div>
-                            <div class="col-md-1 d-flex align-items-center ps-md-0 pe-md-2 pb-2 pt-md-2 pt-1 ps-5 pe-5">
-                                <button id="eventMyLocationBtn" type="button"
-                                        class="btn btn-outline-primary text-nowrap w-sm-100"
-                                        style="height:calc(30px);"
-                                        title="Use my location">
-                                    <i class="ri ri-gps-fill"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+
                    
 
                 </div>
@@ -746,6 +756,8 @@
     var siteTribEl   = document.getElementById('site_trib');
     var siteLatEl    = document.getElementById('site_latitude');
     var siteLngEl    = document.getElementById('site_longitude');
+    var eventLatEl   = document.getElementById('id_latitude');
+    var eventLngEl   = document.getElementById('id_longitude');
 
     // --- County AJAX ---
     var countyBaseUrl = "{% url 'kiccd_app:api_counties_by_state' 0 %}";
@@ -836,11 +848,14 @@
     var _siteBasinCache   = null;
     var _siteTribCacheMap = {};
     var _siteRmCacheMap   = {};
+    var _siteLookupCacheMap = {};
     var _POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
     var _BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
     var _TRIB_BOUNDS_URL  = "{% url 'kiccd_app:api_trib_boundaries' %}";
     var _RM_POINTS_URL    = "{% url 'kiccd_app:api_river_mile_points' %}";
+    var _SITE_GEOJSON_URL = "{% url 'kiccd_app:api_sample_sites_geojson' %}";
     var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
+    var siteSelectEl = document.getElementById('id_site');
 
     function _fetchSitePoolBounds() {
         if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
@@ -875,6 +890,62 @@
         return fetch(url).then(function(r){return r.json();})
             .then(function(d){_siteRmCacheMap[key]=d.features||[];return _siteRmCacheMap[key];})
             .catch(function(){_siteRmCacheMap[key]=[];return[];});
+    }
+
+    function _fetchSiteLookupFeatures(basinId, poolId) {
+        var key = 'b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+        if (_siteLookupCacheMap[key] !== undefined) return Promise.resolve(_siteLookupCacheMap[key]);
+        var url = _SITE_GEOJSON_URL;
+        var params = [];
+        if (basinId != null) params.push('basin_id=' + basinId);
+        if (poolId  != null) params.push('pool_id=' + poolId);
+        if (params.length) url += '?' + params.join('&');
+        return fetch(url).then(function(r){return r.json();})
+            .then(function(d){_siteLookupCacheMap[key]=d.features||[];return _siteLookupCacheMap[key];})
+            .catch(function(){_siteLookupCacheMap[key]=[];return[];});
+    }
+
+    function _setSiteSelection(siteId, siteName) {
+        if (!siteSelectEl) return;
+        var existing = Array.from(siteSelectEl.options).find(function(o) {
+            return String(o.value) === String(siteId);
+        });
+        if (existing) {
+            siteSelectEl.value = existing.value;
+        } else {
+            var newOption = new Option(siteName || ('Site #' + siteId), siteId, true, true);
+            siteSelectEl.add(newOption);
+        }
+        if (window.jQuery && $(siteSelectEl).data('select2')) {
+            $(siteSelectEl).trigger('change.select2');
+        } else {
+            siteSelectEl.dispatchEvent(new Event('change'));
+        }
+    }
+
+    function siteLookupNearestSite(lat, lng) {
+        var la = parseFloat(lat), lo = parseFloat(lng);
+        if (isNaN(la) || isNaN(lo) || !window.turf) return;
+        var pt = window.turf.point([lo, la]);
+
+        Promise.all([_fetchSitePoolBounds(), _fetchSiteBasinBounds()])
+        .then(function(res) {
+            var poolFeatures = res[0], basinFeatures = res[1];
+            var poolMatch = poolFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt, f);});
+            var basinMatch = basinFeatures.find(function(f){return f.geometry && window.turf.booleanPointInPolygon(pt, f);});
+            var basinId = basinMatch ? basinMatch.properties.basin_id : null;
+            var poolId  = poolMatch  ? poolMatch.properties.pool_id   : null;
+            if (basinId == null && poolId == null) return Promise.resolve([]);
+            return _fetchSiteLookupFeatures(basinId, poolId);
+        })
+        .then(function(siteFeatures) {
+            if (!siteFeatures || !siteFeatures.length) return;
+            var nearestSite = window.turf.nearestPoint(pt, window.turf.featureCollection(siteFeatures));
+            if (nearestSite && nearestSite.properties) {
+                _setSiteSelection(nearestSite.properties.id, nearestSite.properties.name);
+            }
+        })
+        .catch(function(e) { console.error('Nearest site lookup failed:', e); });
     }
 
     function siteAutoFillFromCoords(lat, lng) {
@@ -941,8 +1012,9 @@
 
             return Promise.all([
                 _fetchSiteTribBounds(basinId, poolId),
-                _fetchSiteRmPoints(basinId, poolId)
-            ]).then(function(r){ return { tribFeatures: r[0], rmFeatures: r[1] }; });
+                _fetchSiteRmPoints(basinId, poolId),
+                _fetchSiteLookupFeatures(basinId, poolId)
+            ]).then(function(r){ return { tribFeatures: r[0], rmFeatures: r[1], siteFeatures: r[2] }; });
         })
         .then(function(results) {
             // Trib boundary lookup with pendingTrib mechanism
@@ -966,11 +1038,13 @@
                     if (rmEl) rmEl.value = nearest.properties.mile;
                 }
             }
+
         })
         .catch(function(e){ console.error('Site autofill error:', e); });
     }
 
     window._siteAutoFillFromCoords = siteAutoFillFromCoords;
+    window._siteLookupNearestSite = siteLookupNearestSite;
 
     // Manual lat/lng change listeners
     if (siteLatEl && siteLngEl) {
@@ -1016,6 +1090,19 @@
     }
 
     if (siteModal) { siteModal.addEventListener('hidden.bs.modal', resetSiteModal); }
+
+    if (siteSelectEl) {
+        var siteLookupBtn = document.getElementById('siteLookupBtn');
+        if (siteLookupBtn) {
+            siteLookupBtn.addEventListener('click', function () {
+                if (!eventLatEl || !eventLngEl || !eventLatEl.value || !eventLngEl.value) {
+                    alert('Enter coordinates before using SiteLookup.');
+                    return;
+                }
+                siteLookupNearestSite(eventLatEl.value, eventLngEl.value);
+            });
+        }
+    }
 
     // --- Save button ---
     saveSiteBtn.addEventListener('click', function () {

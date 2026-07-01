@@ -103,13 +103,14 @@ class StateAdmin(admin.ModelAdmin):
     )
 
 class GearAdmin(admin.ModelAdmin):
-    list_display = ("gear_id", "name", "code",)
+    list_display = ("gear_id", "name", "priority", "code",)
     search_fields = ('name',)
     readonly_fields = ('gear_id', 'last_update')
-    ordering = ('gear_id',)
+    list_editable = ['priority', ]
+    ordering = ('priority', 'gear_id',)
     fieldsets = (
         (None, {
-            'fields': ('name', 'code',)
+            'fields': ('name', 'priority', 'code',)
         }),
         ('Timestamps', {
             'fields': ('last_update',),
@@ -225,15 +226,15 @@ class CountyAdmin(admin.ModelAdmin):
     )
 
 class CrewAdmin(admin.ModelAdmin):
-    list_display = ("crew_id", "leader",'office', "agency")
-    # list_editable = ['leader', 'office',]
+    list_display = ("crew_id", "leader",'office', "agency", "active",)
+    list_editable = ['active',]
     search_fields = ('leader', )
     ordering = ('leader',)
     readonly_fields = ('crew_id', 'added_on', )
     list_filter = ('office', "agency",)
     fieldsets = (
         (None, {
-            'fields': ('leader', 'office', 'agency',)
+            'fields': ('leader', 'office', 'agency', 'active', )
         }),
         ('Read-Only Fields', {
             'fields': ('crew_id', 'added_on',),
@@ -245,6 +246,7 @@ class FisherAdmin(admin.ModelAdmin):
     list_display = ("fisher_id",     
                     "name", 
                     'contracted',
+                    'active',
                     'commercial_license',
                     )
 
@@ -253,15 +255,15 @@ class FisherAdmin(admin.ModelAdmin):
                     "name", 
                     )
 
-    ordering = ("fisher_id",)
+    ordering = ("last_name",)
     
     readonly_fields = ('fisher_id', 'last_update',)
-    list_editable = ['contracted', 'commercial_license', ]
-    list_filter = ('contracted', 'commercial_license',)
+    list_editable = ['contracted', 'active', 'commercial_license', ]
+    list_filter = ('contracted', 'active', 'commercial_license',)
     list_per_page = 50
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'contracted', 'commercial_license', )
+            'fields': ('first_name', 'last_name', 'contracted', 'active', 'commercial_license', )
         }),
         ('Optional', {
             'fields': ('lookup', 'name',),
@@ -303,16 +305,18 @@ class OfficeAdmin(admin.ModelAdmin):
 class ObserverAdmin(admin.ModelAdmin):
     list_display = ("observer_id",     
                     "name", 
-                    "agency", )
+                    "agency", 
+                    "active",
+                    )
     search_fields = ("name", )
     ordering = ("name",)
-    list_filter = ("agency",)
-    # list_editable = ['name', ]
+    list_filter = ("agency", "active",)
+    list_editable = ['active', ]
     list_per_page = 10
     readonly_fields = ('observer_id', 'last_update',)
     fieldsets = (
         (None, {
-            'fields': ('first_name', 'last_name', 'agency', )
+            'fields': ('first_name', 'last_name', 'agency', 'active', )
         }),
         ('Timestamps', {
             'fields': ('last_update',),
