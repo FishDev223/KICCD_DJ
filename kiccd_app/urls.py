@@ -21,6 +21,7 @@ urlpatterns = [
     path('sampling/events/add/', _views.ic_event_create, name='ic_event_create'),
     path('sampling/events/recent/', _views.recent_ic_events, name='recent_ic_events'),
     path('sampling/results/add/', _views.ic_catch_create, name='ic_catch_create'),
+    path('sampling/combined-add/', _views.ic_combined_create, name='ic_combined_create'),
     path('sampling/results/', IcCatchListView.as_view(), name='ic_catch_list'),
     path('sampling/results/recent/', RecentIcCatchView.as_view(), name='recent_ic_catch'),
     path('sampling/ag/data/', IcAgeGrowthListView.as_view(), name='ic_age_growth_list'),

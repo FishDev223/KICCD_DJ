@@ -643,11 +643,11 @@ class IcEventAdmin(admin.ModelAdmin):
             'fields': ('event_date', 'project', 'agency', 'crew_lead', 'site', )
         }), 
         ('Gear Info', {
-            'fields': ('gear', 'latitude', 'longitude', 'effort_num', 'effort_min', 'start_time', 'end_time', ), 
+            'fields': ('gear', 'latitude', 'longitude', 'effort_num', 'effort_min', 'start_time', 'end_time', 'bankside', ), 
             'classes': ('collapse',),
         }),         
         ('Electrofishing Details', {
-            'fields': ('ef_duty_cycle', 'ef_pps_hertz', 'ef_voltage', 'ef_amps', 'ef_watts', ), 
+            'fields': ('ef_duty_cycle', 'ef_pps_hertz', 'ef_voltage', 'ef_amps', 'ef_watts', 'dipper_cnt', 'run_distance', ), 
             'classes': ('collapse',),
         }),         
         ('Gill Netting Details', {
@@ -655,7 +655,7 @@ class IcEventAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),         
         ('Environmental Measurements', {
-            'fields': ('water_temp_f', 'secchi_depth_in', 'ef_cond', 'water_ph', ), 
+            'fields': ('weather', 'water_temp_f', 'air_temp_f', 'secchi_depth_in', 'ef_cond', 'water_ph','wind_speed_mph', ), 
             'classes': ('collapse',),
         }), 
         ('Presence/Absence', {
@@ -683,7 +683,7 @@ class IcCatchAdmin(admin.ModelAdmin):
     list_filter = ('event__project', 'event__agency', 'event__crew_lead', 'event__gear', 'event__site__pool', 'event__site__basin', )
     readonly_fields = ('catch_id', 'added_on', 'added_by', )
     fieldsets = (
-        (None, { 'fields': ('event', 'pool', 'species', 'fish_sex', 'length_mm', 'weight_g', 'fish_count', 'collected4ag', 'gonad_stage', 'gonad_wt_g', )}),
+        (None, { 'fields': ('event', 'species', 'fish_sex', 'length_mm', 'weight_g', 'fish_count', 'collected4ag', 'gonad_stage', 'gonad_wt_g', )}),
         ('Timestamps', {
             'fields': ('catch_id', 'added_on', 'added_by',),
             'classes': ('collapse',),

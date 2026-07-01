@@ -1,0 +1,2079 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}New Sampling Effort &amp; Catch Data{% endblock title %}
+
+{% block extra_css %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<style>
+    #site-coord-picker-map { width: 100%; height: 300px; cursor: crosshair; }
+</style>
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='New Sampling Effort &amp; Catch Data' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="row container-fluid mx-auto py-2">
+
+    {% if messages %}
+    <div class="col-md-12 px-0 mb-2">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if event_form.non_field_errors %}
+        <div class="col-md-12 px-0 mb-2">
+            <div class="alert alert-danger">{{ event_form.non_field_errors }}</div>
+        </div>
+    {% endif %}
+
+    {% if formset.non_form_errors %}
+        <div class="col-md-12 px-0 mb-2">
+            <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+        </div>
+    {% endif %}
+
+    <!-- ===== SINGLE FORM wraps both the event section and the catch formset ===== -->
+    <form method="post" novalidate id="icCombinedForm">
+        {% csrf_token %}
+        <input type="hidden" id="catch_snapshot" name="catch_snapshot" value="">
+
+        <!-- ================================================================== -->
+        <!-- CARD 1 — SAMPLING EVENT                                            -->
+        <!-- ================================================================== -->
+        <div class="card col-md-12 mb-3">
+            <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+                <h5 class="d-none d-md-block text-muted mb-0">1) Enter details for the completed sampling effort.</h5>
+                <h4 class="d-block d-md-none mb-0 text-center">1. Enter Sampling Effort Details</h4>
+                <!--
+                <div class="d-flex gap-2">
+                    <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Event-only entry page</em>"><i class="ti ti-list-details align-middle me-1 fs-18"></i> EFFORT ONLY</a>
+                    <a href="{% url 'kiccd_app:ic_catch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Attach catch to an existing event</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> CATCH ONLY</a>
+                </div>
+                --> 
+            </div>
+            <div class="card-body">
+                <!-- Row 1: Date / Project / Agency / Crew Lead -->
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ event_form.event_date }}
+                                <label for="id_event_date" class="form-label">DATE</label>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                    title="Today's Date"
+                                    style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                    onclick="document.getElementById('id_event_date').value=new Date().toISOString().slice(0,10);">
+                                <i class="ti ti-calendar-check"></i>
+                            </button>
+                        </div>
+                        {% if event_form.event_date.errors %}
+                            <div class="text-danger small">{{ event_form.event_date.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-3 col-sm-8 col p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                            {{ event_form.project }}
+                            <label for="id_project" class="form-label">PROJECT</label>
+                        </div>
+                        {% if event_form.project.errors %}
+                            <div class="text-danger small">{{ event_form.project.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-2 col-sm-4 col p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                            {{ event_form.agency }}
+                            <label for="id_agency" class="form-label">AGENCY</label>
+                        </div>
+                        {% if event_form.agency.errors %}
+                            <div class="text-danger small">{{ event_form.agency.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ event_form.crew_lead }}
+                                <label for="id_crew_lead" class="form-label">CREW LEADER</label>
+                            </div>
+                            {% if perms.kiccd_app.add_crew %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-1" id="addCrewLeadBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addCrewLeadModal"
+                                    title="Add a New Crew Leader" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if event_form.crew_lead.errors %}
+                            <div class="text-danger small">{{ event_form.crew_lead.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Row 2: Gear / Run-Net# / Effort / Start-End Time -->
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="form-floating">
+                            {{ event_form.gear }}
+                            <label for="id_gear" class="form-label">GEAR TYPE</label>
+                        </div>
+                        {% if event_form.gear.errors %}
+                            <div class="text-danger small">{{ event_form.gear.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="col-6 p-md-2 p-2">
+                                <div class="form-floating">
+                                    {{ event_form.effort_num }}
+                                    <label for="id_effort_num" class="form-label">RUN/NET #</label>
+                                </div>
+                                {% if event_form.effort_num.errors %}
+                                    <div class="text-danger small">{{ event_form.effort_num.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-6 p-md-2 p-2">
+                                <div class="form-floating">
+                                    {{ event_form.effort_min }}
+                                    <label for="id_effort_min" class="form-label">TOTAL EFFORT (min)</label>
+                                </div>
+                                {% if event_form.effort_min.errors %}
+                                    <div class="text-danger small">{{ event_form.effort_min.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="offset-md-1 col-md-5 col-sm-6 p-md-2 p-2">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ event_form.start_time }}
+                                        <label for="id_start_time" class="form-label">START TIME (24h)</label>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                            title="Current time - Effort (min)"
+                                            style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                            onclick="(function(startEl,effortEl){var d=new Date();var minutes=parseInt(effortEl&&effortEl.value,10);if(!isNaN(minutes)){d.setMinutes(d.getMinutes()-minutes);}var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');startEl.value=h+':'+m;})(document.getElementById('id_start_time'),document.getElementById('id_effort_min'));">
+                                        <i class="ti ti-clock"></i>
+                                    </button>
+                                </div>
+                                {% if event_form.start_time.errors %}
+                                    <div class="text-danger small">{{ event_form.start_time.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5 col-sm-6 p-md-2 p-2">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ event_form.end_time }}
+                                        <label for="id_end_time" class="form-label">END TIME (24h)</label>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                            title="Current local time"
+                                            style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                            onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_end_time'));">
+                                        <i class="ti ti-clock"></i>
+                                    </button>
+                                </div>
+                                {% if event_form.end_time.errors %}
+                                    <div class="text-danger small">{{ event_form.end_time.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: GPS / Lat / Lng / Site -->
+                <div class="row g-2 mb-md-2 mb-2">
+                    <div class="col-md-6 bg-dark bg-opacity-10">
+                        <div class="row g-0 ms-0 me-0">
+                            <div class="col-md-1 d-flex align-items-center ps-md-1 pe-md-2 pb-md-2 pb-0 pt-md-2 pt-2 ps-5 pe-5">
+                                <button id="eventMyLocationBtn" type="button"
+                                        class="btn btn-outline-secondary w-sm-100"
+                                        style="height:36px;min-width:25px;font-size:1.00rem;"
+                                        title="Use my location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                    {{ event_form.latitude }}
+                                    <label for="id_latitude" class="form-label">LATITUDE</label>
+                                </div>
+                                {% if event_form.latitude.errors %}
+                                    <div class="text-danger small">{{ event_form.latitude.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pb-2 pt-2 pe-md-1 pe-1">
+                                <div class="form-floating">
+                                    {{ event_form.longitude }}
+                                    <label for="id_longitude" class="form-label">LONGITUDE</label>
+                                </div>
+                                {% if event_form.longitude.errors %}
+                                    <div class="text-danger small">{{ event_form.longitude.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="d-flex gap-1 align-items-center">
+                            <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
+                                    title="Find nearest site..."
+                                    style="height:36px;min-width:25px;font-size:1.00rem;">
+                                <i class="ti ti-search"></i>
+                            </button>
+                            <div class="form-floating flex-grow-1">
+                                {{ event_form.site }}
+                                <label for="id_site" class="form-label">SITE NAME</label>
+                            </div>
+                            {% if perms.kiccd_app.add_samplesite %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-1" id="addSiteBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addSiteModal"
+                                    title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if event_form.site.errors %}
+                            <div class="text-danger small">{{ event_form.site.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Accordion: EF Details / Net Details / Environmental -->
+                <div class="row g-2 mb-2 mt-2 pt-1 pt-md-0 bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-2 mb-md-1" id="AddEventOptions">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventOne" aria-expanded="false" aria-controls="AddEventOne">
+                                    Electrofishing Details
+                                </button>
+                            </h2>
+                            <div id="AddEventOne" class="accordion-collapse collapse"
+                                aria-labelledby="AddEventAccHeading1" data-bs-parent="#AddEventOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.ef_duty_cycle }}
+                                                <label for="id_ef_duty_cycle" class="form-label d-none d-md-block">DUTY CYC</label>
+                                                <label for="id_ef_duty_cycle" class="form-label d-block d-md-none">DUTY CYCLE (%)</label>
+                                            </div>
+                                            {% if event_form.ef_duty_cycle.errors %}
+                                                <div class="text-danger small">{{ event_form.ef_duty_cycle.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.ef_pps_hertz }}
+                                                <label for="id_ef_pps_hertz" class="form-label d-none d-md-block">PPS</label>
+                                                <label for="id_ef_pps_hertz" class="form-label d-block d-md-none">HERTZ - PPS (Pulses per Second)</label>
+                                            </div>
+                                            {% if event_form.ef_pps_hertz.errors %}
+                                                <div class="text-danger small">{{ event_form.ef_pps_hertz.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.ef_voltage }}
+                                                <label for="id_ef_voltage" class="form-label">VOLTS</label>
+                                            </div>
+                                            {% if event_form.ef_voltage.errors %}
+                                                <div class="text-danger small">{{ event_form.ef_voltage.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.ef_amps }}
+                                                <label for="id_ef_amps" class="form-label">AMPS</label>
+                                            </div>
+                                            {% if event_form.ef_amps.errors %}
+                                                <div class="text-danger small">{{ event_form.ef_amps.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.ef_watts }}
+                                                <label for="id_ef_watts" class="form-label">WATTS</label>
+                                            </div>
+                                            {% if event_form.ef_watts.errors %}
+                                                <div class="text-danger small">{{ event_form.ef_watts.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 offset-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.dipper_cnt }}
+                                                <label for="id_dipper_cnt" class="form-label d-none d-md-block">DIPPERS</label>
+                                                <label for="id_dipper_cnt" class="form-label d-block d-md-none">DIPPER COUNT</label>
+                                            </div>
+                                            {% if event_form.dipper_cnt.errors %}
+                                                <div class="text-danger small">{{ event_form.dipper_cnt.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.bankside }}
+                                                <label for="id_bankside" class="form-label d-none d-md-block">BANK SIDE</label>
+                                                <label for="id_bankside" class="form-label d-block d-md-none">BANK SIDE &amp; DIRECTION</label>
+                                            </div>
+                                            {% if event_form.bankside.errors %}
+                                                <div class="text-danger small">{{ event_form.bankside.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-1 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.run_distance }}
+                                                <label for="id_run_distance" class="form-label d-none d-md-block">BANK DIST (mi)</label>
+                                                <label for="id_run_distance" class="form-label d-block d-md-none">BANK DISTANCE (mi)</label>
+                                            </div>
+                                            {% if event_form.run_distance.errors %}
+                                                <div class="text-danger small">{{ event_form.run_distance.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventTwo" aria-expanded="false" aria-controls="AddEventTwo">
+                                    Net Gear Details
+                                </button>
+                            </h2>
+                            <div id="AddEventTwo" class="accordion-collapse collapse"
+                                aria-labelledby="AddEventAccHeading2" data-bs-parent="#AddEventOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+                                        <div class="col-md-2 offset-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.net_length_ft }}
+                                                <label for="id_net_length_ft" class="form-label d-none d-md-block">LENGTH (Ft)</label>
+                                                <label for="id_net_length_ft" class="form-label d-block d-md-none">NET LENGTH (Ft)</label>
+                                            </div>
+                                            {% if event_form.net_length_ft.errors %}
+                                                <div class="text-danger small">{{ event_form.net_length_ft.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.net_depth_ft }}
+                                                <label for="id_net_depth_ft" class="form-label d-none d-md-block">HEIGHT (Ft)</label>
+                                                <label for="id_net_depth_ft" class="form-label d-block d-md-none">NET HEIGHT (Ft)</label>
+                                            </div>
+                                            {% if event_form.net_depth_ft.errors %}
+                                                <div class="text-danger small">{{ event_form.net_depth_ft.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.mesh_size_in }}
+                                                <label for="id_mesh_size_in" class="form-label d-none d-md-block">MESH (in)</label>
+                                                <label for="id_mesh_size_in" class="form-label d-block d-md-none">MESH SIZE (in)</label>
+                                            </div>
+                                            {% if event_form.mesh_size_in.errors %}
+                                                <div class="text-danger small">{{ event_form.mesh_size_in.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.net_set_type }}
+                                                <label for="id_net_set_type" class="form-label d-none d-md-block">SET TYPE</label>
+                                                <label for="id_net_set_type" class="form-label d-block d-md-none">NET SET TYPE</label>
+                                            </div>
+                                            {% if event_form.net_set_type.errors %}
+                                                <div class="text-danger small">{{ event_form.net_set_type.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.egn_panel_num }}
+                                                <label for="id_egn_panel_num" class="form-label d-none d-md-block">PANEL #</label>
+                                                <label for="id_egn_panel_num" class="form-label d-block d-md-none">EGN PANEL NUMBER</label>
+                                            </div>
+                                            {% if event_form.egn_panel_num.errors %}
+                                                <div class="text-danger small">{{ event_form.egn_panel_num.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-1 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.event_loc_type }}
+                                                <label for="id_event_loc_type" class="form-label d-none d-md-block">NET LOCATION</label>
+                                                <label for="id_event_loc_type" class="form-label d-block d-md-none">NET SET LOCATION</label>
+                                            </div>
+                                            {% if event_form.event_loc_type.errors %}
+                                                <div class="text-danger small">{{ event_form.event_loc_type.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddEventAccHeading3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddEventThree" aria-expanded="false" aria-controls="AddEventThree">
+                                    Environmental Information
+                                </button>
+                            </h2>
+                            <div id="AddEventThree" class="accordion-collapse collapse"
+                                aria-labelledby="AddEventAccHeading3" data-bs-parent="#AddEventOptions">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.water_temp_f }}
+                                                <label for="id_water_temp_f" class="form-label d-none d-md-block">WATER TEMP (°F)</label>
+                                                <label for="id_water_temp_f" class="form-label d-block d-md-none">WATER TEMPERATURE (°F)</label>
+                                            </div>
+                                            {% if event_form.water_temp_f.errors %}
+                                                <div class="text-danger small">{{ event_form.water_temp_f.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.ef_cond }}
+                                                <label for="id_ef_cond" class="form-label">CONDUCTIVITY</label>
+                                            </div>
+                                            {% if event_form.ef_cond.errors %}
+                                                <div class="text-danger small">{{ event_form.ef_cond.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.water_ph }}
+                                                <label for="id_water_ph" class="form-label">pH</label>
+                                            </div>
+                                            {% if event_form.water_ph.errors %}
+                                                <div class="text-danger small">{{ event_form.water_ph.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.secchi_depth_in }}
+                                                <label for="id_secchi_depth_in" class="form-label d-none d-md-block">SECCHI Depth (in)</label>
+                                                <label for="id_secchi_depth_in" class="form-label d-block d-md-none">SECCHI DEPTH (in)</label>
+                                            </div>
+                                            {% if event_form.secchi_depth_in.errors %}
+                                                <div class="text-danger small">{{ event_form.secchi_depth_in.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.weather }}
+                                                <label for="id_weather" class="form-label d-none d-md-block">WEATHER</label>
+                                                <label for="id_weather" class="form-label d-block d-md-none">WEATHER CONDITIONS</label>
+                                            </div>
+                                            {% if event_form.weather.errors %}
+                                                <div class="text-danger small">{{ event_form.weather.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-2 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.air_temp_f }}
+                                                <label for="id_air_temp_f" class="form-label d-none d-md-block">AIR TEMP (°F)</label>
+                                                <label for="id_air_temp_f" class="form-label d-block d-md-none">AIR TEMPERATURE (°F)</label>
+                                            </div>
+                                            {% if event_form.air_temp_f.errors %}
+                                                <div class="text-danger small">{{ event_form.air_temp_f.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 mb-0 mt-0 ps-4 pe-4 pt-1 pb-1 p-md-1">
+                                            <div class="form-floating">
+                                                {{ event_form.wind_speed_mph }}
+                                                <label for="id_wind_speed_mph" class="form-label d-none d-md-block">WIND (MPH)</label>
+                                                <label for="id_wind_speed_mph" class="form-label d-block d-md-none">WIND SPEED (MPH)</label>
+                                            </div>
+                                            {% if event_form.wind_speed_mph.errors %}
+                                                <div class="text-danger small">{{ event_form.wind_speed_mph.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IC Sighted / No Fish toggles -->
+                <div class="row g-2 mb-2">
+                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
+                        <p class="mb-1 mt-md-0 text-muted fs-12">IC SIGHTED?</p>
+                        <div class="form-check form-switch">
+                            {{ event_form.carp_sighted }}
+                        </div>
+                        {% if event_form.carp_sighted.errors %}
+                            <div class="text-danger small">{{ event_form.carp_sighted.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Young-of-Year (YOY) IC Observed?">
+                        <p class="mb-1 mt-md-0 text-muted fs-12">YOY IC?</p>
+                        <div class="form-check form-switch">
+                            {{ event_form.yoy_sighted }}
+                        </div>
+                        {% if event_form.yoy_sighted.errors %}
+                            <div class="text-danger small">{{ event_form.yoy_sighted.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*<u>ZERO</u> fish captured during entire sampling effort.">
+                        <p class="mb-1 mt-md-0 text-muted fs-12">NO FISH?</p>
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="no_fish" id="id_no_fish" class="form-check-input" role="switch">
+                        </div>
+                    </div>
+                </div>
+            </div>{# /card-body event #}
+        </div>{# /card 1 #}
+
+        <!-- ================================================================== -->
+        <!-- CARD 2 — CATCH FORMSET                                             -->
+        <!-- ================================================================== -->
+        <div class="card col-md-12 mt-3">
+            <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="d-none d-md-block text-muted mb-0">2) Provide size & counts for all sampled fish species.</h5>
+                    <h4 class="d-block d-md-none mb-0">2. Add Catch Data</h4>
+                </div>
+                <div class="d-flex align-items-center gap-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
+                    <span class="text-muted fs-11 text-nowrap">ROWS</span>
+                    <select id="visible_rows" class="form-select form-select-sm" style="width:auto;">
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="75">75</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="250">250</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body p-2 p-md-2">
+
+                {{ formset.management_form }}
+
+                <div id="catch-formset">
+                {% for form in formset %}
+                <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
+                    <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
+                        <div class="col-md-2">
+                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
+                                    <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #{{ forloop.counter }}</p>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="form-floating">
+                                        {{ form.species }}
+                                        <label class="form-label" for="id_species">SPECIES</label>
+                                    </div>
+                                    {% if form.species.errors %}
+                                        <div class="text-danger small">{{ form.species.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                <div class="col-md-6 me-0">
+                                    <div class="form-floating">
+                                        {{ form.length_mm }}
+                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                    </div>
+                                    {% if form.length_mm.errors %}
+                                        <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        {{ form.weight_g }}
+                                        <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                    </div>
+                                    {% if form.weight_g.errors %}
+                                        <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-floating">
+                                {{ form.fish_count }}
+                                <label class="form-label" for="id_fish_count">COUNT</label>
+                            </div>
+                            {% if form.fish_count.errors %}
+                                <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1 col-sm-3">
+                            <div class="form-floating">
+                                {{ form.fish_sex }}
+                                <label class="form-label" for="id_fish_sex">SEX</label>
+                            </div>
+                            {% if form.fish_sex.errors %}
+                                <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-1 offset-sm-1 offset-md-0 col-sm-3">
+                            <div class="form-floating">
+                                {{ form.gonad_stage }}
+                                <label class="form-label" for="id_gonad_stage">STAGE</label>
+                            </div>
+                            {% if form.gonad_stage.errors %}
+                                <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1 col-sm-5">
+                            <div class="form-floating">
+                                {{ form.gonad_wt_g }}
+                                <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
+                            </div>
+                            {% if form.gonad_wt_g.errors %}
+                                <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 mt-md-1 col-12">
+                            <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
+                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
+                                    <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
+                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
+                                    <div class="form-check form-switch">
+                                        {{ form.spawn_patch }}
+                                    </div>
+                                    {% if form.spawn_patch.errors %}
+                                        <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age &amp; Growth?">
+                                    <p class="d-none d-md-block mb-1 text-muted fs-11">A&amp;G</p>
+                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE &amp; GROWTH?</p>
+                                    <div class="form-check form-switch">
+                                        {{ form.collected4ag }}
+                                    </div>
+                                    {% if form.collected4ag.errors %}
+                                        <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>{# /catch-formset #}
+
+                <!-- Empty form template for JS row cloning -->
+                <div id="empty-form-template" class="d-none">
+                    <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
+                        <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
+                            <div class="col-md-2">
+                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
+                                        <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #</p>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <div class="form-floating">
+                                            {{ formset.empty_form.species }}
+                                            <label class="form-label" for="id_species">SPECIES</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
+                                    <div class="col-md-6 me-0">
+                                        <div class="form-floating">
+                                            {{ formset.empty_form.length_mm }}
+                                            <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            {{ formset.empty_form.weight_g }}
+                                            <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.fish_sex }}
+                                    <label class="form-label" for="id_fish_sex">SEX</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.fish_count }}
+                                    <label class="form-label" for="id_fish_count">COUNT</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.gonad_stage }}
+                                    <label class="form-label" for="id_gonad_stage">STAGE</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-floating">
+                                    {{ formset.empty_form.gonad_wt_g }}
+                                    <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mt-md-1 col-12">
+                                <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
+                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
+                                        <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
+                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
+                                        <div class="form-check form-switch">
+                                            {{ formset.empty_form.spawn_patch }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age &amp; Growth?">
+                                        <p class="d-none d-md-block mb-1 text-muted fs-11">A&amp;G</p>
+                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE &amp; GROWTH?</p>
+                                        <div class="form-check form-switch">
+                                            {{ formset.empty_form.collected4ag }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CSV loading accordion -->
+                <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="AddCsvHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddCsvOne">
+                                    Additional Data Loading Options
+                                </button>
+                            </h2>
+                            <div id="AddCsvOne" class="accordion-collapse collapse"
+                                aria-labelledby="AddCsvHeading1" data-bs-parent="#CSVLoadUI">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row g-2 align-items-stretch mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label mb-1" for="csv_file_input">Load from CSV</label>
+                                            <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div id="csv_status" class="text-muted"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 align-items-stretch mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label mb-1" for="csv_column_map">Column order (optional)</label>
+                                            <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="species,length_mm,weight_g,fish_sex,fish_count,gonad_stage,gonad_wt_g,spawn_patch,collected4ag" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check mt-4">
+                                                <input id="csv_clear_existing" class="form-check-input" type="checkbox" checked>
+                                                <label class="form-check-label" for="csv_clear_existing">Clear existing rows?</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit / Reset / Cancel -->
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-success" id="icCombinedSubmitBtn">
+                        <span id="icCombinedSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                        SUBMIT
+                    </button>
+                    <div>
+                        <button type="button" id="reset_form_btn" class="btn btn-secondary me-2">RESET</button>
+                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                    </div>
+                </div>
+
+            </div>{# /card-body catch #}
+        </div>{# /card 2 #}
+
+    </form>{# /icCombinedForm #}
+</div>{# /container #}
+
+<!-- ================================================================== -->
+<!-- ADD SAMPLE SITE MODAL                                              -->
+<!-- ================================================================== -->
+<div class="modal fade" id="addSiteModal" tabindex="-1" aria-labelledby="addSiteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSiteModalLabel"><i class="ti ti-map-pin-plus me-1"></i> Add New Sample Site</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addSiteGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="row g-2 mb-2">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="site_name" required>
+                            <label for="site_name">SITE NAME</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_name"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-7">
+                        <div class="row g-1">
+                            <div class="col-md-5">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="site_latitude" step="0.00001">
+                                    <label for="site_latitude">LATITUDE</label>
+                                </div>
+                                <div class="text-danger small d-none" id="site_err_latitude"></div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="site_longitude" step="0.00001">
+                                    <label for="site_longitude">LONGITUDE</label>
+                                </div>
+                                <div class="text-danger small d-none" id="site_err_longitude"></div>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <button id="site_myLocationBtn" type="button"
+                                        class="btn btn-outline-primary text-nowrap w-100"
+                                        style="height:calc(2.5rem + 2px);"
+                                        title="Use my current location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_type" required>
+                                <option value="">...</option>
+                                {% for st in site_types %}
+                                <option value="{{ st.pk }}">{{ st.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="site_type">SITE TYPE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_type"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="site_river_mi" step="0.1">
+                            <label for="site_river_mi">RIVER MILE</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_state" required>
+                                <option value="">...</option>
+                                {% for s in states %}
+                                <option value="{{ s.pk }}">{{ s.abbrev }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="site_state">STATE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_state"></div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_county" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label for="site_county">COUNTY</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_county"></div>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-3">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_pool" required>
+                                <option value="">...</option>
+                                {% for p in pools %}
+                                <option value="{{ p.pk }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="site_pool">POOL</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_pool"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_basin" required>
+                                <option value="">...</option>
+                                {% for b in basins %}
+                                <option value="{{ b.pk }}">{{ b.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="site_basin">BASIN</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_basin"></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select class="form-control" id="site_trib" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label for="site_trib">TRIBUTARY / AREA</label>
+                        </div>
+                        <div class="text-danger small d-none" id="site_err_trib"></div>
+                    </div>
+                </div>
+                <div class="accordion accordion-flush mb-1" id="siteModalOptional">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteOptionalCollapse" aria-expanded="false">
+                                <small><strong><u>Click for Optional Info:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="siteOptionalCollapse" class="accordion-collapse collapse" data-bs-parent="#siteModalOptional">
+                            <div class="accordion-body p-2">
+                                <div class="row g-2">
+                                    <div class="col-md-5">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="site_site_code" maxlength="8">
+                                            <label for="site_site_code">SITE CODE</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex flex-column align-items-center justify-content-center">
+                                        <p class="mb-1 fs-11">WOODY DEBRIS?</p>
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" class="form-check-input" id="site_woody_debris" role="switch">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex flex-column align-items-center justify-content-center">
+                                        <p class="mb-1 fs-11">SUBMERGED VEG?</p>
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" class="form-check-input" id="site_submersed_av" role="switch">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion accordion-flush mt-1" id="siteModalCoordPicker">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteCoordPickerCollapse" aria-expanded="false">
+                                <small><strong><u>Click to Pick Coordinates on Map:</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="siteCoordPickerCollapse" class="accordion-collapse collapse">
+                            <div class="accordion-body p-2">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="text-muted small">Click anywhere on the map to set coordinates. Drag the marker to adjust.</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="siteCoordPickerLocBtn">&#128205; Use My Location</button>
+                                </div>
+                                <div id="site-coord-picker-map"></div>
+                                <div id="siteCoordPickerDisplay" class="mt-2 small text-center text-muted d-none">
+                                    Selected &mdash; Lat: <strong id="siteCoordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="siteCoordPickerLng"></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveSiteBtn">
+                    <span id="saveSiteSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- ADD CREW LEAD MODAL                                                 -->
+<!-- ================================================================== -->
+<div class="modal fade" id="addCrewLeadModal" tabindex="-1" aria-labelledby="addCrewLeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCrewLeadModalLabel"><i class="ti ti-user-plus me-1"></i> Add New Crew Leader</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="addCrewLeadGlobalErrors" class="alert alert-danger d-none"></div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="crew_leader" required>
+                        <label class="form-label" for="crew_leader">FULL NAME</label>
+                    </div>
+                    <div class="text-danger small d-none" id="crew_err_leader"></div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select class="form-control" id="crew_agency" required>
+                                <option value="">...</option>
+                                {% for partner in partners %}
+                                <option value="{{ partner.pk }}">{{ partner.abbrev }}</option>
+                                {% endfor %}
+                            </select>
+                            <label class="form-label" for="crew_agency">AGENCY</label>
+                        </div>
+                        <div class="text-danger small d-none" id="crew_err_agency"></div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-floating">
+                            <select class="form-control" id="crew_office" required disabled>
+                                <option value="">...</option>
+                            </select>
+                            <label class="form-label" for="crew_office">OFFICE</label>
+                        </div>
+                        <div class="text-danger small d-none" id="crew_err_office"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-success" id="saveCrewLeadBtn">
+                    <span id="saveCrewLeadSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    CREATE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content %}
+
+{% block extra_javascript %}
+{{ catch_snapshot|json_script:"catchSnapshotData" }}
+
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+
+<!-- ================================================================== -->
+<!-- CATCH FORMSET JS                                                    -->
+<!-- ================================================================== -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const catchForm = document.getElementById('icCombinedForm');
+    const noFishCheckbox = document.getElementById('id_no_fish');
+    const visibleRowsSelect = document.getElementById('visible_rows');
+    const formsetContainer = document.getElementById('catch-formset');
+    const emptyFormTemplate = document.getElementById('empty-form-template');
+    const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+    const csvFileInput = document.getElementById('csv_file_input');
+    const csvLoadButton = document.getElementById('csv_load_btn');
+    const csvStatus = document.getElementById('csv_status');
+    const csvColumnMap = document.getElementById('csv_column_map');
+    const csvClearExisting = document.getElementById('csv_clear_existing');
+    const catchSnapshotInput = document.getElementById('catch_snapshot');
+    const submitButton = document.getElementById('icCombinedSubmitBtn');
+    const resetFormButton = document.getElementById('reset_form_btn');
+    const catchSnapshotData = JSON.parse(document.getElementById('catchSnapshotData').textContent || '[]');
+    const restoreSnapshot = {{ restore_snapshot|yesno:"true,false" }};
+
+    if (catchForm) {
+        catchForm.addEventListener('submit', function () {
+            const spinner = document.getElementById('icCombinedSubmitSpinner');
+            if (spinner) spinner.classList.remove('d-none');
+            if (submitButton) submitButton.disabled = true;
+        });
+    }
+
+    function getRows() {
+        return formsetContainer ? Array.from(formsetContainer.querySelectorAll('.catch-row')) : [];
+    }
+
+    function getSpeciesSelects() {
+        return formsetContainer ? Array.from(formsetContainer.querySelectorAll('select[id*="species"]')) : [];
+    }
+
+    function updateRowNumbers() {
+        const rows = getRows();
+        rows.forEach(function (row, index) {
+            const displayIndex = index + 1;
+            const numberEl = row.querySelector('.row-number');
+            const mobileNumberEl = row.querySelector('.row-number-mobile');
+            if (numberEl) numberEl.textContent = displayIndex + '.';
+            if (mobileNumberEl) mobileNumberEl.textContent = 'FISH #' + displayIndex;
+        });
+    }
+
+    function applyVisibleRows(count) {
+        const rows = getRows();
+        rows.forEach(function (row, index) {
+            if (!row) return;
+            if (index === 0) { row.style.display = ''; return; }
+            row.style.display = index < count ? '' : 'none';
+        });
+    }
+
+    if (noFishCheckbox && getSpeciesSelects().length) {
+        const firstSpeciesSelect = getSpeciesSelects()[0];
+        const updateFirstSpecies = function (value) {
+            if (!firstSpeciesSelect) return;
+            firstSpeciesSelect.value = value;
+            firstSpeciesSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        noFishCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                updateFirstSpecies('0');
+                applyVisibleRows(1);
+            } else {
+                const count = visibleRowsSelect ? parseInt(visibleRowsSelect.value, 10) : 25;
+                applyVisibleRows(count);
+            }
+        });
+        if (noFishCheckbox.checked) {
+            updateFirstSpecies('0');
+        }
+    }
+
+    if (visibleRowsSelect) {
+        if (totalFormsInput) {
+            const totalForms = parseInt(totalFormsInput.value, 10);
+            if (!Number.isNaN(totalForms)) {
+                const optionValues = Array.from(visibleRowsSelect.options)
+                    .map(function (opt) { return parseInt(opt.value, 10); })
+                    .filter(function (val) { return !Number.isNaN(val); })
+                    .sort(function (a, b) { return a - b; });
+                const bestFit = optionValues.find(function (val) { return val >= totalForms; }) || optionValues[optionValues.length - 1];
+                if (bestFit) visibleRowsSelect.value = String(bestFit);
+            }
+        }
+        visibleRowsSelect.addEventListener('change', function () {
+            const count = parseInt(this.value, 10);
+            if (noFishCheckbox && noFishCheckbox.checked) {
+                applyVisibleRows(1);
+                return;
+            }
+            ensureRowCount(count);
+            applyVisibleRows(count);
+        });
+        const initialCount = parseInt(visibleRowsSelect.value, 10);
+        ensureRowCount(Number.isNaN(initialCount) ? 25 : initialCount);
+        applyVisibleRows(Number.isNaN(initialCount) ? 25 : initialCount);
+    }
+
+    function initRow(row) {
+        if (!row) return;
+        const select = row.querySelector('select[id*="species"]');
+        if (!select) return;
+        const lengthInput = row.querySelector('input[id*="length_mm"]');
+        const weightInput = row.querySelector('input[id*="weight_g"]');
+        const countInput = row.querySelector('input[id*="fish_count"]');
+        const sexSelect = row.querySelector('select[id*="fish_sex"]');
+        const stageSelect = row.querySelector('select[id*="gonad_stage"]');
+        const gwtInput = row.querySelector('input[id*="gonad_wt_g"]');
+        const spCheck = row.querySelector('input[id*="spawn_patch"]');
+        const agCheck = row.querySelector('input[id*="collected4ag"]');
+
+        if (!lengthInput || !weightInput || !countInput || !sexSelect || !stageSelect || !gwtInput || !spCheck || !agCheck) return;
+
+        function applyState(value, preserveExistingValues) {
+            if (value > '0') {
+                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                    if (!preserveExistingValues) input.value = '';
+                    input.readOnly = false;
+                });
+                if (!preserveExistingValues || String(countInput.value || '').trim() === '') countInput.value = '1';
+                sexSelect.readOnly = false;
+                stageSelect.readOnly = false;
+                spCheck.readOnly = false;
+                agCheck.readOnly = false;
+                if (noFishCheckbox) noFishCheckbox.checked = false;
+            } else if (value === '0') {
+                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                    if (!preserveExistingValues) input.value = '';
+                    input.readOnly = true;
+                });
+                if (!preserveExistingValues || String(countInput.value || '').trim() === '') countInput.value = '0';
+                if (!preserveExistingValues || String(sexSelect.value || '').trim() === '') sexSelect.value = '0';
+                sexSelect.readOnly = true;
+                if (!preserveExistingValues) stageSelect.value = '';
+                stageSelect.readOnly = true;
+                if (!preserveExistingValues) spCheck.checked = false;
+                spCheck.readOnly = true;
+                if (!preserveExistingValues) agCheck.checked = false;
+                agCheck.readOnly = true;
+                if (noFishCheckbox) noFishCheckbox.checked = true;
+            } else {
+                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                    if (!preserveExistingValues) input.value = '';
+                    input.readOnly = true;
+                });
+                if (!preserveExistingValues) { sexSelect.value = ''; stageSelect.value = ''; }
+                sexSelect.readOnly = true;
+                stageSelect.readOnly = true;
+                if (!preserveExistingValues) spCheck.checked = false;
+                spCheck.readOnly = true;
+                if (!preserveExistingValues) agCheck.checked = false;
+                agCheck.readOnly = true;
+            }
+        }
+
+        select.addEventListener('change', function () { applyState(this.value, false); });
+        applyState(select.value, true);
+    }
+
+    getRows().forEach(function (row) { initRow(row); });
+    updateRowNumbers();
+
+    function addRows(count) {
+        if (!emptyFormTemplate || !formsetContainer || !totalFormsInput) return;
+        let totalForms = parseInt(totalFormsInput.value, 10);
+        const batch = Number.isNaN(count) ? 0 : count;
+        for (let i = 0; i < batch; i += 1) {
+            const html = emptyFormTemplate.innerHTML.replace(/__prefix__/g, String(totalForms));
+            const temp = document.createElement('div');
+            temp.innerHTML = html.trim();
+            const row = temp.firstElementChild;
+            if (!row) continue;
+            formsetContainer.appendChild(row);
+            initRow(row);
+            totalForms += 1;
+        }
+        totalFormsInput.value = totalForms;
+        updateRowNumbers();
+        if (visibleRowsSelect) {
+            const c = parseInt(visibleRowsSelect.value, 10);
+            applyVisibleRows(Number.isNaN(c) ? 25 : c);
+        }
+    }
+
+    function ensureRowCount(count) {
+        const rows = getRows();
+        const target = Number.isNaN(count) ? rows.length : count;
+        if (rows.length >= target) return;
+        addRows(target - rows.length);
+    }
+
+    function clearFormsetRows() {
+        getRows().forEach(function (row) {
+            if (!row) return;
+            Array.from(row.querySelectorAll('input, select, textarea')).forEach(function (field) {
+                if (field.type === 'checkbox') { field.checked = false; }
+                else { field.value = ''; }
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+    }
+
+    function trimRowsToCount(count) {
+        if (!formsetContainer || !totalFormsInput) return;
+        const target = Math.max(1, Number.isNaN(count) ? 25 : count);
+        const rows = getRows();
+        if (rows.length <= target) { totalFormsInput.value = String(rows.length); return; }
+        for (let i = rows.length - 1; i >= target; i -= 1) rows[i].remove();
+        totalFormsInput.value = String(target);
+        updateRowNumbers();
+    }
+
+    function fullResetForm() {
+        const targetRows = 25;
+
+        if (noFishCheckbox) {
+            noFishCheckbox.checked = false;
+            noFishCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (csvFileInput) csvFileInput.value = '';
+        if (csvColumnMap) csvColumnMap.value = '';
+        if (csvClearExisting) csvClearExisting.checked = true;
+        setCsvStatus('', false);
+        if (catchSnapshotInput) catchSnapshotInput.value = '';
+
+        trimRowsToCount(targetRows);
+        ensureRowCount(targetRows);
+        clearFormsetRows();
+
+        if (visibleRowsSelect) visibleRowsSelect.value = String(targetRows);
+        applyVisibleRows(targetRows);
+        updateRowNumbers();
+    }
+
+    function parseCsv(text) {
+        const rows = [];
+        let current = '', row = [], inQuotes = false;
+        for (let i = 0; i < text.length; i += 1) {
+            const char = text[i], next = text[i + 1];
+            if (char === '"') {
+                if (inQuotes && next === '"') { current += '"'; i += 1; }
+                else { inQuotes = !inQuotes; }
+                continue;
+            }
+            if (!inQuotes && char === ',') { row.push(current.trim()); current = ''; continue; }
+            if (!inQuotes && (char === '\n' || char === '\r')) {
+                if (char === '\r' && next === '\n') i += 1;
+                row.push(current.trim());
+                if (row.some(function (c) { return c !== ''; })) rows.push(row);
+                row = []; current = '';
+                continue;
+            }
+            current += char;
+        }
+        if (current.length || row.length) {
+            row.push(current.trim());
+            if (row.some(function (c) { return c !== ''; })) rows.push(row);
+        }
+        return rows;
+    }
+
+    function isTruthy(value) {
+        return ['1', 'true', 'yes', 'y', 't'].includes(String(value || '').trim().toLowerCase());
+    }
+
+    function setFieldValue(field, value) {
+        if (!field) return;
+        if (field.type === 'checkbox') { field.checked = isTruthy(value); field.dispatchEvent(new Event('change', { bubbles: true })); return; }
+        field.value = value;
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function getRowFields(row) {
+        return {
+            species: row.querySelector('select[id*="species"]'),
+            length: row.querySelector('input[id*="length_mm"]'),
+            weight: row.querySelector('input[id*="weight_g"]'),
+            sex: row.querySelector('select[id*="fish_sex"]'),
+            count: row.querySelector('input[id*="fish_count"]'),
+            stage: row.querySelector('select[id*="gonad_stage"]'),
+            gwt: row.querySelector('input[id*="gonad_wt_g"]'),
+            spawn: row.querySelector('input[id*="spawn_patch"]'),
+            ag: row.querySelector('input[id*="collected4ag"]')
+        };
+    }
+
+    function serializeRowsForSnapshot() {
+        return getRows().map(function (row) {
+            const f = getRowFields(row);
+            return {
+                species: f.species ? String(f.species.value || '') : '',
+                length_mm: f.length ? String(f.length.value || '') : '',
+                weight_g: f.weight ? String(f.weight.value || '') : '',
+                fish_sex: f.sex ? String(f.sex.value || '') : '',
+                fish_count: f.count ? String(f.count.value || '') : '',
+                gonad_stage: f.stage ? String(f.stage.value || '') : '',
+                gonad_wt_g: f.gwt ? String(f.gwt.value || '') : '',
+                spawn_patch: f.spawn ? Boolean(f.spawn.checked) : false,
+                collected4ag: f.ag ? Boolean(f.ag.checked) : false
+            };
+        }).filter(function (r) {
+            return ['species', 'length_mm', 'weight_g', 'fish_sex', 'fish_count', 'gonad_stage', 'gonad_wt_g']
+                .some(function (k) { return String(r[k] || '').trim() !== ''; }) || r.spawn_patch || r.collected4ag;
+        });
+    }
+
+    function restoreSnapshotRows(snapshotRows) {
+        if (!Array.isArray(snapshotRows) || !snapshotRows.length) return;
+        ensureRowCount(snapshotRows.length);
+        const rows = getRows();
+        snapshotRows.forEach(function (rowData, index) {
+            const row = rows[index];
+            if (!row) return;
+            const f = getRowFields(row);
+            setFieldValue(f.species, rowData.species || '');
+            setFieldValue(f.length, rowData.length_mm || '');
+            setFieldValue(f.weight, rowData.weight_g || '');
+            setFieldValue(f.sex, rowData.fish_sex || '');
+            setFieldValue(f.count, rowData.fish_count || '');
+            setFieldValue(f.stage, rowData.gonad_stage || '');
+            setFieldValue(f.gwt, rowData.gonad_wt_g || '');
+            setFieldValue(f.spawn, rowData.spawn_patch ? '1' : '0');
+            setFieldValue(f.ag, rowData.collected4ag ? '1' : '0');
+        });
+        if (visibleRowsSelect) {
+            const desired = Math.min(snapshotRows.length, 250);
+            const option = Array.from(visibleRowsSelect.options).find(function (opt) { return parseInt(opt.value, 10) === desired; });
+            if (option) visibleRowsSelect.value = option.value;
+            applyVisibleRows(Number.isNaN(desired) ? 25 : desired);
+        }
+        updateRowNumbers();
+    }
+
+    function setCsvStatus(message, isError) {
+        if (!csvStatus) return;
+        csvStatus.textContent = message;
+        csvStatus.classList.toggle('text-danger', Boolean(isError));
+        csvStatus.classList.toggle('text-muted', !isError);
+    }
+
+    function getColumnOrder() {
+        const defaultOrder = ['species', 'length_mm', 'weight_g', 'fish_sex', 'fish_count', 'gonad_stage', 'gonad_wt_g', 'spawn_patch', 'collected4ag'];
+        const allowed = new Set(defaultOrder);
+        if (!csvColumnMap || !csvColumnMap.value.trim()) return { order: defaultOrder, error: '' };
+        const order = csvColumnMap.value.split(',').map(function (v) { return v.trim(); }).filter(function (v) { return v.length; });
+        const invalid = order.filter(function (v) { return !allowed.has(v); });
+        if (invalid.length) return { order: [], error: 'Unknown columns: ' + invalid.join(', ') };
+        const seen = new Set();
+        const dups = order.filter(function (v) { if (seen.has(v)) return true; seen.add(v); return false; });
+        if (dups.length) return { order: [], error: 'Duplicate columns: ' + Array.from(new Set(dups)).join(', ') };
+        return { order: order, error: '' };
+    }
+
+    function loadCsvIntoFormset(csvText) {
+        const rows = parseCsv(csvText);
+        if (rows.length <= 1) { setCsvStatus('No data rows found.', true); return; }
+        if (csvClearExisting && csvClearExisting.checked) clearFormsetRows();
+        const dataRows = rows.slice(1);
+        const mapping = getColumnOrder();
+        if (mapping.error) { setCsvStatus(mapping.error, true); return; }
+        const columnOrder = mapping.order;
+        ensureRowCount(dataRows.length);
+        const formRows = getRows();
+        dataRows.forEach(function (data, index) {
+            const row = formRows[index];
+            if (!row) return;
+            const f = getRowFields(row);
+            columnOrder.forEach(function (col, ci) {
+                const v = data[ci] || '';
+                if (col === 'species') setFieldValue(f.species, v);
+                else if (col === 'length_mm') setFieldValue(f.length, v);
+                else if (col === 'weight_g') setFieldValue(f.weight, v);
+                else if (col === 'fish_sex') setFieldValue(f.sex, v);
+                else if (col === 'fish_count') setFieldValue(f.count, v);
+                else if (col === 'gonad_stage') setFieldValue(f.stage, v);
+                else if (col === 'gonad_wt_g') setFieldValue(f.gwt, v);
+                else if (col === 'spawn_patch') setFieldValue(f.spawn, v);
+                else if (col === 'collected4ag') setFieldValue(f.ag, v);
+            });
+        });
+        if (visibleRowsSelect) {
+            const desired = Math.min(dataRows.length, 250);
+            const option = Array.from(visibleRowsSelect.options).find(function (opt) { return parseInt(opt.value, 10) === desired; });
+            if (option) visibleRowsSelect.value = option.value;
+            applyVisibleRows(Number.isNaN(desired) ? 25 : desired);
+        }
+        updateRowNumbers();
+        setCsvStatus('Loaded ' + dataRows.length + ' rows.', false);
+    }
+
+    if (csvLoadButton && csvFileInput) {
+        csvLoadButton.addEventListener('click', function () {
+            if (!csvFileInput.files || !csvFileInput.files.length) { setCsvStatus('Select a CSV file first.', true); return; }
+            const file = csvFileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                loadCsvIntoFormset(event.target && event.target.result ? String(event.target.result) : '');
+            };
+            reader.onerror = function () { setCsvStatus('Unable to read the CSV file.', true); };
+            reader.readAsText(file);
+        });
+    }
+
+    if (resetFormButton) {
+        resetFormButton.addEventListener('click', function () {
+            if (window.confirm('Resetting the entire form? Click OK to proceed.')) {
+                if (catchForm) catchForm.reset();
+                fullResetForm();
+            }
+        });
+    }
+
+    function shouldDefaultSex(fields) {
+        if (!fields || !fields.sex) return false;
+        if ((fields.sex.value || '').trim() !== '') return false;
+        const speciesValue = fields.species ? String(fields.species.value || '').trim() : '';
+        const hasSpecies = speciesValue !== '';
+        const hasNumericData = [fields.length, fields.weight, fields.count, fields.gwt].some(function (f) { return f && String(f.value || '').trim() !== ''; });
+        const hasStage = fields.stage && String(fields.stage.value || '').trim() !== '';
+        const hasFlags = (fields.spawn && fields.spawn.checked) || (fields.ag && fields.ag.checked);
+        return hasSpecies || hasNumericData || hasStage || hasFlags;
+    }
+
+    function roundCoordTo5(val) {
+        var num = parseFloat(val);
+        if (isNaN(num)) return val;
+        var parts = String(num).split('.');
+        if (parts.length < 2 || parts[1].length <= 5) return val;
+        return num.toFixed(5);
+    }
+
+    if (catchForm) {
+        catchForm.addEventListener('submit', function () {
+            var latEl = document.getElementById('id_latitude');
+            var lngEl = document.getElementById('id_longitude');
+            if (latEl && latEl.value) latEl.value = roundCoordTo5(latEl.value);
+            if (lngEl && lngEl.value) lngEl.value = roundCoordTo5(lngEl.value);
+
+            const rows = getRows();
+            if (totalFormsInput) totalFormsInput.value = String(rows.length);
+            if (catchSnapshotInput) catchSnapshotInput.value = JSON.stringify(serializeRowsForSnapshot());
+            rows.forEach(function (row) {
+                const f = getRowFields(row);
+                if (shouldDefaultSex(f)) {
+                    f.sex.value = '0';
+                    f.sex.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        });
+    }
+
+    if (restoreSnapshot && Array.isArray(catchSnapshotData) && catchSnapshotData.length) {
+        restoreSnapshotRows(catchSnapshotData);
+    }
+});
+</script>
+
+<!-- ================================================================== -->
+<!-- AGENCY / CREW AJAX                                                 -->
+<!-- ================================================================== -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const agencySelect = document.getElementById('id_agency');
+    const crewSelect = document.getElementById('id_crew_lead');
+    if (!agencySelect || !crewSelect) return;
+
+    const baseUrl = "{% url 'kiccd_app:api_crews_by_agency' 0 %}";
+    function buildUrl(id) { return baseUrl.replace('/0/', '/' + id + '/'); }
+
+    function clearOptions() {
+        crewSelect.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = ''; opt.text = '...';
+        crewSelect.appendChild(opt);
+        crewSelect.disabled = true;
+    }
+
+    agencySelect.addEventListener('change', function () {
+        const agencyId = this.value;
+        if (!agencyId) { clearOptions(); return; }
+        fetch(buildUrl(agencyId))
+            .then(r => r.json())
+            .then(data => {
+                crewSelect.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = ''; placeholder.text = '...';
+                crewSelect.appendChild(placeholder);
+                (data.crews || []).forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.id; opt.text = o.name;
+                    crewSelect.appendChild(opt);
+                });
+                crewSelect.disabled = false;
+            })
+            .catch(() => clearOptions());
+    });
+
+    if (!agencySelect.value) {
+        const defaultAgency = Array.from(agencySelect.options).find(function (option) {
+            return option.text.trim().toUpperCase() === 'KDFWR';
+        });
+        if (defaultAgency) agencySelect.value = defaultAgency.value;
+    }
+    if (agencySelect.value) agencySelect.dispatchEvent(new Event('change'));
+});
+</script>
+
+<!-- ================================================================== -->
+<!-- SITE SELECT2                                                        -->
+<!-- ================================================================== -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const siteSelect = $('#id_site');
+    if (siteSelect.length) {
+        siteSelect.select2({
+            placeholder: '...',
+            allowClear: true,
+            width: '100%',
+            minimumInputLength: 2,
+            ajax: {
+                url: "{% url 'kiccd_app:api_sample_sites_lookup' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) { return { q: params.term }; },
+                processResults: function (data) { return { results: data.results || [] }; },
+                cache: true
+            }
+        });
+    }
+});
+</script>
+
+<!-- ================================================================== -->
+<!-- EVENT GPS BUTTON                                                    -->
+<!-- ================================================================== -->
+<script>
+(function () {
+    var evtLocBtn = document.getElementById('eventMyLocationBtn');
+    if (!evtLocBtn || !navigator.geolocation) return;
+    evtLocBtn.addEventListener('click', function () {
+        evtLocBtn.disabled = true;
+        var origHtml = evtLocBtn.innerHTML;
+        evtLocBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                var latEl = document.getElementById('id_latitude');
+                var lngEl = document.getElementById('id_longitude');
+                if (latEl) latEl.value = pos.coords.latitude.toFixed(5);
+                if (lngEl) lngEl.value = pos.coords.longitude.toFixed(5);
+                evtLocBtn.disabled = false;
+                evtLocBtn.innerHTML = origHtml;
+            },
+            function () {
+                alert('Unable to retrieve your location.');
+                evtLocBtn.disabled = false;
+                evtLocBtn.innerHTML = origHtml;
+            }
+        );
+    });
+}());
+</script>
+
+<!-- ================================================================== -->
+<!-- ADD SITE MODAL — BOUNDARY / COORD AUTOFILL & MAP PICKER            -->
+<!-- ================================================================== -->
+<script>
+(function () {
+    var siteModal    = document.getElementById('addSiteModal');
+    var saveSiteBtn  = document.getElementById('saveSiteBtn');
+    if (!saveSiteBtn) return;
+    var siteSpinner      = document.getElementById('saveSiteSpinner');
+    var siteGlobalErrors = document.getElementById('addSiteGlobalErrors');
+    var siteRequiredFields = ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'trib', 'state', 'county'];
+
+    function clearSiteErrors() {
+        siteGlobalErrors.classList.add('d-none');
+        siteGlobalErrors.textContent = '';
+        siteRequiredFields.forEach(function (f) {
+            var el = document.getElementById('site_err_' + f);
+            if (el) { el.textContent = ''; el.classList.add('d-none'); }
+            var inp = document.getElementById('site_' + f);
+            if (inp) inp.classList.remove('is-invalid');
+        });
+    }
+
+    var siteStateEl  = document.getElementById('site_state');
+    var siteCountyEl = document.getElementById('site_county');
+    var siteBasinEl  = document.getElementById('site_basin');
+    var sitePoolEl   = document.getElementById('site_pool');
+    var siteTribEl   = document.getElementById('site_trib');
+    var siteLatEl    = document.getElementById('site_latitude');
+    var siteLngEl    = document.getElementById('site_longitude');
+    var eventLatEl   = document.getElementById('id_latitude');
+    var eventLngEl   = document.getElementById('id_longitude');
+
+    var countyBaseUrl = "{% url 'kiccd_app:api_counties_by_state' 0 %}";
+    function countyUrl(id) { return countyBaseUrl.replace('/0/', '/' + id + '/'); }
+    function clearCountyOptions() { siteCountyEl.innerHTML = '<option value="">...</option>'; siteCountyEl.disabled = true; }
+
+    siteStateEl.addEventListener('change', function () {
+        var stateId = this.value;
+        if (!stateId) { clearCountyOptions(); return; }
+        var pendingCounty = (siteStateEl.dataset.pendingCounty || '').trim();
+        siteStateEl.dataset.pendingCounty = '';
+        fetch(countyUrl(stateId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteCountyEl.innerHTML = '';
+                var ph = document.createElement('option'); ph.value = ''; ph.text = '...'; siteCountyEl.appendChild(ph);
+                (data.counties || []).forEach(function (c) {
+                    var opt = document.createElement('option'); opt.value = c.id; opt.text = c.name; siteCountyEl.appendChild(opt);
+                });
+                siteCountyEl.disabled = false;
+                if (pendingCounty) {
+                    var match = Array.from(siteCountyEl.options).find(function (o) { return o.text.trim().toLowerCase() === pendingCounty.toLowerCase(); });
+                    if (match) siteCountyEl.value = match.value;
+                }
+            }).catch(clearCountyOptions);
+    });
+
+    var tribBasinBaseUrl = "{% url 'kiccd_app:api_tribs_by_basin' 0 %}";
+    var tribBothBaseUrl  = "{% url 'kiccd_app:api_tribs_by_basin_and_pool' 0 0 %}";
+    function tribUrl(basinId, poolId) {
+        if (basinId && poolId) return tribBothBaseUrl.replace('/0/0/', '/' + basinId + '/' + poolId + '/');
+        return tribBasinBaseUrl.replace('/0/', '/' + basinId + '/');
+    }
+    function clearTribOptions() { siteTribEl.innerHTML = '<option value="">...</option>'; siteTribEl.disabled = true; }
+
+    function fetchTribs() {
+        var basinId = siteBasinEl.value, poolId = sitePoolEl.value;
+        if (!basinId) { clearTribOptions(); return; }
+        fetch(tribUrl(basinId, poolId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                siteTribEl.innerHTML = '';
+                var ph = document.createElement('option'); ph.value = ''; ph.text = '...'; siteTribEl.appendChild(ph);
+                (data.tribs || []).forEach(function (t) {
+                    var opt = document.createElement('option'); opt.value = t.id; opt.text = t.name; siteTribEl.appendChild(opt);
+                });
+                siteTribEl.disabled = false;
+                var pendingTrib = (siteTribEl.dataset.pendingTrib || '').trim();
+                siteTribEl.dataset.pendingTrib = '';
+                if (pendingTrib) {
+                    var match = Array.from(siteTribEl.options).find(function (o) { return String(o.value) === String(pendingTrib); });
+                    if (match) siteTribEl.value = match.value;
+                }
+            }).catch(clearTribOptions);
+    }
+
+    siteBasinEl.addEventListener('change', fetchTribs);
+    sitePoolEl.addEventListener('change', function () { if (siteBasinEl.value) fetchTribs(); });
+
+    var _sitePoolCache = null, _siteBasinCache = null, _siteTribCacheMap = {}, _siteRmCacheMap = {}, _siteLookupCacheMap = {};
+    var _POOL_BOUNDS_URL  = "{% url 'kiccd_app:api_pool_boundaries' %}";
+    var _BASIN_BOUNDS_URL = "{% url 'kiccd_app:api_basin_boundaries' %}";
+    var _TRIB_BOUNDS_URL  = "{% url 'kiccd_app:api_trib_boundaries' %}";
+    var _RM_POINTS_URL    = "{% url 'kiccd_app:api_river_mile_points' %}";
+    var _SITE_GEOJSON_URL = "{% url 'kiccd_app:api_sample_sites_geojson' %}";
+    var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
+    var siteSelectEl = document.getElementById('id_site');
+
+    function _fetchSitePoolBounds() {
+        if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
+        return fetch(_POOL_BOUNDS_URL).then(function(r){return r.json();}).then(function(d){_sitePoolCache=d.features||[];return _sitePoolCache;}).catch(function(){_sitePoolCache=[];return[];});
+    }
+    function _fetchSiteBasinBounds() {
+        if (_siteBasinCache !== null) return Promise.resolve(_siteBasinCache);
+        return fetch(_BASIN_BOUNDS_URL).then(function(r){return r.json();}).then(function(d){_siteBasinCache=d.features||[];return _siteBasinCache;}).catch(function(){_siteBasinCache=[];return[];});
+    }
+    function _fetchSiteTribBounds(basinId, poolId) {
+        var key='b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+        if (_siteTribCacheMap[key]!==undefined) return Promise.resolve(_siteTribCacheMap[key]);
+        var url=_TRIB_BOUNDS_URL, params=[];
+        if (basinId!=null) params.push('basin_id='+basinId);
+        if (poolId!=null) params.push('pool_id='+poolId);
+        if (params.length) url+='?'+params.join('&');
+        return fetch(url).then(function(r){return r.json();}).then(function(d){_siteTribCacheMap[key]=d.features||[];return _siteTribCacheMap[key];}).catch(function(){_siteTribCacheMap[key]=[];return[];});
+    }
+    function _fetchSiteRmPoints(basinId, poolId) {
+        var key='b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+        if (_siteRmCacheMap[key]!==undefined) return Promise.resolve(_siteRmCacheMap[key]);
+        var url=_RM_POINTS_URL, params=[];
+        if (basinId!=null) params.push('basin_id='+basinId);
+        if (poolId!=null) params.push('pool_id='+poolId);
+        if (params.length) url+='?'+params.join('&');
+        return fetch(url).then(function(r){return r.json();}).then(function(d){_siteRmCacheMap[key]=d.features||[];return _siteRmCacheMap[key];}).catch(function(){_siteRmCacheMap[key]=[];return[];});
+    }
+    function _fetchSiteLookupFeatures(basinId, poolId) {
+        var key='b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+        if (_siteLookupCacheMap[key]!==undefined) return Promise.resolve(_siteLookupCacheMap[key]);
+        var url=_SITE_GEOJSON_URL, params=[];
+        if (basinId!=null) params.push('basin_id='+basinId);
+        if (poolId!=null) params.push('pool_id='+poolId);
+        if (params.length) url+='?'+params.join('&');
+        return fetch(url).then(function(r){return r.json();}).then(function(d){_siteLookupCacheMap[key]=d.features||[];return _siteLookupCacheMap[key];}).catch(function(){_siteLookupCacheMap[key]=[];return[];});
+    }
+
+    function _setSiteSelection(siteId, siteName) {
+        if (!siteSelectEl) return;
+        var existing = Array.from(siteSelectEl.options).find(function(o){return String(o.value)===String(siteId);});
+        if (existing) { siteSelectEl.value = existing.value; }
+        else { var newOption = new Option(siteName||('Site #'+siteId), siteId, true, true); siteSelectEl.add(newOption); }
+        if (window.jQuery && $(siteSelectEl).data('select2')) { $(siteSelectEl).trigger('change.select2'); }
+        else { siteSelectEl.dispatchEvent(new Event('change')); }
+    }
+
+    function siteLookupNearestSite(lat, lng) {
+        var la=parseFloat(lat), lo=parseFloat(lng);
+        if (isNaN(la)||isNaN(lo)||!window.turf) return;
+        var pt=window.turf.point([lo,la]);
+        Promise.all([_fetchSitePoolBounds(),_fetchSiteBasinBounds()]).then(function(res){
+            var poolFeatures=res[0],basinFeatures=res[1];
+            var poolMatch=poolFeatures.find(function(f){return f.geometry&&window.turf.booleanPointInPolygon(pt,f);});
+            var basinMatch=basinFeatures.find(function(f){return f.geometry&&window.turf.booleanPointInPolygon(pt,f);});
+            var basinId=basinMatch?basinMatch.properties.basin_id:null;
+            var poolId=poolMatch?poolMatch.properties.pool_id:null;
+            if (basinId==null&&poolId==null) return Promise.resolve([]);
+            return _fetchSiteLookupFeatures(basinId,poolId);
+        }).then(function(siteFeatures){
+            if (!siteFeatures||!siteFeatures.length) return;
+            var nearestSite=window.turf.nearestPoint(pt,window.turf.featureCollection(siteFeatures));
+            if (nearestSite&&nearestSite.properties) _setSiteSelection(nearestSite.properties.id,nearestSite.properties.name);
+        }).catch(function(e){console.error('Nearest site lookup failed:',e);});
+    }
+
+    function siteAutoFillFromCoords(lat, lng) {
+        var la=parseFloat(lat),lo=parseFloat(lng);
+        if (isNaN(la)||isNaN(lo)) return;
+        if (_MBTOKEN) {
+            fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+lo+','+la+'.json?types=region%2Cdistrict&access_token='+_MBTOKEN)
+            .then(function(r){return r.json();})
+            .then(function(data){
+                var stateAbbrev=null,countyName=null;
+                (data.features||[]).forEach(function(f){
+                    if (f.place_type.indexOf('region')!==-1&&f.properties&&f.properties.short_code){var parts=f.properties.short_code.split('-');stateAbbrev=parts[parts.length-1].toUpperCase();}
+                    if (f.place_type.indexOf('district')!==-1&&f.text){countyName=f.text.replace(/ County$/i,'').replace(/ Parish$/i,'').replace(/ Borough$/i,'').replace(/ Census Area$/i,'').replace(/ Municipality$/i,'').trim();}
+                });
+                if (!stateAbbrev) return;
+                var stateOpt=Array.from(siteStateEl.options).find(function(o){return o.text.trim().toUpperCase()===stateAbbrev;});
+                if (!stateOpt) return;
+                siteStateEl.dataset.pendingCounty=countyName||'';
+                siteStateEl.value=stateOpt.value;
+                siteStateEl.dispatchEvent(new Event('change'));
+            }).catch(function(){});
+        }
+        if (!window.turf) return;
+        var pt=window.turf.point([lo,la]);
+        Promise.all([_fetchSitePoolBounds(),_fetchSiteBasinBounds()]).then(function(res){
+            var poolFeatures=res[0],basinFeatures=res[1];
+            var poolMatch=poolFeatures.find(function(f){return f.geometry&&window.turf.booleanPointInPolygon(pt,f);});
+            if (poolMatch){var pOpt=Array.from(sitePoolEl.options).find(function(o){return String(o.value)===String(poolMatch.properties.pool_id);});if(pOpt)sitePoolEl.value=pOpt.value;}
+            else{var naOpt=Array.from(sitePoolEl.options).find(function(o){return o.text.trim().toLowerCase()==='not applicable';});if(naOpt)sitePoolEl.value=naOpt.value;}
+            var basinMatch=basinFeatures.find(function(f){return f.geometry&&window.turf.booleanPointInPolygon(pt,f);});
+            if (basinMatch){var bOpt=Array.from(siteBasinEl.options).find(function(o){return String(o.value)===String(basinMatch.properties.basin_id);});if(bOpt){siteBasinEl.value=bOpt.value;siteBasinEl.dispatchEvent(new Event('change'));}}
+            var basinId=basinMatch?basinMatch.properties.basin_id:null;
+            var poolId=poolMatch?poolMatch.properties.pool_id:null;
+            if (basinId==null&&poolId==null) return Promise.resolve({tribFeatures:[],rmFeatures:[]});
+            return Promise.all([_fetchSiteTribBounds(basinId,poolId),_fetchSiteRmPoints(basinId,poolId),_fetchSiteLookupFeatures(basinId,poolId)]).then(function(r){return{tribFeatures:r[0],rmFeatures:r[1],siteFeatures:r[2]};});
+        }).then(function(results){
+            var tribFeatures=(results&&results.tribFeatures)||[];
+            if (tribFeatures.length){
+                var tribMatch=tribFeatures.find(function(f){return f.geometry&&window.turf.booleanPointInPolygon(pt,f);});
+                if (tribMatch){var tribId=String(tribMatch.properties.trib_id);siteTribEl.dataset.pendingTrib=tribId;var existing=Array.from(siteTribEl.options).find(function(o){return String(o.value)===tribId;});if(existing)siteTribEl.value=existing.value;}
+            }
+            var rmFeatures=(results&&results.rmFeatures)||[];
+            if (rmFeatures.length&&window.turf){var fc=window.turf.featureCollection(rmFeatures);var nearest=window.turf.nearestPoint(pt,fc);if(nearest){var rmEl=document.getElementById('site_river_mi');if(rmEl)rmEl.value=nearest.properties.mile;}}
+        }).catch(function(e){console.error('Site autofill error:',e);});
+    }
+
+    window._siteAutoFillFromCoords = siteAutoFillFromCoords;
+    window._siteLookupNearestSite  = siteLookupNearestSite;
+
+    if (siteLatEl && siteLngEl) {
+        function _trySiteAutoFill() { siteAutoFillFromCoords(siteLatEl.value, siteLngEl.value); }
+        siteLatEl.addEventListener('change', _trySiteAutoFill);
+        siteLngEl.addEventListener('change', _trySiteAutoFill);
+    }
+
+    if (siteModal) {
+        siteModal.addEventListener('show.bs.modal', function () {
+            var evtLat=document.getElementById('id_latitude'), evtLng=document.getElementById('id_longitude');
+            if (evtLat&&evtLng&&evtLat.value&&evtLng.value&&siteLatEl&&siteLngEl&&!siteLatEl.value&&!siteLngEl.value) {
+                siteLatEl.value=parseFloat(evtLat.value).toFixed(5);
+                siteLngEl.value=parseFloat(evtLng.value).toFixed(5);
+            }
+        });
+        siteModal.addEventListener('shown.bs.modal', function () {
+            if (siteLatEl&&siteLngEl&&siteLatEl.value&&siteLngEl.value) siteAutoFillFromCoords(siteLatEl.value,siteLngEl.value);
+        });
+    }
+
+    function resetSiteModal() {
+        clearSiteErrors();
+        ['name','latitude','longitude','type','pool','basin','river_mi','site_code'].forEach(function(f){var el=document.getElementById('site_'+f);if(el)el.value='';});
+        var wdEl=document.getElementById('site_woody_debris'),savEl=document.getElementById('site_submersed_av');
+        if (wdEl) wdEl.checked=false;
+        if (savEl) savEl.checked=false;
+        siteStateEl.value=''; clearCountyOptions();
+        siteBasinEl.value=''; clearTribOptions();
+        siteTribEl.dataset.pendingTrib=''; siteStateEl.dataset.pendingCounty='';
+    }
+    if (siteModal) siteModal.addEventListener('hidden.bs.modal', resetSiteModal);
+
+    var siteLookupBtn = document.getElementById('siteLookupBtn');
+    if (siteSelectEl && siteLookupBtn) {
+        siteLookupBtn.addEventListener('click', function () {
+            if (!eventLatEl||!eventLngEl||!eventLatEl.value||!eventLngEl.value) { alert('Enter coordinates before using SiteLookup.'); return; }
+            siteLookupNearestSite(eventLatEl.value, eventLngEl.value);
+        });
+    }
+
+    saveSiteBtn.addEventListener('click', function () {
+        clearSiteErrors();
+        var hasError = false;
+        siteRequiredFields.forEach(function (f) {
+            var inp=document.getElementById('site_'+f);
+            if (!inp||!inp.value.trim()) {
+                var errEl=document.getElementById('site_err_'+f);
+                if (errEl){errEl.textContent='This field is required.';errEl.classList.remove('d-none');}
+                if (inp) inp.classList.add('is-invalid');
+                hasError=true;
+            }
+        });
+        if (hasError) return;
+
+        var csrfToken=document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData=new FormData();
+        formData.append('name', document.getElementById('site_name').value.trim());
+        formData.append('latitude', document.getElementById('site_latitude').value.trim());
+        formData.append('longitude', document.getElementById('site_longitude').value.trim());
+        formData.append('type', document.getElementById('site_type').value);
+        formData.append('pool', document.getElementById('site_pool').value);
+        formData.append('basin', document.getElementById('site_basin').value);
+        formData.append('trib', document.getElementById('site_trib').value);
+        formData.append('state', document.getElementById('site_state').value);
+        formData.append('county', document.getElementById('site_county').value);
+        var riverMi=document.getElementById('site_river_mi').value.trim();
+        var siteCode=document.getElementById('site_site_code').value.trim();
+        if (riverMi) formData.append('river_mi', riverMi);
+        if (siteCode) formData.append('site_code', siteCode);
+        if (document.getElementById('site_woody_debris').checked) formData.append('woody_debris','on');
+        if (document.getElementById('site_submersed_av').checked) formData.append('submersed_av','on');
+
+        siteSpinner.classList.remove('d-none');
+        saveSiteBtn.disabled=true;
+
+        fetch("{% url 'kiccd_app:sample_site_create_ajax' %}", {method:'POST',headers:{'X-CSRFToken':csrfToken},body:formData})
+        .then(function(r){return r.json();})
+        .then(function(data){
+            siteSpinner.classList.add('d-none'); saveSiteBtn.disabled=false;
+            if (data.success){
+                var select=document.getElementById('id_site');
+                var newOpt=new Option(data.name,data.id,true,true);
+                if (window.jQuery&&$(select).data('select2')){$(select).append(newOpt).trigger('change');}
+                else{select.add(newOpt);select.value=data.id;select.dispatchEvent(new Event('change'));}
+                bootstrap.Modal.getInstance(siteModal).hide();
+            } else {
+                var msgs=[];
+                if (data.errors){Object.keys(data.errors).forEach(function(field){var fieldErrs=Array.isArray(data.errors[field])?data.errors[field]:[data.errors[field]];var errEl=document.getElementById('site_err_'+field);var inpEl=document.getElementById('site_'+field);if(errEl){errEl.textContent=fieldErrs.join(' ');errEl.classList.remove('d-none');if(inpEl)inpEl.classList.add('is-invalid');}else{msgs.push(fieldErrs.join(' '));}});}
+                if (msgs.length){siteGlobalErrors.textContent=msgs.join(' | ');siteGlobalErrors.classList.remove('d-none');}
+            }
+        }).catch(function(){siteSpinner.classList.add('d-none');saveSiteBtn.disabled=false;siteGlobalErrors.textContent='An unexpected error occurred. Please try again.';siteGlobalErrors.classList.remove('d-none');});
+    });
+}());
+</script>
+
+<!-- ================================================================== -->
+<!-- MAP COORD PICKER (SITE MODAL)                                       -->
+<!-- ================================================================== -->
+<script>
+(function () {
+    'use strict';
+    var pickerMap=null, pickerMarker=null;
+    var MAPBOX_TOKEN='{{ MAPBOX_TOKEN }}';
+    if (!MAPBOX_TOKEN) return;
+    var collapseEl=document.getElementById('siteCoordPickerCollapse');
+    var siteModal=document.getElementById('addSiteModal');
+    if (!collapseEl||!siteModal) return;
+    var latInput=document.getElementById('site_latitude'), lngInput=document.getElementById('site_longitude');
+    var locBtn=document.getElementById('siteCoordPickerLocBtn');
+    var display=document.getElementById('siteCoordPickerDisplay');
+    var dispLat=document.getElementById('siteCoordPickerLat'), dispLng=document.getElementById('siteCoordPickerLng');
+
+    function placeMarker(lng,lat){
+        if (latInput) latInput.value=lat.toFixed(5);
+        if (lngInput) lngInput.value=lng.toFixed(5);
+        if (dispLat) dispLat.textContent=lat.toFixed(5);
+        if (dispLng) dispLng.textContent=lng.toFixed(5);
+        if (display) display.classList.remove('d-none');
+        if (pickerMarker){pickerMarker.setLngLat([lng,lat]);}
+        else{
+            pickerMarker=new mapboxgl.Marker({color:'#e6d00d',draggable:true}).setLngLat([lng,lat]).addTo(pickerMap);
+            pickerMarker.on('dragend',function(){var pos=pickerMarker.getLngLat();if(latInput)latInput.value=pos.lat.toFixed(5);if(lngInput)lngInput.value=pos.lng.toFixed(5);if(dispLat)dispLat.textContent=pos.lat.toFixed(5);if(dispLng)dispLng.textContent=pos.lng.toFixed(5);if(display)display.classList.remove('d-none');if(window._siteAutoFillFromCoords)window._siteAutoFillFromCoords(pos.lat,pos.lng);});
+        }
+        if (window._siteAutoFillFromCoords) window._siteAutoFillFromCoords(lat,lng);
+    }
+
+    collapseEl.addEventListener('shown.bs.collapse',function(){
+        if (pickerMap){pickerMap.resize();return;}
+        mapboxgl.accessToken=MAPBOX_TOKEN;
+        var initLat=parseFloat(latInput?latInput.value:''), initLng=parseFloat(lngInput?lngInput.value:'');
+        var hasCoords=!isNaN(initLat)&&!isNaN(initLng);
+        pickerMap=new mapboxgl.Map({container:'site-coord-picker-map',style:'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',center:hasCoords?[initLng,initLat]:[-85.5,37.8],zoom:hasCoords?13:6});
+        pickerMap.addControl(new mapboxgl.NavigationControl(),'top-right');
+        pickerMap.getCanvas().style.cursor='crosshair';
+        if (hasCoords) pickerMap.on('load',function(){placeMarker(initLng,initLat);});
+        pickerMap.on('click',function(e){placeMarker(e.lngLat.lng,e.lngLat.lat);});
+    });
+
+    if (locBtn){
+        locBtn.addEventListener('click',function(){
+            if (!navigator.geolocation){alert('Geolocation is not supported by this browser.');return;}
+            locBtn.disabled=true; locBtn.textContent='Locating\u2026';
+            navigator.geolocation.getCurrentPosition(
+                function(pos){var lat=pos.coords.latitude,lng=pos.coords.longitude;if(pickerMap){placeMarker(lng,lat);pickerMap.flyTo({center:[lng,lat],zoom:13,speed:1.6});}else{if(latInput)latInput.value=lat.toFixed(5);if(lngInput)lngInput.value=lng.toFixed(5);if(window._siteAutoFillFromCoords)window._siteAutoFillFromCoords(lat,lng);}locBtn.disabled=false;locBtn.textContent='\u{1F4CD} Use My Location';},
+                function(){alert('Unable to retrieve your location.');locBtn.disabled=false;locBtn.textContent='\u{1F4CD} Use My Location';}
+            );
+        });
+    }
+
+    var myLocationBtn=document.getElementById('site_myLocationBtn');
+    if (myLocationBtn){
+        myLocationBtn.addEventListener('click',function(){
+            if (!navigator.geolocation){alert('Geolocation is not supported by this browser.');return;}
+            myLocationBtn.disabled=true; var origHtml=myLocationBtn.innerHTML; myLocationBtn.innerHTML='<span class="spinner-border spinner-border-sm me-1" role="status"></span>Locating&hellip;';
+            navigator.geolocation.getCurrentPosition(
+                function(pos){var lat=pos.coords.latitude,lng=pos.coords.longitude;if(pickerMap){placeMarker(lng,lat);pickerMap.flyTo({center:[lng,lat],zoom:13,speed:1.6});}else{if(latInput)latInput.value=lat.toFixed(5);if(lngInput)lngInput.value=lng.toFixed(5);if(window._siteAutoFillFromCoords)window._siteAutoFillFromCoords(lat,lng);}myLocationBtn.disabled=false;myLocationBtn.innerHTML=origHtml;},
+                function(){alert('Unable to retrieve your location.');myLocationBtn.disabled=false;myLocationBtn.innerHTML=origHtml;}
+            );
+        });
+    }
+
+    siteModal.addEventListener('hidden.bs.modal',function(){
+        var bsCollapse=bootstrap.Collapse.getInstance(collapseEl);
+        if (bsCollapse) bsCollapse.hide();
+        if (display) display.classList.add('d-none');
+        if (pickerMarker){pickerMarker.remove();pickerMarker=null;}
+    });
+}());
+</script>
+
+<!-- ================================================================== -->
+<!-- ADD CREW LEAD MODAL                                                 -->
+<!-- ================================================================== -->
+<script>
+(function () {
+    var crewModal=document.getElementById('addCrewLeadModal');
+    var saveCrewBtn=document.getElementById('saveCrewLeadBtn');
+    if (!saveCrewBtn) return;
+    var crewSpinner=document.getElementById('saveCrewLeadSpinner');
+    var crewGlobalErrors=document.getElementById('addCrewLeadGlobalErrors');
+    var crewFields=['leader','agency','office'];
+
+    function clearCrewErrors(){
+        crewGlobalErrors.classList.add('d-none'); crewGlobalErrors.textContent='';
+        crewFields.forEach(function(f){var el=document.getElementById('crew_err_'+f);if(el){el.textContent='';el.classList.add('d-none');}var inp=document.getElementById('crew_'+f);if(inp)inp.classList.remove('is-invalid');});
+    }
+
+    var officeBaseUrl="{% url 'kiccd_app:api_offices_by_agency' 0 %}";
+    function officeUrl(id){return officeBaseUrl.replace('/0/','/'+id+'/');}
+    var crewAgencyEl=document.getElementById('crew_agency'), crewOfficeEl=document.getElementById('crew_office');
+
+    function clearOfficeOptions(){crewOfficeEl.innerHTML='<option value="">...</option>';crewOfficeEl.disabled=true;}
+    function resetCrewModal(){clearCrewErrors();document.getElementById('crew_leader').value='';crewAgencyEl.value='';clearOfficeOptions();}
+    crewModal.addEventListener('hidden.bs.modal',resetCrewModal);
+
+    crewAgencyEl.addEventListener('change',function(){
+        var agencyId=this.value;
+        if (!agencyId){clearOfficeOptions();return;}
+        fetch(officeUrl(agencyId)).then(function(r){return r.json();}).then(function(data){
+            crewOfficeEl.innerHTML=''; var ph=document.createElement('option');ph.value='';ph.text='...';crewOfficeEl.appendChild(ph);
+            (data.offices||[]).forEach(function(o){var opt=document.createElement('option');opt.value=o.id;opt.text=o.name;crewOfficeEl.appendChild(opt);});
+            crewOfficeEl.disabled=false;
+        }).catch(clearOfficeOptions);
+    });
+
+    saveCrewBtn.addEventListener('click',function(){
+        clearCrewErrors();
+        var leader=document.getElementById('crew_leader').value.trim(), agency=crewAgencyEl.value, office=crewOfficeEl.value, hasError=false;
+        if (!leader){var e1=document.getElementById('crew_err_leader');e1.textContent='This field is required.';e1.classList.remove('d-none');document.getElementById('crew_leader').classList.add('is-invalid');hasError=true;}
+        if (!agency){var e2=document.getElementById('crew_err_agency');e2.textContent='This field is required.';e2.classList.remove('d-none');crewAgencyEl.classList.add('is-invalid');hasError=true;}
+        if (!office){var e3=document.getElementById('crew_err_office');e3.textContent='Select an agency first, then choose an office.';e3.classList.remove('d-none');crewOfficeEl.classList.add('is-invalid');hasError=true;}
+        if (hasError) return;
+
+        var csrfToken=document.querySelector('[name=csrfmiddlewaretoken]').value;
+        var formData=new FormData();
+        formData.append('leader',leader);formData.append('agency',agency);formData.append('office',office);
+        crewSpinner.classList.remove('d-none'); saveCrewBtn.disabled=true;
+
+        fetch("{% url 'kiccd_app:crew_create_ajax' %}",{method:'POST',headers:{'X-CSRFToken':csrfToken},body:formData})
+        .then(function(r){return r.json();})
+        .then(function(data){
+            crewSpinner.classList.add('d-none'); saveCrewBtn.disabled=false;
+            if (data.success){
+                var select=document.getElementById('id_crew_lead');
+                var newOpt=new Option(data.name,data.id,true,true);
+                if (window.jQuery&&$(select).data('select2')){$(select).append(newOpt).trigger('change');}
+                else{select.add(newOpt);select.value=data.id;select.dispatchEvent(new Event('change'));}
+                bootstrap.Modal.getInstance(crewModal).hide();
+            } else {
+                var msgs=[];
+                if (data.errors){Object.keys(data.errors).forEach(function(field){var fieldErrs=Array.isArray(data.errors[field])?data.errors[field]:[data.errors[field]];var errEl=document.getElementById('crew_err_'+field);var inpEl=document.getElementById('crew_'+field);if(errEl){errEl.textContent=fieldErrs.join(' ');errEl.classList.remove('d-none');if(inpEl)inpEl.classList.add('is-invalid');}else{msgs.push(fieldErrs.join(' '));}});}
+                if (msgs.length){crewGlobalErrors.textContent=msgs.join(' | ');crewGlobalErrors.classList.remove('d-none');}
+            }
+        }).catch(function(){crewSpinner.classList.add('d-none');saveCrewBtn.disabled=false;crewGlobalErrors.textContent='An unexpected error occurred. Please try again.';crewGlobalErrors.classList.remove('d-none');});
+    });
+}());
+</script>
+{% endblock extra_javascript %}

@@ -827,6 +827,142 @@ def crew_create_ajax(request):
 
 
 @login_required
+def ic_combined_create(request):
+    """Create a new IcEvent and all associated IcCatch rows on a single page."""
+    if not (request.user.has_perm('kiccd_app.add_icevent') and request.user.has_perm('kiccd_app.add_iccatch')):
+        return render(request, 'kiccd_app/403.html', status=403)
+
+    max_catch_forms = 250
+    exceeded_max_forms = False
+    CatchFormSet = modelformset_factory(
+        IcCatch,
+        form=IcCatchForm,
+        extra=25,
+        can_delete=False,
+        max_num=max_catch_forms,
+        validate_max=True,
+    )
+
+    post_data = request.POST or None
+    catch_snapshot = []
+    restore_snapshot = False
+
+    if request.method == 'POST' and post_data is not None:
+        mutable_post = post_data.copy()
+        snapshot_raw = mutable_post.get('catch_snapshot')
+        if snapshot_raw:
+            try:
+                parsed = json.loads(snapshot_raw)
+                if isinstance(parsed, list):
+                    catch_snapshot = parsed
+            except (TypeError, ValueError, json.JSONDecodeError):
+                catch_snapshot = []
+
+        def _row_has_data(row):
+            if not isinstance(row, dict):
+                return False
+            scalar_keys = ('species', 'length_mm', 'weight_g', 'fish_sex', 'fish_count', 'gonad_stage', 'gonad_wt_g')
+            return (
+                any(str(row.get(k, '')).strip() != '' for k in scalar_keys)
+                or bool(row.get('spawn_patch'))
+                or bool(row.get('collected4ag'))
+            )
+
+        def _apply_snapshot(target_post, rows, max_rows):
+            row_count = min(len(rows), max_rows)
+            for i, row in enumerate(rows[:row_count]):
+                p = f'form-{i}-'
+                target_post[f'{p}species'] = str(row.get('species', '') or '')
+                target_post[f'{p}length_mm'] = str(row.get('length_mm', '') or '')
+                target_post[f'{p}weight_g'] = str(row.get('weight_g', '') or '')
+                target_post[f'{p}fish_sex'] = str(row.get('fish_sex', '') or '')
+                target_post[f'{p}fish_count'] = str(row.get('fish_count', '') or '')
+                target_post[f'{p}gonad_stage'] = str(row.get('gonad_stage', '') or '')
+                target_post[f'{p}gonad_wt_g'] = str(row.get('gonad_wt_g', '') or '')
+                target_post[f'{p}spawn_patch'] = 'on' if row.get('spawn_patch') else ''
+                target_post[f'{p}collected4ag'] = 'on' if row.get('collected4ag') else ''
+            target_post['form-TOTAL_FORMS'] = str(row_count)
+            return row_count
+
+        snapshot_rows = [r for r in catch_snapshot if _row_has_data(r)]
+        if len(snapshot_rows) > max_catch_forms:
+            exceeded_max_forms = True
+
+        posted_indexes = []
+        for key in mutable_post.keys():
+            if not key.startswith('form-'):
+                continue
+            parts = key.split('-')
+            if len(parts) < 3:
+                continue
+            try:
+                posted_indexes.append(int(parts[1]))
+            except (TypeError, ValueError):
+                continue
+
+        posted_row_count = (max(posted_indexes) + 1) if posted_indexes else 0
+        try:
+            declared_total = int(mutable_post.get('form-TOTAL_FORMS', 0))
+        except (TypeError, ValueError):
+            declared_total = 0
+
+        if declared_total > max_catch_forms or posted_row_count > max_catch_forms:
+            exceeded_max_forms = True
+
+        normalized_declared = min(max(declared_total, 0), max_catch_forms)
+        normalized_posted = min(max(posted_row_count, 0), max_catch_forms)
+        effective_forms = max(normalized_declared, normalized_posted)
+        mutable_post['form-TOTAL_FORMS'] = str(effective_forms)
+
+        snapshot_count = min(len(snapshot_rows), max_catch_forms)
+        if snapshot_count:
+            _apply_snapshot(mutable_post, snapshot_rows, max_catch_forms)
+        post_data = mutable_post
+
+    event_form = IcEventForm(post_data)
+    formset = CatchFormSet(post_data, queryset=IcCatch.objects.none())
+
+    if request.method == 'POST':
+        if exceeded_max_forms:
+            messages.warning(
+                request,
+                f'Only the first {max_catch_forms} rows were processed. Additional rows were not submitted.',
+            )
+        if event_form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                event = event_form.save(commit=False)
+                event.save(user=request.user)
+                created = 0
+                for form in formset:
+                    if not form.cleaned_data or not form.has_changed():
+                        continue
+                    catch = form.save(commit=False)
+                    catch.event = event
+                    catch.save(user=request.user)
+                    created += 1
+            messages.success(
+                request,
+                f'Sampling event created with {created} catch record{"s" if created != 1 else ""}.',
+            )
+            return redirect('kiccd_app:ic_combined_create')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+            restore_snapshot = True
+
+    return render(request, 'kiccd_app/pages/ic-combined-form.html', {
+        'event_form': event_form,
+        'formset': formset,
+        'catch_snapshot': catch_snapshot,
+        'restore_snapshot': restore_snapshot,
+        'partners': Partner.objects.order_by('abbrev'),
+        'site_types': SiteType.objects.order_by('name'),
+        'pools': Pool.objects.order_by('pool_id'),
+        'states': State.objects.order_by('name'),
+        'basins': Basin.objects.order_by('name'),
+    })
+
+
+@login_required
 def ic_event_create(request):
     """Create a new IcEvent record. Requires add_icevent permission."""
     if not request.user.has_perm('kiccd_app.add_icevent'):

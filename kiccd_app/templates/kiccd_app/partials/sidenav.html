@@ -56,11 +56,19 @@
                 </a>
                 <div class="collapse" id="sideAgencyWork">
                     <ul class="sub-menu">
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" 
+                                        data-bs-placement="top" data-bs-custom-class="tooltip-dark" 
+                                        data-bs-title="Combined Form (Effort & Catch).">
+                            <a href="{% url 'kiccd_app:ic_combined_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text"> Add New... </span>
+                            </a>
+                        </li>
                         <li class="side-nav-item">
                             <a data-bs-toggle="collapse" href="#AddAgencyNew" aria-expanded="false"
                                 aria-controls="AddAgencyNew" class="side-nav-link">
                                 <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
-                                <span class="menu-text"> Add New... </span>
+                                <span class="menu-text"> Add Individual... </span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <div class="collapse" id="AddAgencyNew">
@@ -69,21 +77,21 @@
                                     data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Field Efforts.">
                                         <a href="{% url 'kiccd_app:ic_event_create' %}" class="side-nav-link">
                                             <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">Field Effort</span>
+                                            <span class="menu-text text-center">Effort</span>
                                         </a>
                                     </li>
                                     <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
                                     data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Sampling Data.">
                                         <a href="{% url 'kiccd_app:ic_catch_create' %}" class="side-nav-link">
                                             <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">Catch Data</span>
+                                            <span class="menu-text text-center">Catch</span>
                                         </a>
                                     </li>
                                     <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
                                     data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Age & Growth Data.">
                                         <a href="{% url 'kiccd_app:ic_age_growth_bulk_create' %}" class="side-nav-link">
                                             <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">A&G Data</span>
+                                            <span class="menu-text text-center">Age Data</span>
                                         </a>
                                     </li>
                                 </ul>
