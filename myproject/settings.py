@@ -106,33 +106,33 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 tmpPg= urlparse(os.getenv('DATABASE_URL'))
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': tmpPg.path.replace('/', ''),
-#         'USER': tmpPg.username,
-#         'PASSWORD': tmpPg.password,
-#         'HOST': tmpPg.hostname,
-#         'PORT': 5432,
-#         'OPTIONS': dict(parse_qsl(tmpPg.query)),
-#         # Neon pooler/pgbouncer transaction pooling does not support server-side cursors.
-#         'DISABLE_SERVER_SIDE_CURSORS': True,
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': tmpPg.path.replace('/', ''),
+        'USER': tmpPg.username,
+        'PASSWORD': tmpPg.password,
+        'HOST': tmpPg.hostname,
+        'PORT': 5432,
+        'OPTIONS': dict(parse_qsl(tmpPg.query)),
+        # Neon pooler/pgbouncer transaction pooling does not support server-side cursors.
+        'DISABLE_SERVER_SIDE_CURSORS': True,
+    }
+}
   
 # Local version of database for development
  
-DATABASES = {
- 'default': {
- 	'ENGINE': 'django.db.backends.postgresql',
- 	'NAME': 'kiccd_dj',
- 	'USER': 'postgres',
- 	'PASSWORD': 'root',
- 	'HOST': 'localhost',
- 	'PORT': 5432,
-    'DISABLE_SERVER_SIDE_CURSORS': True,
- 	}
- }
+# DATABASES = {
+#  'default': {
+#  	'ENGINE': 'django.db.backends.postgresql',
+#  	'NAME': 'kiccd_dj',
+#  	'USER': 'postgres',
+#  	'PASSWORD': 'root',
+#  	'HOST': 'localhost',
+#  	'PORT': 5432,
+#     'DISABLE_SERVER_SIDE_CURSORS': True,
+#  	}
+#  }
 
 #  
 # Password validation
