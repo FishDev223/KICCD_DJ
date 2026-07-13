@@ -3342,13 +3342,17 @@ def ic_length_distribution(request):
 
 @login_required
 def cf_event_batch_create(request):
-    """Batch-add CfEvent rows that share the same date/fisher/observer/site."""
+    """Batch-add CfEvent rows that share date/fisher/observer with per-row sites."""
     if not request.user.has_perm('kiccd_app.add_cfevent'):
         return render(request, 'kiccd_app/403.html', status=403)
 
     CfEventFormSet = modelformset_factory(CfEvent, form=CfEventRowForm, extra=12, can_delete=False)
     shared_form = CfEventBatchInfoForm(request.POST or None)
     formset = CfEventFormSet(request.POST or None, queryset=CfEvent.objects.none())
+
+    if request.method != 'POST':
+        for idx, event_form in enumerate(formset.forms, start=1):
+            event_form.fields['set_num'].initial = idx
 
     if request.method == 'POST':
         if shared_form.is_valid() and formset.is_valid():
@@ -3362,9 +3366,11 @@ def cf_event_batch_create(request):
                 instance.cf_date = shared_data['cf_date']
                 instance.fisher = shared_data['fisher']
                 instance.observer = shared_data['observer']
-                instance.site = shared_data['site']
-                net_count += 1
-                instance.set_num = net_count
+                if instance.set_num is None:
+                    net_count += 1
+                    instance.set_num = net_count
+                else:
+                    net_count = max(net_count, instance.set_num)
                 instance.save(user=request.user)
                 created += 1
             if created:
@@ -3409,6 +3415,27 @@ def cf_event_create(request):
 
 
 @login_required
+def cf_event_create_ajax(request):
+    """AJAX endpoint: create a single CfEvent and return JSON for inline modal usage."""
+    if not request.user.has_perm('kiccd_app.add_cfevent'):
+        return JsonResponse({'success': False, 'errors': {'__all__': ['You do not have permission to add efforts.']}}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'success': False}, status=405)
+
+    form = CfEventForm(
+        request.POST,
+        prefix='effort',
+        active_contract_fishers=True,
+        active_observers_first=True,
+    )
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.save(user=request.user)
+        return JsonResponse({'success': True, 'id': instance.pk, 'name': str(instance)})
+    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+
+@login_required
 def cf_catch_batch_create(request):
     """Add multiple CfCatch rows for the same CfEvent."""
     if not request.user.has_perm('kiccd_app.add_cfcatch'):
@@ -3423,6 +3450,16 @@ def cf_catch_batch_create(request):
     # shared_form = CfCatchEventForm(data=post_data, initial=initial_data)
 
     formset = CatchFormSet(request.POST or None, queryset=CfCatch.objects.none())
+
+    # Context for the embedded subsample modal (posts to subsample_bulk_create)
+    SubsampleFormSet = modelformset_factory(Subsample, form=SubsampleForm, extra=25, can_delete=False)
+    ss_shared_form = SubsampleBatchInfoForm(request.POST or None)
+    ss_formset = SubsampleFormSet(request.POST or None, queryset=Subsample.objects.none(), prefix='ss')
+    effort_form = CfEventForm(
+        prefix='effort',
+        active_contract_fishers=True,
+        active_observers_first=True,
+    )
 
     if request.method == 'POST':
         print("POST data:", request.POST)  # Check the 'event' value
@@ -3442,7 +3479,7 @@ def cf_catch_batch_create(request):
                 created += 1
             if created:
                 messages.success(request, f'Created {created} catch records for {event}.')
-                return redirect('kiccd_app:cf_catch_list')
+                return redirect('kiccd_app:cf_catch_batch_create')
             messages.info(request, 'Please add at least one catch row before submitting.')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -3450,6 +3487,16 @@ def cf_catch_batch_create(request):
     return render(request, 'kiccd_app/pages/cf-catch-bulk-form.html', {
         'shared_form': shared_form,
         'formset': formset,
+        'ss_shared_form': ss_shared_form,
+        'ss_formset': ss_formset,
+        'effort_form': effort_form,
+        'partners': Partner.objects.order_by('abbrev'),
+        'site_types': SiteType.objects.order_by('name'),
+        'pools': Pool.objects.order_by('pool_id'),
+        'states': State.objects.order_by('name'),
+        'counties': County.objects.order_by('name'),
+        'basins': Basin.objects.order_by('name'),
+        'tribs': Trib.objects.order_by('name'),
     })
 
 
@@ -3777,7 +3824,7 @@ def subsample_bulk_create(request):
 
     SubsampleFormSet = modelformset_factory(Subsample, form=SubsampleForm, extra=25, can_delete=False)
     shared_form = SubsampleBatchInfoForm(request.POST or None)
-    formset = SubsampleFormSet(request.POST or None, queryset=Subsample.objects.none())
+    formset = SubsampleFormSet(request.POST or None, queryset=Subsample.objects.none(), prefix='ss')
 
     if request.method == 'POST':
         if shared_form.is_valid() and formset.is_valid():
@@ -3798,6 +3845,9 @@ def subsample_bulk_create(request):
 
             if created:
                 messages.success(request, f'Added {created} new {shared_data["spp"]} to the subsample table.')
+                next_url = request.POST.get('next') or request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
                 return redirect('kiccd_app:subsample_bulk_create')
 
             messages.info(request, 'Add at least one subsample row before submitting.')
@@ -4290,6 +4340,33 @@ def cf_catch_count_by_event(request, event_id=None):
 
     record_count = CfCatch.objects.filter(event_id=resolved_event_id).count()
     return JsonResponse({'event_id': resolved_event_id, 'record_count': record_count})
+
+
+@login_required
+def cf_event_details(request, event_id=None):
+    """AJAX endpoint: return CfEvent details used to prefill subsample modal fields."""
+    if not request.user.has_perm('kiccd_app.add_subsample'):
+        return JsonResponse({'detail': 'Permission denied.'}, status=403)
+
+    requested_event_id = event_id if event_id is not None else request.GET.get('event_id')
+    try:
+        resolved_event_id = int(requested_event_id)
+    except (TypeError, ValueError):
+        return JsonResponse({'detail': 'Invalid event_id.'}, status=400)
+
+    try:
+        event = CfEvent.objects.select_related('site', 'fisher', 'observer').get(pk=resolved_event_id)
+    except CfEvent.DoesNotExist:
+        return JsonResponse({'detail': 'Event not found.'}, status=404)
+
+    return JsonResponse({
+        'event_id': event.event_id,
+        'cf_date': event.cf_date.isoformat() if event.cf_date else '',
+        'fisher_id': event.fisher_id,
+        'observer_id': event.observer_id,
+        'basin_id': event.site.basin_id if event.site_id else None,
+        'pool_id': event.site.pool_id if event.site_id else None,
+    })
 
 
 @login_required

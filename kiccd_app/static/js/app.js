@@ -441,6 +441,9 @@ class App {
                         (timeData.defaultDate = isTimepickerVal["data-time-inline"].value.toString());
                     timeData.inline = true;
                 }
+                if (isTimepickerVal["data-allow-input"]) {
+                    timeData.allowInput = true;
+                }
                 flatpickr(item, timeData);
             }
         });

@@ -103,11 +103,14 @@ urlpatterns = [
     path('api/ra/event-catch-count/<int:event_id>/', _views.ra_catch_count_by_event, name='api_ra_event_catch_count_by_id'),
     path('api/cf/event-catch-count/', _views.cf_catch_count_by_event, name='api_cf_event_catch_count'),
     path('api/cf/event-catch-count/<int:event_id>/', _views.cf_catch_count_by_event, name='api_cf_event_catch_count_by_id'),
+    path('api/cf/event-details/', _views.cf_event_details, name='api_cf_event_details'),
+    path('api/cf/event-details/<int:event_id>/', _views.cf_event_details, name='api_cf_event_details_by_id'),
  
     # AJAX endpoints
     path('api/fishers/add/', _views.fisher_create_ajax, name='fisher_create_ajax'),
     path('api/observers/add/', _views.observer_create_ajax, name='observer_create_ajax'),
     path('api/cf-sites/add/', _views.cf_site_create_ajax, name='cf_site_create_ajax'),
+    path('api/cf-events/add/', _views.cf_event_create_ajax, name='cf_event_create_ajax'),
     path('api/hp-sites/add/', _views.hp_site_create_ajax, name='hp_site_create_ajax'),
     path('api/sample-sites/add/', _views.sample_site_create_ajax, name='sample_site_create_ajax'),
     path('api/pools-by-basin/<int:basin_id>/', _views.pools_by_basin, name='api_pools_by_basin'),

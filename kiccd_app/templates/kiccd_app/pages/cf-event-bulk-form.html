@@ -16,8 +16,23 @@
 {% endblock extra_css %}
 
 {% block page_content %}
-<div class="row container-fluid mx-auto py-2">
-    <div class="card col-md-10 offset-md-1">
+<div class="row container-fluid mx-auto ps-md-4 pe-md-4 py-2">
+
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
+
+    <div class="card col-md-12">
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
             <h5 class="d-none d-md-block text-muted mb-0">1) Provide the information about all nets used during a Contract Fishing effort.</h5>
             <h4 class="d-block d-md-none mb-0 text-center">Info about Contract Fishing Effort</h4>
@@ -26,35 +41,31 @@
             </div>
         </div>
 
-        <div class="card-body p-2 p-md-2">
-            {% if messages %}
-            <div>
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            {% if formset.non_form_errors %}
-                <div class="alert alert-danger">
-                    {{ formset.non_form_errors }}
-                </div>
-            {% endif %}
-
+        <div class="card-body">
             <form method="post" novalidate>
                 {% csrf_token %}
 
-                <div class="row p-md-2 p-1 mt-0 mb-md-0 g-md-1 border rounded bg-dark bg-opacity-10">
-                    <div class="col-md-2 mb-2 mb-md-0 mt-2 mt-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Date of Fishing Effort.">
-                        <div class="form-floating">
-                            {{ shared_form.cf_date }}
-                            <label class="form-label" for="id_cf_date">DATE</label>
+                <div class="row g-2 mb-md-0 mb-2">
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="d-flex gap-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ shared_form.cf_date }}
+                                <label class="form-label" for="id_cf_date">DATE</label>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                    title="Today's Date"
+                                    style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                    onclick="document.getElementById('id_cf_date').value=new Date().toISOString().slice(0,10);">
+                                <i class="ti ti-calendar-check"></i>
+                            </button>
                         </div>
-                        {% if shared_form.cf_date.errors %}
-                            <div class="text-danger small">{{ shared_form.cf_date.errors|striptags }}</div>
-                        {% endif %}
+                            {% if shared_form.cf_date.errors %}
+                                <div class="text-danger small">{{ shared_form.cf_date.errors|striptags }}</div>
+                            {% endif %}
                     </div>
-                    <div class="col-md-3 mb-2 mb-md-0 mt-0 mt-md-0">
+                    
+
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ shared_form.fisher }}
@@ -72,7 +83,7 @@
                             <div class="text-danger small">{{ shared_form.fisher.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-md-3 mb-2 mb-md-0 mt-0 mt-md-0">
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ shared_form.observer }}
@@ -90,125 +101,217 @@
                             <div class="text-danger small">{{ shared_form.observer.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-md-4 mb-2 mb-md-0 mt-0 mt-md-0">
-                        <div class="d-flex gap-1 align-items-center">
-                            <div class="form-floating flex-grow-1">
-                                {{ shared_form.site }}
-                                <label class="form-label" for="id_site">SITE NAME</label>
-                            </div>
-                            {% if perms.kiccd_app.add_fishingsite_cf %}
-                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addSiteBtn"
-                                    data-bs-toggle="modal" data-bs-target="#addSiteModal"
-                                    title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
-                                <i class="ti ti-plus"></i>
-                            </button>
-                            {% endif %}
-                        </div>
-                        {% if shared_form.site.errors %}
-                            <div class="text-danger small">{{ shared_form.site.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
                 </div>
         </div>
     </div>
-    <div class="card col-md-10 offset-md-1">
+
+    <div class="card col-md-12 ps-md-4 pe-md-4">
         <div class="card-body p-1 p-md-2">
             {{ formset.management_form }}
  
+            <div class="accordion accordion-flush mb-1" id="cfEventFormsetAccordion">
             {% for form in formset %}
-                {{ form.set_num }}
-                <div class="border col-md-10 offset-md-1 rounded p-md-1 p-1 mb-md-2 mb-3 bg-dark bg-opacity-10">
-                    <div class="row g-md-2 g-1 p-md-1 mb-md-0 mb-1 align-items-stretch">
-                        <div class="col-md-2 mb-1 mb-md-0 p-2 border rounded bg-white bg-opacity-10">
-                            <p class="d-none d-md-block mt-1 mb-0 text-center fs-14">NET #<strong>{{ forloop.counter }}</strong></p>
-                            <p class="d-block d-md-none mt-0 mb-0 text-center fs-16">NET SET #<strong>{{ forloop.counter }}</strong></p>
-                        </div>
-                        <div class="col-md-3 mb-1 mb-md-0">
-                            <div class="form-floating">
-                                {{ form.gear }}
-                                <label class="form-label" for="id_gear">GEAR TYPE</label>
+                <div class="accordion-item border rounded mb-2">
+                    <h2 class="accordion-header" id="cfEventHeading{{ forloop.counter }}">
+                        <button
+                            class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#cfEventCollapse{{ forloop.counter }}"
+                            aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                            aria-controls="cfEventCollapse{{ forloop.counter }}"
+                        >
+                            NET #{{ forloop.counter }}
+                        </button>
+                    </h2>
+                    <div
+                        id="cfEventCollapse{{ forloop.counter }}"
+                        class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                        aria-labelledby="cfEventHeading{{ forloop.counter }}"
+                        data-bs-parent="#cfEventFormsetAccordion"
+                    >
+                        <div class="accordion-body p-md-1 p-1">
+                            <div class="row g-1 g-md-2 ps-md-1 pe-md-1 mb-md-0 mb-0 align-items-stretch">
+                                <div class="col-md-3 mb-0 mb-md-0 bg-dark bg-opacity-10">
+                                    <div class="row g-1 ms-0 me-0">
+                                        <div class="col-3 pt-2 pb-2">
+                                            <div class="form-floating">
+                                                {{ form.set_num }}
+                                                <label class="form-label" for="id_set_num">SET</label>
+                                            </div>
+                                            {% if form.set_num.errors %}
+                                                <div class="text-danger small">{{ form.set_num.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-9 pt-2 pb-2">
+                                            <div class="form-floating">
+                                                {{ form.gear }}
+                                                <label class="form-label" for="id_gear">GEAR TYPE</label>
+                                            </div>
+                                            {% if form.gear.errors %}
+                                                <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 mb-0 mb-md-0 bg-dark bg-opacity-10">							
+                                    <div class="row g-1 ms-0 me-0">
+                                        <div class="col-md-4 col-5 pt-2 pb-2">
+                                            <div class="form-floating">
+                                                {{ form.gear_length }}
+                                                <label class="form-label" for="id_gear_length">LENGTH (ft)</label>
+                                            </div>
+                                            {% if form.gear_length.errors %}
+                                                <div class="text-danger small">{{ form.gear_length.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4 col-3 pt-2 pb-2">
+                                            <div class="form-floating">
+                                                {{ form.gear_depth }}
+                                                <label class="form-label" for="id_gear_depth">DEPTH (ft)</label>
+                                            </div>
+                                            {% if form.gear_depth.errors %}
+                                                <div class="text-danger small">{{ form.gear_depth.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4 col-4 pt-2 pb-2">
+                                            <div class="form-floating">
+                                                {{ form.mesh_size }}
+                                                <label class="form-label" for="id_mesh_size">MESH (in)</label>
+                                            </div>
+                                            {% if form.mesh_size.errors %}
+                                                <div class="text-danger small">{{ form.mesh_size.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-1 mb-md-0 bg-dark bg-opacity-10">							
+                                    <div class="row g-1 ms-0 me-0">
+                                        <div class="col-6 pt-2 pb-2 pe-3">
+                                            <div class="d-flex gap-0 align-items-center">
+                                                <div class="form-floating flex-grow-1">
+                                                    {{ form.start_time }}
+                                                    <label class="form-label" for="id_start_time">SET TIME</label>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-outline-secondary btn-sm p-1 cf-time-now-btn"
+                                                    data-target-id="{{ form.start_time.id_for_label }}"
+                                                    title="Current local time"
+                                                    style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                                >
+                                                    <i class="ti ti-clock"></i>
+                                                </button>
+                                            </div>
+
+                                            {% if form.start_time.errors %}
+                                                <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6 pt-2 pb-2 pe-2">
+                                            <div class="d-flex gap-0 align-items-center">
+                                                <div class="form-floating flex-grow-1">
+                                                    {{ form.end_time }}
+                                                    <label class="form-label" for="id_end_time">PULL TIME</label>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-outline-secondary btn-sm p-1 cf-time-now-btn"
+                                                    data-target-id="{{ form.end_time.id_for_label }}"
+                                                    title="Current local time"
+                                                    style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                                >
+                                                    <i class="ti ti-clock"></i>
+                                                </button>
+                                            </div>
+                                            {% if form.end_time.errors %}
+                                                <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            {% if form.gear.errors %}
-                                <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-1 mb-md-0">
-                            <div class="form-floating">
-                                {{ form.gear_length }}
-                                <label class="form-label" for="id_gear_length">LENGTH (ft)</label>
+                            <div class="row g-md-2 g-1 ps-md-1 pe-md-1 mb-md-0 mb-0 align-items-stretch">
+                                <div class="col-md-6 mb-0 bg-dark bg-opacity-10">							
+                                    <div class="row g-1 ms-0 me-0">
+                                        <div class="col-md-5 col-6 mb-0 pt-md-2 pt-2 pb-md-2">
+                                            <div class="form-floating">
+                                                {{ form.latitude }}
+                                                <label class="form-label" for="id_latitude">LATITUDE</label>
+                                            </div>
+                                            {% if form.latitude.errors %}
+                                                <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-5 col-6 mb-0 pt-md-2 pt-2 pb-md-2">
+                                            <div class="form-floating">
+                                                {{ form.longitude }}
+                                                <label class="form-label" for="id_longitude">LONGITUDE</label>
+                                            </div>
+                                            {% if form.longitude.errors %}
+                                                <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-1 offset-md-0 col-sm-4 offset-sm-4 d-flex align-items-center ps-md-1 pe-md-0 pb-md-2 pb-2 pt-md-2 pt-0">
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-secondary w-sm-100 cf-my-location-btn"
+                                                data-lat-id="{{ form.latitude.id_for_label }}"
+                                                data-lon-id="{{ form.longitude.id_for_label }}"
+                                                title="Use Your Location"
+                                                style="height:30px;min-width:30px;font-size:1.0rem;"
+                                            >
+                                                <i class="d-none d-md-block ri ri-gps-fill"></i>
+                                                <i class="d-block d-md-none ri ri-gps-fill"> Current Location</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-0 mb-md-0 pt-2 pb-2 pe-1 ps-sm-1 ps-md-0 bg-dark bg-opacity-10">
+                                    <div class="d-flex gap-1 align-items-center">
+                                        <button type="button" class="btn btn-outline-secondary px-2 py-2 cf-site-lookup-btn"
+                                                data-site-select-id="{{ form.site.id_for_label }}"
+                                                data-lat-id="{{ form.latitude.id_for_label }}"
+                                                data-lon-id="{{ form.longitude.id_for_label }}"
+                                                title="Find nearest site..."
+                                                style="height:30px;min-width:30px;font-size:1.00rem;">
+                                            <i class="ti ti-search"></i>
+                                        </button>
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.site }}
+                                            <label class="form-label" for="{{ form.site.id_for_label }}">SITE NAME</label>
+                                        </div>
+                                        {% if perms.kiccd_app.add_fishingsite_cf %}
+                                        <button type="button" class="btn btn-outline-success btn-sm p-0 addSiteBtn add-site-btn"
+                                                data-bs-toggle="modal" data-bs-target="#addSiteModal"
+                                                data-site-select-id="{{ form.site.id_for_label }}"
+                                                title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                            <i class="ti ti-plus"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    {% if form.site.errors %}
+                                        <div class="text-danger small">{{ form.site.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="col-md-2 mb-0 pt-2 pb-2 ps-2 pe-4 bg-dark bg-opacity-10">
+                                    <div class="form-floating">
+                                        {{ form.water_temp_f }}
+                                        <label class="d-none d-md-block form-label" for="id_water_temp_f">WATER TEMP (F)</label>
+                                        <label class="d-block d-md-none form-label" for="id_water_temp_f">WATER TEMPERATURE (F)</label>
+                                    </div>
+                                    {% if form.water_temp_f.errors %}
+                                        <div class="text-danger small">{{ form.water_temp_f.errors|striptags }}</div>
+                                    {% endif %}
+                                </div>
                             </div>
-                            {% if form.gear_length.errors %}
-                                <div class="text-danger small">{{ form.gear_length.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 mb-1 mb-md-0">
-                            <div class="form-floating">
-                                {{ form.gear_depth }}
-                                <label class="form-label" for="id_gear_depth">DEPTH (ft)</label>
-                            </div>
-                            {% if form.gear_depth.errors %}
-                                <div class="text-danger small">{{ form.gear_depth.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 mb-1 mb-md-0">
-                            <div class="form-floating">
-                                {{ form.mesh_size }}
-                                <label class="form-label" for="id_mesh_size">MESH (in)</label>
-                            </div>
-                            {% if form.mesh_size.errors %}
-                                <div class="text-danger small">{{ form.mesh_size.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="row g-md-2 g-1 p-md-1 mb-md-0 mb-1 align-items-stretch">      
-                        <div class="col-md-3 mb-1 mb-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="LAT of the Net Location.<br> *<em>(If NA, Leave it Blank)</em>.">
-                            <div class="form-floating">
-                                {{ form.latitude }}
-                                <label class="form-label" for="id_latitude">LATITUDE</label>
-                            </div>
-                            {% if form.latitude.errors %}
-                                <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-1 mb-md-0" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="LON of the Net Location.<br> *<em>(If NA, Leave it Blank)</em>.">
-                            <div class="form-floating">
-                                {{ form.longitude }}
-                                <label class="form-label" for="id_longitude">LONGITUDE</label>
-                            </div>
-                            {% if form.longitude.errors %}
-                                <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 mb-1 mb-md-0">
-                            <div class="form-floating">
-                                {{ form.start_time }}
-                                <label class="form-label" for="id_start_time">START TIME</label>
-                            </div>
-                            {% if form.start_time.errors %}
-                                <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 mb-1 mb-md-0">
-                            <div class="form-floating">
-                                {{ form.end_time }}
-                                <label class="form-label" for="id_end_time">END TIME</label>
-                            </div>
-                            {% if form.end_time.errors %}
-                                <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-floating">
-                                {{ form.water_temp_f }}
-                                <label class="form-label" for="id_water_temp_f">TEMP (F)</label>
-                            </div>
-                            {% if form.water_temp_f.errors %}
-                                <div class="text-danger small">{{ form.water_temp_f.errors|striptags }}</div>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
+            </div>
 
                 <div class="mt-sm-5 mt-md-4 d-flex justify-content-between align-items-center">
                         <button type="submit" class="btn btn-success" id="cfBulkSubmitBtn">
@@ -234,6 +337,66 @@
     form.addEventListener('submit', function () {
         submitSpinner.classList.remove('d-none');
         submitBtn.disabled = true;
+    });
+}());
+
+(function () {
+    function getCurrentLocalTimeHHMM() {
+        var now = new Date();
+        var hh = String(now.getHours()).padStart(2, '0');
+        var mm = String(now.getMinutes()).padStart(2, '0');
+        return hh + ':' + mm;
+    }
+
+    document.querySelectorAll('.cf-time-now-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var targetId = btn.getAttribute('data-target-id');
+            if (!targetId) return;
+            var input = document.getElementById(targetId);
+            if (!input) return;
+            input.value = getCurrentLocalTimeHHMM();
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    });
+}());
+
+(function () {
+    function setRowCoordinates(latInput, lonInput, latitude, longitude) {
+        latInput.value = Number(latitude).toFixed(5);
+        lonInput.value = Number(longitude).toFixed(5);
+        latInput.dispatchEvent(new Event('input', { bubbles: true }));
+        latInput.dispatchEvent(new Event('change', { bubbles: true }));
+        lonInput.dispatchEvent(new Event('input', { bubbles: true }));
+        lonInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    document.querySelectorAll('.cf-my-location-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var latId = btn.getAttribute('data-lat-id');
+            var lonId = btn.getAttribute('data-lon-id');
+            if (!latId || !lonId) return;
+
+            var latInput = document.getElementById(latId);
+            var lonInput = document.getElementById(lonId);
+            if (!latInput || !lonInput || !navigator.geolocation) return;
+
+            btn.disabled = true;
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    setRowCoordinates(latInput, lonInput, position.coords.latitude, position.coords.longitude);
+                    btn.disabled = false;
+                },
+                function () {
+                    btn.disabled = false;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        });
     });
 }());
 </script>
@@ -670,6 +833,99 @@
 
 <script>
 (function () {
+    var sitesUrl = "{% url 'kiccd_app:api_cf_sites_geojson' %}";
+    var sitesPromise = null;
+
+    function fetchSites() {
+        if (!sitesPromise) {
+            sitesPromise = fetch(sitesUrl, { credentials: 'same-origin' })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('Unable to load CF sites.');
+                    return response.json();
+                })
+                .then(function (collection) { return collection.features || []; })
+                .catch(function (error) {
+                    sitesPromise = null;
+                    throw error;
+                });
+        }
+        return sitesPromise;
+    }
+
+    function distanceSquared(latitude, longitude, siteLatitude, siteLongitude) {
+        var latitudeRadians = latitude * Math.PI / 180;
+        var siteLatitudeRadians = siteLatitude * Math.PI / 180;
+        var deltaLatitude = (siteLatitude - latitude) * Math.PI / 180;
+        var deltaLongitude = (siteLongitude - longitude) * Math.PI / 180;
+        var adjustedLongitude = deltaLongitude * Math.cos((latitudeRadians + siteLatitudeRadians) / 2);
+        return (deltaLatitude * deltaLatitude) + (adjustedLongitude * adjustedLongitude);
+    }
+
+    function selectNearestSite(button) {
+        var latitudeInput = document.getElementById(button.getAttribute('data-lat-id'));
+        var longitudeInput = document.getElementById(button.getAttribute('data-lon-id'));
+        var siteSelect = document.getElementById(button.getAttribute('data-site-select-id'));
+        if (!latitudeInput || !longitudeInput || !siteSelect) return;
+
+        var latitude = Number(latitudeInput.value.trim());
+        var longitude = Number(longitudeInput.value.trim());
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+            latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            alert('Enter valid latitude and longitude coordinates before using Site Lookup.');
+            return;
+        }
+
+        button.disabled = true;
+        fetchSites()
+            .then(function (features) {
+                var nearest = null;
+                var nearestDistance = Infinity;
+                features.forEach(function (feature) {
+                    var coordinates = feature.geometry && feature.geometry.coordinates;
+                    if (!coordinates || coordinates.length < 2) return;
+                    var siteLongitude = Number(coordinates[0]);
+                    var siteLatitude = Number(coordinates[1]);
+                    if (!Number.isFinite(siteLatitude) || !Number.isFinite(siteLongitude)) return;
+                    var distance = distanceSquared(latitude, longitude, siteLatitude, siteLongitude);
+                    if (distance < nearestDistance) {
+                        nearest = feature;
+                        nearestDistance = distance;
+                    }
+                });
+                if (!nearest || !nearest.properties) return;
+
+                var siteId = String(nearest.properties.id);
+                var existingOption = Array.from(siteSelect.options).find(function (option) {
+                    return String(option.value) === siteId;
+                });
+                if (!existingOption) {
+                    siteSelect.add(new Option(nearest.properties.name, siteId, false, false));
+                }
+                siteSelect.value = siteId;
+                if (window.jQuery && window.jQuery(siteSelect).data('select2')) {
+                    window.jQuery(siteSelect).trigger('change');
+                } else {
+                    siteSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            })
+            .catch(function () {
+                alert('Unable to find the nearest site. Please try again.');
+            })
+            .finally(function () {
+                button.disabled = false;
+            });
+    }
+
+    document.querySelectorAll('.cf-site-lookup-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            selectNearestSite(button);
+        });
+    });
+}());
+</script>
+
+<script>
+(function () {
     var obsModal = document.getElementById('addObserverModal');
     var saveObsBtn = document.getElementById('saveObserverBtn');
     if (!saveObsBtn) return;
@@ -796,9 +1052,16 @@
     var siteModal = document.getElementById('addSiteModal');
     var saveSiteBtn = document.getElementById('saveSiteBtn');
     if (!saveSiteBtn) return;
+    var activeSiteSelectId = null;
     var siteSpinner = document.getElementById('saveSiteSpinner');
     var siteGlobalErrors = document.getElementById('addSiteGlobalErrors');
     var siteRequiredFields = ['name', 'latitude', 'longitude', 'type', 'pool', 'basin', 'trib', 'state', 'county'];
+
+    document.querySelectorAll('.add-site-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            activeSiteSelectId = btn.getAttribute('data-site-select-id');
+        });
+    });
 
     function clearSiteErrors() {
         siteGlobalErrors.classList.add('d-none');
@@ -907,15 +1170,36 @@
             siteSpinner.classList.add('d-none');
             saveSiteBtn.disabled = false;
             if (data.success) {
-                var select = document.getElementById('id_site');
-                var newOpt = new Option(data.name, data.id, true, true);
-                if (window.jQuery && $(select).data('select2')) {
-                    $(select).append(newOpt).trigger('change');
-                } else {
-                    select.add(newOpt);
-                    select.value = data.id;
-                    select.dispatchEvent(new Event('change'));
+                var selects = Array.from(document.querySelectorAll('select[name$="-site"]'));
+                if (selects.length === 0) {
+                    var fallback = document.getElementById('id_site');
+                    if (fallback) selects = [fallback];
                 }
+
+                selects.forEach(function (select) {
+                    if (!select) return;
+                    var existing = Array.from(select.options).find(function (opt) {
+                        return String(opt.value) === String(data.id);
+                    });
+                    if (!existing) {
+                        select.add(new Option(data.name, data.id, false, false));
+                    }
+                });
+
+                var targetSelect = activeSiteSelectId ? document.getElementById(activeSiteSelectId) : null;
+                if (!targetSelect && selects.length) {
+                    targetSelect = selects[0];
+                }
+
+                if (targetSelect) {
+                    targetSelect.value = String(data.id);
+                    if (window.jQuery && $(targetSelect).data('select2')) {
+                        $(targetSelect).trigger('change');
+                    } else {
+                        targetSelect.dispatchEvent(new Event('change'));
+                    }
+                }
+
                 bootstrap.Modal.getInstance(siteModal).hide();
             } else {
                 var msgs = [];

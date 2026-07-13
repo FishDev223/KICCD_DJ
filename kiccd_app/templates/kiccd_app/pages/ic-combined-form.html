@@ -46,7 +46,7 @@
         <!-- ================================================================== -->
         <!-- CARD 1 — SAMPLING EVENT                                            -->
         <!-- ================================================================== -->
-        <div class="card col-md-12 mb-3">
+        <div class="">
             <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
                 <h5 class="d-none d-md-block text-muted mb-0">1) Enter details for the completed sampling effort.</h5>
                 <h4 class="d-block d-md-none mb-0 text-center">1. Enter Sampling Effort Details</h4>
@@ -543,6 +543,13 @@
                     <h5 class="d-none d-md-block text-muted mb-0">2) Provide size & counts for all sampled fish species.</h5>
                     <h4 class="d-block d-md-none mb-0">2. Add Catch Data</h4>
                 </div>
+                <div class="d-flex align-items-center gap-3">
+                <button type="button" class="btn btn-sm btn-outline-success p-2" id="unitsModalBtn"
+                        data-bs-toggle="modal" data-bs-target="#catchUnitsModal"
+                        title="Choose Length & Weight units"
+                        style="height:30px;min-width:25px;font-size:1.20rem;">
+                    <i class="ri ri-pencil-ruler-line"></i>
+                </button>
                 <div class="d-flex align-items-center gap-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
                     <span class="text-muted fs-11 text-nowrap">ROWS</span>
                     <select id="visible_rows" class="form-select form-select-sm" style="width:auto;">
@@ -553,6 +560,7 @@
                         <option value="200">200</option>
                         <option value="250">250</option>
                     </select>
+                </div>
                 </div>
             </div>
             <div class="card-body p-2 p-md-2">
@@ -585,7 +593,7 @@
                                 <div class="col-md-6 me-0">
                                     <div class="form-floating">
                                         {{ form.length_mm }}
-                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                        <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
                                     </div>
                                     {% if form.length_mm.errors %}
                                         <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
@@ -594,7 +602,7 @@
                                 <div class="col-md-6">
                                     <div class="form-floating">
                                         {{ form.weight_g }}
-                                        <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                        <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
                                     </div>
                                     {% if form.weight_g.errors %}
                                         <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
@@ -602,7 +610,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-1 col-sm-6">
+                            <div class="form-floating">
+                                {{ form.fish_sex }}
+                                <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
+                                <label class="form-label d-block d-md-none" for="id_fish_sex">FISH SEX</label>
+                            </div>
+                            {% if form.fish_sex.errors %}
+                                <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-1 col-sm-5 offset-sm-1 offset-md-0">
                             <div class="form-floating">
                                 {{ form.fish_count }}
                                 <label class="form-label" for="id_fish_count">COUNT</label>
@@ -611,29 +629,22 @@
                                 <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
                             {% endif %}
                         </div>
-                        <div class="col-md-1 col-sm-3">
-                            <div class="form-floating">
-                                {{ form.fish_sex }}
-                                <label class="form-label" for="id_fish_sex">SEX</label>
-                            </div>
-                            {% if form.fish_sex.errors %}
-                                <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
 
-                        <div class="col-md-1 offset-sm-1 offset-md-0 col-sm-3">
+                        <div class="col-md-1 col-sm-6">
                             <div class="form-floating">
                                 {{ form.gonad_stage }}
-                                <label class="form-label" for="id_gonad_stage">STAGE</label>
+                                <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
+                                <label class="form-label d-block d-md-none" for="id_gonad_stage">GONAD STAGE</label>
                             </div>
                             {% if form.gonad_stage.errors %}
                                 <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
                             {% endif %}
                         </div>
-                        <div class="col-md-1 col-sm-5">
+                        <div class="col-md-1 col-sm-5 offset-sm-1 offset-md-0">
                             <div class="form-floating">
                                 {{ form.gonad_wt_g }}
-                                <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
+                                <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
+                                <label class="form-label d-block d-md-none" for="id_gonad_wt_g">GONAD WT (g)</label>
                             </div>
                             {% if form.gonad_wt_g.errors %}
                                 <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
@@ -691,13 +702,13 @@
                                     <div class="col-md-6 me-0">
                                         <div class="form-floating">
                                             {{ formset.empty_form.length_mm }}
-                                            <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                            <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating">
                                             {{ formset.empty_form.weight_g }}
-                                            <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                            <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
                                         </div>
                                     </div>
                                 </div>
@@ -808,6 +819,56 @@
 
     </form>{# /icCombinedForm #}
 </div>{# /container #}
+
+<!-- ================================================================== -->
+<!-- CATCH INPUT UNITS MODAL                                            -->
+<!-- ================================================================== -->
+<div class="modal fade" id="catchUnitsModal" tabindex="-1" aria-labelledby="catchUnitsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="catchUnitsModalLabel"><i class="ti ti-ruler-2 me-1"></i>Measurement Units</h6>
+                <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pb-2">
+                <p class="text-muted small mb-2">Note: All length and weight values are converted into the default units (mm / g) prior to submission.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold mb-1 small">LENGTH</label>
+                    <div class="d-flex gap-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" checked>
+                            <label class="form-check-label small" for="lengthUnitMm">mm <span class="text-muted">(default)</span></label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in">
+                            <label class="form-check-label small" for="lengthUnitIn">inches</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" checked>
+                            <label class="form-check-label small" for="weightUnitG">g <span class="text-muted">(default)</span></label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg">
+                            <label class="form-check-label small" for="weightUnitKg">kg</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb">
+                            <label class="form-check-label small" for="weightUnitLb">lb</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-success" id="applyUnitsBtn">APPLY</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ================================================================== -->
 <!-- ADD SAMPLE SITE MODAL                                              -->
@@ -1083,6 +1144,56 @@ document.addEventListener('DOMContentLoaded', function () {
     const catchSnapshotData = JSON.parse(document.getElementById('catchSnapshotData').textContent || '[]');
     const restoreSnapshot = {{ restore_snapshot|yesno:"true,false" }};
 
+    // ---- Unit state ----
+    let lengthUnit = 'mm';  // 'mm' | 'in'
+    let weightUnit = 'g';   // 'g'  | 'kg' | 'lb'
+
+    const unitLengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
+    const unitWeightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
+
+    function updateUnitLabels() {
+        const lenText = unitLengthLabels[lengthUnit] || 'LENGTH (mm)';
+        const wtText  = unitWeightLabels[weightUnit]  || 'WEIGHT (g)';
+        document.querySelectorAll('.catch-length-label').forEach(function (el) { el.textContent = lenText; });
+        document.querySelectorAll('.catch-weight-label').forEach(function (el) { el.textContent = wtText; });
+        // Update header button label
+        const btnLbl = document.getElementById('unitsModalBtnLabel');
+        if (btnLbl) {
+            const parts = [];
+            if (lengthUnit !== 'mm') parts.push(lengthUnit);
+            if (weightUnit !== 'g')  parts.push(weightUnit);
+            btnLbl.textContent = parts.length ? 'UNITS (' + parts.join('/') + ')' : 'UNITS';
+        }
+    }
+
+    function toDefaultLength(val, unit) {
+        var n = parseFloat(val);
+        if (isNaN(n)) return val;
+        if (unit === 'in') return String(Math.round(n * 25.4));
+        return val;
+    }
+
+    function toDefaultWeight(val, unit) {
+        var n = parseFloat(val);
+        if (isNaN(n)) return val;
+        if (unit === 'kg') return String(Math.round(n * 1000 * 100) / 100);
+        if (unit === 'lb') return String(Math.round(n * 453.59237 * 100) / 100);
+        return val;
+    }
+
+    // Units modal apply button
+    const applyUnitsBtn = document.getElementById('applyUnitsBtn');
+    if (applyUnitsBtn) {
+        applyUnitsBtn.addEventListener('click', function () {
+            const lenRadio = document.querySelector('input[name="lengthUnitRadio"]:checked');
+            const wtRadio  = document.querySelector('input[name="weightUnitRadio"]:checked');
+            lengthUnit = lenRadio ? lenRadio.value : 'mm';
+            weightUnit = wtRadio  ? wtRadio.value  : 'g';
+            updateUnitLabels();
+            bootstrap.Modal.getInstance(document.getElementById('catchUnitsModal')).hide();
+        });
+    }
+
     if (catchForm) {
         catchForm.addEventListener('submit', function () {
             const spinner = document.getElementById('icCombinedSubmitSpinner');
@@ -1183,10 +1294,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function applyState(value, preserveExistingValues) {
             if (value > '0') {
-                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                [weightInput, countInput, gwtInput].forEach(function (input) {
                     if (!preserveExistingValues) input.value = '';
                     input.readOnly = false;
                 });
+                lengthInput.readOnly = false;
                 if (!preserveExistingValues || String(countInput.value || '').trim() === '') countInput.value = '1';
                 sexSelect.readOnly = false;
                 stageSelect.readOnly = false;
@@ -1194,10 +1306,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 agCheck.readOnly = false;
                 if (noFishCheckbox) noFishCheckbox.checked = false;
             } else if (value === '0') {
-                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                [weightInput, countInput, gwtInput].forEach(function (input) {
                     if (!preserveExistingValues) input.value = '';
                     input.readOnly = true;
                 });
+                lengthInput.readOnly = true;
                 if (!preserveExistingValues || String(countInput.value || '').trim() === '') countInput.value = '0';
                 if (!preserveExistingValues || String(sexSelect.value || '').trim() === '') sexSelect.value = '0';
                 sexSelect.readOnly = true;
@@ -1209,10 +1322,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 agCheck.readOnly = true;
                 if (noFishCheckbox) noFishCheckbox.checked = true;
             } else {
-                [lengthInput, weightInput, countInput, gwtInput].forEach(function (input) {
+                [weightInput, countInput, gwtInput].forEach(function (input) {
                     if (!preserveExistingValues) input.value = '';
-                    input.readOnly = true;
+                    input.readOnly = false;
                 });
+                lengthInput.readOnly = false;
                 if (!preserveExistingValues) { sexSelect.value = ''; stageSelect.value = ''; }
                 sexSelect.readOnly = true;
                 stageSelect.readOnly = true;
@@ -1225,6 +1339,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         select.addEventListener('change', function () { applyState(this.value, false); });
         applyState(select.value, true);
+
+        // Auto-inherit species from the row above when the user starts typing a
+        // length and the species for this row has not yet been selected.
+        if (lengthInput) {
+            lengthInput.addEventListener('blur', function () {
+                if (String(select.value || '').trim() !== '') return;
+                const allRows = getRows();
+                const rowIndex = allRows.indexOf(row);
+                if (rowIndex < 1) return;
+                const aboveSpecies = allRows[rowIndex - 1].querySelector('select[id*="species"]');
+                if (!aboveSpecies || !aboveSpecies.value) return;
+                select.value = aboveSpecies.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
     }
 
     getRows().forEach(function (row) { initRow(row); });
@@ -1507,6 +1636,20 @@ document.addEventListener('DOMContentLoaded', function () {
             if (lngEl && lngEl.value) lngEl.value = roundCoordTo5(lngEl.value);
 
             const rows = getRows();
+
+            // Convert non-default units back to mm / g before posting
+            if (lengthUnit !== 'mm' || weightUnit !== 'g') {
+                rows.forEach(function (row) {
+                    const f = getRowFields(row);
+                    if (f.length && f.length.value) f.length.value = toDefaultLength(f.length.value, lengthUnit);
+                    if (f.weight && f.weight.value) f.weight.value = toDefaultWeight(f.weight.value, weightUnit);
+                });
+                // Reset unit state and labels after conversion so page is consistent post-submit
+                lengthUnit = 'mm'; weightUnit = 'g';
+                var lenR = document.getElementById('lengthUnitMm'); if (lenR) lenR.checked = true;
+                var wtR  = document.getElementById('weightUnitG');  if (wtR)  wtR.checked  = true;
+                updateUnitLabels();
+            }
             if (totalFormsInput) totalFormsInput.value = String(rows.length);
             if (catchSnapshotInput) catchSnapshotInput.value = JSON.stringify(serializeRowsForSnapshot());
             rows.forEach(function (row) {

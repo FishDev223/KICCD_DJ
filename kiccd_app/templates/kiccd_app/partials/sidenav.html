@@ -191,31 +191,19 @@
                 </a>
                 <div class="collapse" id="sideContractFishing">
                     <ul class="sub-menu">
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#AddCFNew" aria-expanded="false"
-                                aria-controls="AddCFNew" class="side-nav-link">
-                                <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
-                                <span class="menu-text"> Add New... </span>
-                                <span class="menu-arrow"></span>
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Contract Fishing Data.">
+                            <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text text-center">Add Catch Data</span>
                             </a>
-                            <div class="collapse" id="AddCFNew">
-                                <ul class="sub-menu">
-                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Fishing Efforts.">
-                                        <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="side-nav-link">
-                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">Fishing Effort</span>
-                                        </a>
-                                    </li>
-                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Contract Fishing Data.">
-                                        <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="side-nav-link">
-                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">CF Catch Data</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                        </li>
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Fishing Efforts.">
+                            <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
+                                <span class="menu-text text-center">New Bulk Effort</span>
+                            </a>
                         </li>
                         <li class="side-nav-item">
                             <a data-bs-toggle="collapse" href="#ViewCFData" aria-expanded="false"

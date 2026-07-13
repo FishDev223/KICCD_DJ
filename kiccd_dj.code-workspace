@@ -6,7 +6,11 @@
 	],
 	"settings": {
 		"chat.tools.terminal.autoApprove": {
-			".\\venv\\Scripts\\python.exe": true
+			".\\venv\\Scripts\\python.exe": true,
+			"/^python manage\\.py check$/": {
+				"approve": true,
+				"matchCommandLine": true
+			}
 		}
 	}
 }

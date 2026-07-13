@@ -325,24 +325,35 @@ class CfEventForm(forms.ModelForm):
         ]
 
         widgets = {
-            'cf_date': forms.DateInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': "flatpickr", 'data-date-format': 'Y-m-d', 'autofocus': 'autofocus'}),
+            'cf_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'data-date-format': 'Y-m-d', 'autofocus': 'autofocus', 'data-allow-input': 'true'}),
             'fisher': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select...'}),
             'observer': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select...'}),
             'site': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select...'}),
-            'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control', 'placeholder': '--.-----'}),
-            'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control', 'placeholder': '--.-----'}),
+            'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
+            'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
             'gear': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select...'}),
-            'set_num': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '-'}),
-            'start_time': forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true'}),
-            'end_time': forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true'}),
-            'gear_length': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '--- ft'}),
-            'gear_depth': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '-- ft'}),
-            'mesh_size': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control', 'placeholder': '-.- in'}),
-            'water_temp_f': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control', 'placeholder': '--.-'}),
+            'set_num': forms.NumberInput(attrs={'class': 'form-control'}),
+            'start_time': forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true', 'data-allow-input': 'true'}),
+            'end_time': forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true', 'data-allow-input': 'true'}),
+            'gear_length': forms.NumberInput(attrs={'class': 'form-control'}),
+            'gear_depth': forms.NumberInput(attrs={'class': 'form-control'}),
+            'mesh_size': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+            'water_temp_f': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
+        active_contract_fishers = kwargs.pop('active_contract_fishers', False)
+        active_observers_first = kwargs.pop('active_observers_first', False)
         super().__init__(*args, **kwargs)
+        if active_contract_fishers:
+            self.fields['fisher'].queryset = Fisher.objects.filter(
+                contracted=True,
+                active=True,
+            ).order_by('last_name', 'first_name')
+        if active_observers_first:
+            self.fields['observer'].queryset = Observer.objects.order_by(
+                '-active', 'last_name', 'first_name'
+            )
         for name, field in self.fields.items():
             if isinstance(field.widget, forms.CheckboxInput):
                 continue
@@ -366,6 +377,91 @@ class CfEventForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class CfEventForm2(forms.Form):
+    cf_date = forms.DateField(
+        label='Date',
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control',
+            'data-date-format': 'Y-m-d',
+            'placeholder': 'YYYY-MM-DD',
+        })
+    )
+    fisher = forms.ModelChoiceField(
+        queryset=Fisher.objects.filter(contracted=True).order_by('-active', 'last_name', 'first_name'),
+        widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select a fisher'}),
+        empty_label='...'
+    )
+    observer = forms.ModelChoiceField(
+        queryset=Observer.objects.order_by('-active', 'last_name', 'first_name'),
+        widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select an observer'}),
+        empty_label='...'
+    )
+    site =  forms.ModelChoiceField(
+        queryset=FishingSite_CF.objects.order_by('river_mi'),
+        widget=forms.Select(attrs={'class': 'form-control select2', 'data-toggle': 'select2', 'placeholder': '...'}),
+        empty_label='...'
+    )
+    gear = forms.ModelChoiceField(
+        queryset=Gear.objects.order_by('priority'),
+        widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select gear'}),
+        empty_label='...'
+    )
+    latitude = forms.DecimalField(
+        label='Latitude',
+        max_digits=8,
+        decimal_places=5,
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'})
+    )
+    longitude = forms.DecimalField(
+        label='Longitude',
+        max_digits=8,
+        decimal_places=5,
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'})
+    )
+    set_num = forms.IntegerField(
+        label='Set Num',
+        required=True,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '-'})
+    )
+    start_time = forms.TimeField(
+        label='Set Time',
+        required=False,
+        widget=forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true', 'allow-input': 'true'})
+    )
+    end_time = forms.TimeField(
+        label='Pull Time',
+        required=False,
+        widget=forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true', 'allow-input': 'true'})
+    )
+    gear_length = forms.IntegerField(
+        label='Net Length',
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '50', 'class': 'form-control'})
+    )
+    gear_depth = forms.IntegerField(
+        label='Net Depth',
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '2', 'class': 'form-control'})
+    )
+    mesh_size = forms.DecimalField(
+        label='Mesh Size',
+        max_digits=5,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '0.25', 'class': 'form-control'})
+    )
+    water_temp_f = forms.DecimalField(
+        label='Water Temp (°F)',
+        max_digits=4,
+        decimal_places=1,
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '0.5', 'class': 'form-control'})
+    )
 
 class RaEventForm(forms.ModelForm):
     class Meta:
@@ -451,7 +547,7 @@ class CfEventBatchInfoForm(forms.Form):
         })
     )
     fisher = forms.ModelChoiceField(
-        queryset=Fisher.objects.order_by('-active', 'last_name', 'first_name'),
+        queryset=Fisher.objects.filter(contracted=True).order_by('-active', 'last_name', 'first_name'),
         widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select a fisher'}),
         empty_label='...'
     )
@@ -460,27 +556,23 @@ class CfEventBatchInfoForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select an observer'}),
         empty_label='...'
     )
-    site = forms.ModelChoiceField(
-        queryset=FishingSite_CF.objects.select_related('pool').order_by('name'),
-        widget=forms.Select(attrs={'class': 'form-control select2', 'data-toggle': 'select2', 'placeholder': '...'}),
-        empty_label='...'
-    )
 
 class CfEventRowForm(forms.ModelForm):
     class Meta:
         model = CfEvent
-        fields = ['gear', 'set_num', 'latitude', 'longitude', 'start_time', 'end_time', 'gear_length', 'gear_depth', 'mesh_size', 'water_temp_f']
+        fields = ['gear', 'set_num', 'site', 'latitude', 'longitude', 'start_time', 'end_time', 'gear_length', 'gear_depth', 'mesh_size', 'water_temp_f']
         widgets = {
             'gear': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': 'Select...'}),
-            'set_num': forms.HiddenInput(),
+            'set_num': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'placeholder': '#'}),
+            'site': forms.Select(attrs={'class': 'form-control select2', 'data-toggle': 'select2', 'placeholder': '...'}),
             'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
             'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
             'start_time': forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true', 'data-allow-input': 'true',}),
             'end_time': forms.TimeInput(attrs={'type': 'text', 'class': 'form-control', 'data-provider': 'timepickr', 'data-time-hrs': 'true', 'data-allow-input': 'true',}),
-            'gear_length': forms.NumberInput(attrs={'class': 'form-control'}),
-            'gear_depth': forms.NumberInput(attrs={'class': 'form-control'}),
+            'gear_length': forms.NumberInput(attrs={'step': '50', 'class': 'form-control'}),
+            'gear_depth': forms.NumberInput(attrs={'step': '2', 'class': 'form-control'}),
             'mesh_size': forms.NumberInput(attrs={'step': '0.25', 'class': 'form-control'}),
-            'water_temp_f': forms.NumberInput(attrs={'step': '1.0', 'class': 'form-control'}),
+            'water_temp_f': forms.NumberInput(attrs={'step': '0.5', 'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -496,6 +588,20 @@ class CfEventRowForm(forms.ModelForm):
                 self.fields['gear'].empty_label = '...'
             except Exception:
                 pass
+
+        if 'site' in self.fields:
+            try:
+                self.fields['site'].empty_label = '...'
+            except Exception:
+                pass
+
+    def clean_set_num(self):
+        value = self.cleaned_data.get('set_num')
+        if value is None:
+            return value
+        if value < 1:
+            raise forms.ValidationError('Set number must be 1 or greater.')
+        return value
 
 class CfCatchEventForm(forms.Form):
     event = forms.ModelChoiceField(
