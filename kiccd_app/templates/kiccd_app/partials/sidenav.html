@@ -192,17 +192,24 @@
                 <div class="collapse" id="sideContractFishing">
                     <ul class="sub-menu">
                         <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Contract Fishing Data.">
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="ADD CF Catch Data.">
                             <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="side-nav-link">
-                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                <span class="menu-text text-center">Add Catch Data</span>
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">Catch Data</span>
                             </a>
                         </li>
                         <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> New Fishing Efforts.">
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="ADD CF Efforts in Bulk.">
                             <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="side-nav-link">
-                                <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                <span class="menu-text text-center">New Bulk Effort</span>
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">Bulk Effort</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="ADD New CF Sites.">
+                            <a href="{% url 'kiccd_app:cf_site_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">Fishing Site</span>
                             </a>
                         </li>
                         <li class="side-nav-item">
@@ -286,16 +293,44 @@
                 <a data-bs-toggle="collapse" href="#sideICHPRAFishing" aria-expanded="false"
                     aria-controls="sideICHPRAFishing" class="side-nav-link">
                     <span class="menu-icon"><i class="ri ri-ship-2-line"></i></span>
-                    <span class="menu-text">ICHP Ride-Alongs</span>
+                    <span class="menu-text">IC Harvest Program</span>
                     <span class="menu-arrow"></span>
                 </a>
                 <div class="collapse" id="sideICHPRAFishing">
                     <ul class="sub-menu">
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="ADD Reported ICHP Results.">
+                            <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">Fisher Report</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="ADD ICHP Efforts in Bulk.">
+                            <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">Bulk Effort</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Reported Catch Data.">
+                            <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">Catch Data</span>
+                            </a>    
+                        </li>
+                        <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
+                        data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="ADD New ICHP Sites.">
+                            <a href="{% url 'kiccd_app:hp_site_create' %}" class="side-nav-link">
+                                <span class="menu-icon"><i class="ri ri-add-line size-8"></i></span>
+                                <span class="menu-text text-center">ICHP Site</span>
+                            </a>
+                        </li>
                         <li class="side-nav-item">
                             <a data-bs-toggle="collapse" href="#AddRANew" aria-expanded="false"
                                 aria-controls="AddRANew" class="side-nav-link">
                                 <span class="menu-icon"><i class="ri ri-add-circle-line"></i></span>
-                                <span class="menu-text"> Add New... </span>
+                                <span class="menu-text"> Add RA Data... </span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <div class="collapse" id="AddRANew">
@@ -376,27 +411,9 @@
                             </a>
                             <div class="collapse" id="AddICHPNew">
                                 <ul class="sub-menu">
-                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="Add a Report via one form.<br> <em>Single Net Sets Only!</em>">
-                                        <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="side-nav-link">
-                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">Combined Entry</span>
-                                        </a>
-                                    </li>
-                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Reported ICHP Effort.">
-                                        <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="side-nav-link">
-                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">Effort Only</span>
-                                        </a>
-                                    </li>
-                                    <li class="side-nav-item" data-bs-toggle="tooltip" data-bs-trigger="hover" 
-                                    data-bs-html="true" data-bs-placement="top" data-bs-custom-class="tooltip-dark" data-bs-title="<u><b>ADD</b></u> Reported Catch Data.">
-                                        <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="side-nav-link">
-                                            <span class="menu-icon"><i class="ri ri-arrow-drop-right-fill"></i></span>
-                                            <span class="menu-text text-center">Catch Only</span>
-                                        </a>    
-                                    </li>
+
+
+
                                 </ul>
                             </div>
                         </li>

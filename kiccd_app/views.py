@@ -537,8 +537,7 @@ def ichp_event_and_catch_create(request):
             messages.success(
                 request,
                 (
-                    f'Created ICHP effort #{event.event_id} (net {event.net_haul}) '
-                    f'with {created_catch} harvest record{"s" if created_catch != 1 else ""}.'
+                    f'Added a new ICHP Fisher Report with {created_catch} harvest record{"s" if created_catch != 1 else ""}. '
                 ),
             )
             return redirect('kiccd_app:ichp_event_and_catch_create')

@@ -47,20 +47,20 @@
         <!-- CARD 1 — SAMPLING EVENT                                            -->
         <!-- ================================================================== -->
         <div class="">
-            <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
+            <!--<div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
                 <h5 class="d-none d-md-block text-muted mb-0">1) Enter details for the completed sampling effort.</h5>
                 <h4 class="d-block d-md-none mb-0 text-center">1. Enter Sampling Effort Details</h4>
-                <!--
+                
                 <div class="d-flex gap-2">
                     <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Event-only entry page</em>"><i class="ti ti-list-details align-middle me-1 fs-18"></i> EFFORT ONLY</a>
                     <a href="{% url 'kiccd_app:ic_catch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Attach catch to an existing event</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> CATCH ONLY</a>
                 </div>
-                --> 
-            </div>
+                
+            </div>--> 
             <div class="card-body">
                 <!-- Row 1: Date / Project / Agency / Crew Lead -->
-                <div class="row g-2 mb-md-0 mb-2">
-                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                <div class="row g-0 mb-md-0 mb-2">
+                    <div class="col-md-3 p-md-2 p-2 mb-0 bg-dark bg-opacity-10">
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ event_form.event_date }}
@@ -119,7 +119,7 @@
                 </div>
 
                 <!-- Row 2: Gear / Run-Net# / Effort / Start-End Time -->
-                <div class="row g-2 mb-md-0 mb-2">
+                <div class="row g-0 mb-md-0 mb-2">
                     <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
                         <div class="form-floating">
                             {{ event_form.gear }}
@@ -192,10 +192,10 @@
                 </div>
 
                 <!-- Row 3: GPS / Lat / Lng / Site -->
-                <div class="row g-2 mb-md-2 mb-2">
+                <div class="row g-0 mb-md-0 mb-2">
                     <div class="col-md-6 bg-dark bg-opacity-10">
                         <div class="row g-0 ms-0 me-0">
-                            <div class="col-md-1 d-flex align-items-center ps-md-1 pe-md-2 pb-md-2 pb-0 pt-md-2 pt-2 ps-5 pe-5">
+                            <div class="col-md-1 col-2 d-flex align-items-center ps-md-1 pe-md-2 pb-md-2 pb-2 pt-md-2 pt-2 ps-2 pe-2">
                                 <button id="eventMyLocationBtn" type="button"
                                         class="btn btn-outline-secondary w-sm-100"
                                         style="height:36px;min-width:25px;font-size:1.00rem;"
@@ -203,7 +203,7 @@
                                     <i class="ri ri-gps-fill"></i>
                                 </button>
                             </div>
-                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
+                            <div class="col-md-5 col-5 ps-md-1 ps-0 pb-md-2 pt-2 pe-md-1 pe-1">
                                 <div class="form-floating">
                                     {{ event_form.latitude }}
                                     <label for="id_latitude" class="form-label">LATITUDE</label>
@@ -212,7 +212,7 @@
                                     <div class="text-danger small">{{ event_form.latitude.errors|striptags }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pb-2 pt-2 pe-md-1 pe-1">
+                            <div class="col-md-5 col-5 ps-md-1 ps-0 pb-md-2 pb-2 pt-2 pe-md-1 pe-1">
                                 <div class="form-floating">
                                     {{ event_form.longitude }}
                                     <label for="id_longitude" class="form-label">LONGITUDE</label>
@@ -224,8 +224,8 @@
                         </div>
                     </div>
                     <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="d-flex gap-1 align-items-center">
-                            <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
+                        <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-outline-secondary px-3 py-2" id="siteLookupBtn"
                                     title="Find nearest site..."
                                     style="height:36px;min-width:25px;font-size:1.00rem;">
                                 <i class="ti ti-search"></i>
@@ -249,7 +249,7 @@
                 </div>
 
                 <!-- Accordion: EF Details / Net Details / Environmental -->
-                <div class="row g-2 mb-2 mt-2 pt-1 pt-md-0 bg-dark bg-opacity-10">
+                <div class="row g-0 mb-0 mt-0 p-1 p-md-1 bg-dark bg-opacity-10">
                     <div class="accordion accordion-flush mb-2 mb-md-1" id="AddEventOptions">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="AddEventAccHeading1">
@@ -505,7 +505,7 @@
                 </div>
 
                 <!-- IC Sighted / No Fish toggles -->
-                <div class="row g-2 mb-2">
+                <div class="row g-0 mb-0 bg-dark bg-opacity-10">
                     <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
                         <p class="mb-1 mt-md-0 text-muted fs-12">IC SIGHTED?</p>
                         <div class="form-check form-switch">
@@ -540,8 +540,8 @@
         <div class="card col-md-12 mt-3">
             <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="d-none d-md-block text-muted mb-0">2) Provide size & counts for all sampled fish species.</h5>
-                    <h4 class="d-block d-md-none mb-0">2. Add Catch Data</h4>
+                    <h5 class="d-none d-md-block text-muted mb-0">Size & counts for all sampled fish species.</h5>
+                    <h4 class="d-block d-md-none mb-0">Catch Data</h4>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                 <button type="button" class="btn btn-sm btn-outline-success p-2" id="unitsModalBtn"
@@ -589,8 +589,8 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                <div class="col-md-6 me-0">
+                            <div class="row g-md-2 g-2 mb-0 align-items-stretch">
+                                <div class="col-md-6 col-6 me-0">
                                     <div class="form-floating">
                                         {{ form.length_mm }}
                                         <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
@@ -599,7 +599,7 @@
                                         <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-6 col-6">
                                     <div class="form-floating">
                                         {{ form.weight_g }}
                                         <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
@@ -620,7 +620,7 @@
                                 <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
                             {% endif %}
                         </div>
-                        <div class="col-md-1 col-sm-5 offset-sm-1 offset-md-0">
+                        <div class="col-md-1 col-sm-6 offset-sm-0 offset-md-0 ps-1">
                             <div class="form-floating">
                                 {{ form.fish_count }}
                                 <label class="form-label" for="id_fish_count">COUNT</label>
@@ -630,7 +630,7 @@
                             {% endif %}
                         </div>
 
-                        <div class="col-md-1 col-sm-6">
+                        <div class="col-md-1 col-sm-4 offset-sm-2 offset-md-0">
                             <div class="form-floating">
                                 {{ form.gonad_stage }}
                                 <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
@@ -640,7 +640,7 @@
                                 <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
                             {% endif %}
                         </div>
-                        <div class="col-md-1 col-sm-5 offset-sm-1 offset-md-0">
+                        <div class="col-md-1 col-sm-4 offset-md-0 ps-1">
                             <div class="form-floating">
                                 {{ form.gonad_wt_g }}
                                 <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
