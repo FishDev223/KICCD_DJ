@@ -98,7 +98,7 @@
                                             <div class="text-danger small">{{ form.harvest_cnt.errors|striptags }}</div>
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-3 mt-md-0">
+                                    <div class="col-md-3 col-4 mt-md-0">
                                         <div class="form-floating">
                                             {{ form.rel_healthy_cnt }}
                                             <label class="form-label" for="{{ form.rel_healthy_cnt.id_for_label }}">HEALTHY C&R</label>
@@ -107,7 +107,7 @@
                                             <div class="text-danger small">{{ form.rel_healthy_cnt.errors|striptags }}</div>
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-3 mt-md-0">
+                                    <div class="col-md-3 col-4 mt-md-0">
                                         <div class="form-floating">
                                             {{ form.rel_moribund_cnt }}
                                             <label class="form-label" for="{{ form.rel_moribund_cnt.id_for_label }}">MORIBUND C&R</label>
@@ -116,11 +116,12 @@
                                             <div class="text-danger small">{{ form.rel_moribund_cnt.errors|striptags }}</div>
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-3 mt-md-0">
+                                    <div class="col-md-3 col-4 mt-md-0">
                                         <div class="form-floating">
                                             {{ form.total_cnt }}
-                                            <label class="d-none d-md-block form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL</label>
-                                            <label class="d-block d-md-none form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL COUNT</label>
+                                            
+                                        <label class="d-none d-md-block form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL CNT</label>
+                                        <label class="d-block d-md-none form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL</label>
                                         </div>
                                         {% if form.total_cnt.errors %}
                                             <div class="text-danger small">{{ form.total_cnt.errors|striptags }}</div>
@@ -129,7 +130,7 @@
                                 </div>
 
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-2 col-7">
                                     <div class="form-floating">
                                         {{ form.reported_weight_lb }}
                                         <label class="form-label" for="{{ form.reported_weight_lb.id_for_label }}">TOTAL WEIGHT (lb)</label>
@@ -138,11 +139,11 @@
                                         <div class="text-danger small">{{ form.reported_weight_lb.errors|striptags }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-2 col-5">
                                     <div class="form-floating">
                                         {{ form.reported_mean_length_in }}
                                         <label class="d-none d-md-block form-label" for="{{ form.reported_mean_length_in.id_for_label }}">MEAN TL (in)</label>
-                                        <label class="d-block d-md-none form-label" for="{{ form.reported_mean_length_in.id_for_label }}">MEAN LENGTH (in)</label>
+                                        <label class="d-block d-md-none form-label" for="{{ form.reported_mean_length_in.id_for_label }}">MEAN Length (in)</label>
                                     </div>
                                     {% if form.reported_mean_length_in.errors %}
                                         <div class="text-danger small">{{ form.reported_mean_length_in.errors|striptags }}</div>
