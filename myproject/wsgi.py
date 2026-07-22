@@ -12,9 +12,6 @@ import sys
 from pathlib import Path
 from django.core.wsgi import get_wsgi_application
 
-path = 'C:/xampp/htdocs/kiccd/kiccd'
-if path not in sys.path:
-    sys.path.append(path)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
 

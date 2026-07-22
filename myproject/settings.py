@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import sys
+import dj_database_url
 from urllib.parse import urlparse, parse_qsl
 from dotenv import load_dotenv
 
@@ -37,13 +38,15 @@ for dotenv_path in dotenv_paths:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-e(d0pp(@nj11lnq3y02so)nrsg0z9-0)m024$^8h&o%7$ocf*j')
 
-# DEBUG = os.getenv('DEBUG') == 'True'
-DEBUG = False
+DEBUG = os.getenv('DJANGO_DEBUG', '') != 'False'
 
-# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 # Mapbox
 MAPBOX_TOKEN = os.getenv('MAPBOX_TOKEN', '')
@@ -104,35 +107,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-tmpPg= urlparse(os.getenv('DATABASE_URL'))
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': tmpPg.path.replace('/', ''),
-        'USER': tmpPg.username,
-        'PASSWORD': tmpPg.password,
-        'HOST': tmpPg.hostname,
-        'PORT': 5432,
-        'OPTIONS': dict(parse_qsl(tmpPg.query)),
-        # Neon pooler/pgbouncer transaction pooling does not support server-side cursors.
-        'DISABLE_SERVER_SIDE_CURSORS': True,
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ['DATABASE_URL'], 
+                                         conn_max_age=500, 
+                                         conn_health_checks=True, 
+                                         ssl_require=os.getenv('DATABASE_SSL_REQUIRE', 'False').lower() == 'true'
+                                         )
     }
-}
-  
-# Local version of database for development
- 
-# DATABASES = {
-#  'default': {
-#  	'ENGINE': 'django.db.backends.postgresql',
-#  	'NAME': 'kiccd_dj',
-#  	'USER': 'postgres',
-#  	'PASSWORD': 'root',
-#  	'HOST': 'localhost',
-#  	'PORT': 5432,
-#     'DISABLE_SERVER_SIDE_CURSORS': True,
-#  	}
-#  }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'kiccd_dj',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'HOST': 'localhost',
+            'PORT': 5432,
+        }
+    }
+                                         
+DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+
+
 
 #  
 # Password validation
@@ -164,11 +162,17 @@ LANGUAGE_CODE = 'en-us'
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
  
 
-STATIC_URL = "static/"
-STATIC_ROOT = str(APP_DIR / "staticfiles")
+
+STATIC_ROOT = str(BASE_DIR / "staticfiles")
+# STATIC_ROOT = str(APP_DIR / "staticfiles")
+
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(APP_DIR / "static")]
+
 if FROZEN:
     STATICFILES_DIRS.append(str(APP_BUNDLE_DIR / "staticfiles"))
+
+
 WHITENOISE_USE_FINDERS = True
 
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
@@ -176,7 +180,21 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
-MEDIA_URL = "media/"
+
+
+# Static file serving.
+# https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = APP_DIR / "media"
 
 # Default primary key field type
@@ -185,19 +203,19 @@ MEDIA_ROOT = APP_DIR / "media"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT') == 'True'
-# SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE') == 'True'
-# CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE') == 'True'
-# SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 31536000))  # 1 year
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True").lower() == "true"
+# SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "True").lower() == "true"
+# CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "True").lower() == "true"
+
+# SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", 31536000))  # 1 year
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS') == 'True'
 # SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD') == 'True'
 # SECURE_BROWSER_XSS_FILTER = os.getenv('SECURE_BROWSER_XSS_FILTER') == 'True'
 # SECURE_CONTENT_TYPE_NOSNIFF = os.getenv('SECURE_CONTENT_TYPE_NOSNIFF') == 'True'
 # X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
 
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+
 # SECURE_HSTS_SECONDS = 31536000  # 1 year
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 # SECURE_HSTS_PRELOAD = True
@@ -205,6 +223,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SECURE_CONTENT_TYPE_NOSNIFF = True
 # X_FRAME_OPTIONS = 'DENY'
 
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
+]
 
 if FROZEN:
     log_dir = Path(sys.executable).resolve().parent / "kiccd_logs"

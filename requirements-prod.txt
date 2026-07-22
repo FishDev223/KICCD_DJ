@@ -5,3 +5,6 @@ whitenoise==6.11.0
 pyperclip==1.11.0
 waitress==3.0.2
 pywebview==6.1
+gunicorn==23.0.0
+dj-database-url==2.3.0
+wheel==0.47.0
