@@ -12,7 +12,8 @@ import sys
 from pathlib import Path
 from django.core.wsgi import get_wsgi_application
 
-path = '/home/kiccd2026/kiccd2026.pythonanywhere.com'
+
+path = str(Path(__file__).resolve().parent)
 if path not in sys.path:
     sys.path.append(path)
 
