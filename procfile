@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --no-input && gunicorn myproject.wsgi
+web: python manage.py migrate && pip install -r requirements-prod.txt && python manage.py collectstatic --no-input && gunicorn myproject.wsgi
