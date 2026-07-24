@@ -38,9 +38,9 @@ for dotenv_path in dotenv_paths:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-e(d0pp(@nj11lnq3y02so)nrsg0z9-0)m024$^8h&o%7$ocf*j')
+SECRET_KEY = os.environ["SECRET_KEY"]
 
-DEBUG = os.getenv('DJANGO_DEBUG', '') != 'False'
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -194,7 +194,7 @@ STORAGES = {
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = APP_DIR / "media"
+# MEDIA_ROOT = APP_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
