@@ -57,7 +57,7 @@
                 </div>
                 
             </div>--> 
-            <div class="card-body">
+            <div class="card-body flex-grow-1">
                 <!-- Row 1: Date / Project / Agency / Crew Lead -->
                 <div class="row g-0 mb-md-0 mb-2">
                     <div class="col-md-3 p-md-2 p-2 mb-0 bg-dark bg-opacity-10">
@@ -143,7 +143,8 @@
                             <div class="col-6 p-md-2 p-2">
                                 <div class="form-floating">
                                     {{ event_form.effort_min }}
-                                    <label for="id_effort_min" class="form-label">TOTAL EFFORT (min)</label>
+                                    <label for="id_effort_min" class="d-none d-md-block form-label">TOTAL EFFORT (min)</label>
+                                    <label for="id_effort_min" class="d-md-none form-label">EFFORT (min)</label>
                                 </div>
                                 {% if event_form.effort_min.errors %}
                                     <div class="text-danger small">{{ event_form.effort_min.errors|striptags }}</div>
@@ -157,14 +158,16 @@
                                 <div class="d-flex gap-1 align-items-center">
                                     <div class="form-floating flex-grow-1">
                                         {{ event_form.start_time }}
-                                        <label for="id_start_time" class="form-label">START TIME (24h)</label>
+                                        <label for="id_start_time" class="form-label">START TIME</label>
                                     </div>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm p-2"
-                                            title="Current time - Effort (min)"
-                                            style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
-                                            onclick="(function(startEl,effortEl){var d=new Date();var minutes=parseInt(effortEl&&effortEl.value,10);if(!isNaN(minutes)){d.setMinutes(d.getMinutes()-minutes);}var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');startEl.value=h+':'+m;})(document.getElementById('id_start_time'),document.getElementById('id_effort_min'));">
-                                        <i class="ti ti-clock"></i>
-                                    </button>
+                                    <div class="d-none d-md-block">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                                title="Current time - Effort (min)"
+                                                style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                                onclick="(function(startEl,effortEl){var d=new Date();var minutes=parseInt(effortEl&&effortEl.value,10);if(!isNaN(minutes)){d.setMinutes(d.getMinutes()-minutes);}var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');startEl.value=h+':'+m;})(document.getElementById('id_start_time'),document.getElementById('id_effort_min'));">
+                                            <i class="ti ti-clock"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 {% if event_form.start_time.errors %}
                                     <div class="text-danger small">{{ event_form.start_time.errors|striptags }}</div>
@@ -174,14 +177,16 @@
                                 <div class="d-flex gap-1 align-items-center">
                                     <div class="form-floating flex-grow-1">
                                         {{ event_form.end_time }}
-                                        <label for="id_end_time" class="form-label">END TIME (24h)</label>
+                                        <label for="id_end_time" class="form-label">END TIME</label>
                                     </div>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm p-2"
-                                            title="Current local time"
-                                            style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
-                                            onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_end_time'));">
-                                        <i class="ti ti-clock"></i>
-                                    </button>
+                                    <div class="d-none d-md-block">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm p-2"
+                                                title="Current local time"
+                                                style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                                onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_end_time'));">
+                                            <i class="ti ti-clock"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 {% if event_form.end_time.errors %}
                                     <div class="text-danger small">{{ event_form.end_time.errors|striptags }}</div>
@@ -193,39 +198,33 @@
 
                 <!-- Row 3: GPS / Lat / Lng / Site -->
                 <div class="row g-0 mb-md-0 mb-2">
-                    <div class="col-md-6 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="col-md-1 col-2 d-flex align-items-center ps-md-1 pe-md-2 pb-md-2 pb-2 pt-md-2 pt-2 ps-2 pe-2">
-                                <button id="eventMyLocationBtn" type="button"
-                                        class="btn btn-outline-secondary w-sm-100"
-                                        style="height:36px;min-width:25px;font-size:1.00rem;"
-                                        title="Use my location">
-                                    <i class="ri ri-gps-fill"></i>
-                                </button>
+                    <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                            <button id="eventMyLocationBtn" type="button"
+                                    class="btn btn-outline-secondary px-2 py-2"
+                                    style="height:36px;min-width:25px;font-size:1.00rem;"
+                                    title="Use my location">
+                                <i class="ri ri-gps-fill"></i>
+                            </button>
+                            <div class="form-floating flex-grow-1">
+                                {{ event_form.latitude }}
+                                <label for="id_latitude" class="form-label">LATITUDE</label>
                             </div>
-                            <div class="col-md-5 col-5 ps-md-1 ps-0 pb-md-2 pt-2 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                    {{ event_form.latitude }}
-                                    <label for="id_latitude" class="form-label">LATITUDE</label>
-                                </div>
-                                {% if event_form.latitude.errors %}
-                                    <div class="text-danger small">{{ event_form.latitude.errors|striptags }}</div>
-                                {% endif %}
+                            {% if event_form.latitude.errors %}
+                                <div class="text-danger small">{{ event_form.latitude.errors|striptags }}</div>
+                            {% endif %}
+                            <div class="form-floating flex-grow-1">
+                                {{ event_form.longitude }}
+                                <label for="id_longitude" class="form-label">LONGITUDE</label>
                             </div>
-                            <div class="col-md-5 col-5 ps-md-1 ps-0 pb-md-2 pb-2 pt-2 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                    {{ event_form.longitude }}
-                                    <label for="id_longitude" class="form-label">LONGITUDE</label>
-                                </div>
-                                {% if event_form.longitude.errors %}
-                                    <div class="text-danger small">{{ event_form.longitude.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
+                            {% if event_form.longitude.errors %}
+                                <div class="text-danger small">{{ event_form.longitude.errors|striptags }}</div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="d-flex gap-2 align-items-center">
-                            <button type="button" class="btn btn-outline-secondary px-3 py-2" id="siteLookupBtn"
+                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                            <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
                                     title="Find nearest site..."
                                     style="height:36px;min-width:25px;font-size:1.00rem;">
                                 <i class="ti ti-search"></i>
@@ -537,7 +536,7 @@
         <!-- ================================================================== -->
         <!-- CARD 2 — CATCH FORMSET                                             -->
         <!-- ================================================================== -->
-        <div class="card col-md-12 mt-3">
+        <div class="card col-md-12 mt-3 flex-grow-1">
             <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="d-none d-md-block text-muted mb-0">Size & counts for all sampled fish species.</h5>
@@ -1039,7 +1038,9 @@
                             <div class="accordion-body p-2">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="text-muted small">Click anywhere on the map to set coordinates. Drag the marker to adjust.</span>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="siteCoordPickerLocBtn">&#128205; Use My Location</button>
+                                    <div class="d-none d-md-block">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="siteCoordPickerLocBtn">&#128205; Use My Location</button>
+                                    </div>
                                 </div>
                                 <div id="site-coord-picker-map"></div>
                                 <div id="siteCoordPickerDisplay" class="mt-2 small text-center text-muted d-none">
@@ -1628,8 +1629,32 @@ document.addEventListener('DOMContentLoaded', function () {
         return num.toFixed(5);
     }
 
+    function normalizeTimeTo24Hour(timeInput) {
+        if (!timeInput) return;
+
+        var value = String(timeInput.value || '').trim();
+        var match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
+        if (!match) return;
+
+        var hour = parseInt(match[1], 10);
+        var minute = match[2];
+        var meridiem = match[3].toUpperCase();
+        if (hour < 1 || hour > 12) return;
+
+        if (meridiem === 'AM') {
+            if (hour === 12) hour = 0;
+        } else if (hour !== 12) {
+            hour += 12;
+        }
+
+        timeInput.value = String(hour).padStart(2, '0') + ':' + minute;
+    }
+
     if (catchForm) {
         catchForm.addEventListener('submit', function () {
+            normalizeTimeTo24Hour(document.getElementById('id_start_time'));
+            normalizeTimeTo24Hour(document.getElementById('id_end_time'));
+
             var latEl = document.getElementById('id_latitude');
             var lngEl = document.getElementById('id_longitude');
             if (latEl && latEl.value) latEl.value = roundCoordTo5(latEl.value);
