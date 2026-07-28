@@ -60,90 +60,97 @@
             <div class="card-body flex-grow-1">
                 <!-- Row 1: Date / Project / Agency / Crew Lead -->
                 <div class="row g-0 mb-md-0 mb-2">
-                    <div class="col-md-3 p-md-2 p-2 mb-0 bg-dark bg-opacity-10">
-                        <div class="d-flex gap-1 align-items-center">
-                            <div class="form-floating flex-grow-1">
-                                {{ event_form.event_date }}
-                                <label for="id_event_date" class="form-label">DATE</label>
+                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.event_date }}
+                                    <label for="id_event_date" class="form-label">DATE</label>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary btn-sm px-2 py-2"
+                                        title="Today's Date"
+                                        style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
+                                        onclick="document.getElementById('id_event_date').value=new Date().toISOString().slice(0,10);">
+                                    <i class="ti ti-calendar-check"></i>
+                                </button>
+                                {% if event_form.event_date.errors %}
+                                    <div class="text-danger small">{{ event_form.event_date.errors|striptags }}</div>
+                                {% endif %}
                             </div>
-                            <button type="button" class="btn btn-outline-secondary btn-sm p-2"
-                                    title="Today's Date"
-                                    style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
-                                    onclick="document.getElementById('id_event_date').value=new Date().toISOString().slice(0,10);">
-                                <i class="ti ti-calendar-check"></i>
-                            </button>
                         </div>
-                        {% if event_form.event_date.errors %}
-                            <div class="text-danger small">{{ event_form.event_date.errors|striptags }}</div>
-                        {% endif %}
                     </div>
 
-                    <div class="col-md-3 col-sm-8 col p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                            {{ event_form.project }}
-                            <label for="id_project" class="form-label">PROJECT</label>
+                    <div class="col-md-5 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.project }}
+                                    <label for="id_project" class="form-label">PROJECT</label>
+                                </div>
+                                {% if event_form.project.errors %}
+                                    <div class="text-danger small">{{ event_form.project.errors|striptags }}</div>
+                                {% endif %}
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.agency }}
+                                    <label for="id_agency" class="form-label">AGENCY</label>
+                                </div>
+                                {% if event_form.agency.errors %}
+                                    <div class="text-danger small">{{ event_form.agency.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% if event_form.project.errors %}
-                            <div class="text-danger small">{{ event_form.project.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-2 col-sm-4 col p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                            {{ event_form.agency }}
-                            <label for="id_agency" class="form-label">AGENCY</label>
-                        </div>
-                        {% if event_form.agency.errors %}
-                            <div class="text-danger small">{{ event_form.agency.errors|striptags }}</div>
-                        {% endif %}
                     </div>
 
                     <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="d-flex gap-1 align-items-center">
-                            <div class="form-floating flex-grow-1">
-                                {{ event_form.crew_lead }}
-                                <label for="id_crew_lead" class="form-label">CREW LEADER</label>
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.crew_lead }}
+                                    <label for="id_crew_lead" class="form-label">CREW LEADER</label>
+                                </div>
+                                {% if perms.kiccd_app.add_crew %}
+                                <button type="button" class="btn btn-outline-success btn-sm p-1" id="addCrewLeadBtn"
+                                        data-bs-toggle="modal" data-bs-target="#addCrewLeadModal"
+                                        title="Add a New Crew Leader" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
+                                    <i class="ti ti-plus"></i>
+                                </button>
+                                {% endif %}
+                                {% if event_form.crew_lead.errors %}
+                                    <div class="text-danger small">{{ event_form.crew_lead.errors|striptags }}</div>
+                                {% endif %}
                             </div>
-                            {% if perms.kiccd_app.add_crew %}
-                            <button type="button" class="btn btn-outline-success btn-sm p-1" id="addCrewLeadBtn"
-                                    data-bs-toggle="modal" data-bs-target="#addCrewLeadModal"
-                                    title="Add a New Crew Leader" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
-                                <i class="ti ti-plus"></i>
-                            </button>
-                            {% endif %}
                         </div>
-                        {% if event_form.crew_lead.errors %}
-                            <div class="text-danger small">{{ event_form.crew_lead.errors|striptags }}</div>
-                        {% endif %}
                     </div>
                 </div>
 
                 <!-- Row 2: Gear / Run-Net# / Effort / Start-End Time -->
                 <div class="row g-0 mb-md-0 mb-2">
                     <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                            {{ event_form.gear }}
-                            <label for="id_gear" class="form-label">GEAR TYPE</label>
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.gear }}
+                                    <label for="id_gear" class="form-label">GEAR TYPE</label>
+                                </div>
+                                {% if event_form.gear.errors %}
+                                    <div class="text-danger small">{{ event_form.gear.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% if event_form.gear.errors %}
-                            <div class="text-danger small">{{ event_form.gear.errors|striptags }}</div>
-                        {% endif %}
                     </div>
-                    <div class="col-md-4 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="col-6 p-md-2 p-2">
-                                <div class="form-floating">
+                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <div class="form-floating flex-grow-1">
                                     {{ event_form.effort_num }}
                                     <label for="id_effort_num" class="form-label">RUN/NET #</label>
                                 </div>
                                 {% if event_form.effort_num.errors %}
                                     <div class="text-danger small">{{ event_form.effort_num.errors|striptags }}</div>
                                 {% endif %}
-                            </div>
-                            <div class="col-6 p-md-2 p-2">
-                                <div class="form-floating">
+                                <div class="form-floating flex-grow-1">
                                     {{ event_form.effort_min }}
-                                    <label for="id_effort_min" class="d-none d-md-block form-label">TOTAL EFFORT (min)</label>
+                                    <label for="id_effort_min" class="d-none d-md-block form-label">EFFORT (min)</label>
                                     <label for="id_effort_min" class="d-md-none form-label">EFFORT (min)</label>
                                 </div>
                                 {% if event_form.effort_min.errors %}
@@ -152,41 +159,19 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="offset-md-1 col-md-5 col-sm-6 p-md-2 p-2">
-                                <div class="d-flex gap-1 align-items-center">
-                                    <div class="form-floating flex-grow-1">
-                                        {{ event_form.start_time }}
-                                        <label for="id_start_time" class="form-label">START TIME</label>
-                                    </div>
-                                    <div class="d-none d-md-block">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm p-2"
-                                                title="Current time - Effort (min)"
-                                                style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
-                                                onclick="(function(startEl,effortEl){var d=new Date();var minutes=parseInt(effortEl&&effortEl.value,10);if(!isNaN(minutes)){d.setMinutes(d.getMinutes()-minutes);}var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');startEl.value=h+':'+m;})(document.getElementById('id_start_time'),document.getElementById('id_effort_min'));">
-                                            <i class="ti ti-clock"></i>
-                                        </button>
-                                    </div>
+                    <div class="col-md-5 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.start_time }}
+                                    <label for="id_start_time" class="form-label">START TIME</label>
                                 </div>
                                 {% if event_form.start_time.errors %}
                                     <div class="text-danger small">{{ event_form.start_time.errors|striptags }}</div>
                                 {% endif %}
-                            </div>
-                            <div class="col-md-5 col-sm-6 p-md-2 p-2">
-                                <div class="d-flex gap-1 align-items-center">
-                                    <div class="form-floating flex-grow-1">
-                                        {{ event_form.end_time }}
-                                        <label for="id_end_time" class="form-label">END TIME</label>
-                                    </div>
-                                    <div class="d-none d-md-block">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm p-2"
-                                                title="Current local time"
-                                                style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
-                                                onclick="(function(el){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');el.value=h+':'+m;})(document.getElementById('id_end_time'));">
-                                            <i class="ti ti-clock"></i>
-                                        </button>
-                                    </div>
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.end_time }}
+                                    <label for="id_end_time" class="form-label">END TIME</label>
                                 </div>
                                 {% if event_form.end_time.errors %}
                                     <div class="text-danger small">{{ event_form.end_time.errors|striptags }}</div>
@@ -199,51 +184,55 @@
                 <!-- Row 3: GPS / Lat / Lng / Site -->
                 <div class="row g-0 mb-md-0 mb-2">
                     <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
-                            <button id="eventMyLocationBtn" type="button"
-                                    class="btn btn-outline-secondary px-2 py-2"
-                                    style="height:36px;min-width:25px;font-size:1.00rem;"
-                                    title="Use my location">
-                                <i class="ri ri-gps-fill"></i>
-                            </button>
-                            <div class="form-floating flex-grow-1">
-                                {{ event_form.latitude }}
-                                <label for="id_latitude" class="form-label">LATITUDE</label>
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <button id="eventMyLocationBtn" type="button"
+                                        class="btn btn-outline-secondary px-2 py-2"
+                                        style="height:36px;min-width:25px;font-size:1.00rem;"
+                                        title="Use my location">
+                                    <i class="ri ri-gps-fill"></i>
+                                </button>
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.latitude }}
+                                    <label for="id_latitude" class="form-label">LATITUDE</label>
+                                </div>
+                                {% if event_form.latitude.errors %}
+                                    <div class="text-danger small">{{ event_form.latitude.errors|striptags }}</div>
+                                {% endif %}
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.longitude }}
+                                    <label for="id_longitude" class="form-label">LONGITUDE</label>
+                                </div>
+                                {% if event_form.longitude.errors %}
+                                    <div class="text-danger small">{{ event_form.longitude.errors|striptags }}</div>
+                                {% endif %}
                             </div>
-                            {% if event_form.latitude.errors %}
-                                <div class="text-danger small">{{ event_form.latitude.errors|striptags }}</div>
-                            {% endif %}
-                            <div class="form-floating flex-grow-1">
-                                {{ event_form.longitude }}
-                                <label for="id_longitude" class="form-label">LONGITUDE</label>
-                            </div>
-                            {% if event_form.longitude.errors %}
-                                <div class="text-danger small">{{ event_form.longitude.errors|striptags }}</div>
-                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
-                            <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
-                                    title="Find nearest site..."
-                                    style="height:36px;min-width:25px;font-size:1.00rem;">
-                                <i class="ti ti-search"></i>
-                            </button>
-                            <div class="form-floating flex-grow-1">
-                                {{ event_form.site }}
-                                <label for="id_site" class="form-label">SITE NAME</label>
+                        <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
+                                        title="Find nearest site..."
+                                        style="height:36px;min-width:25px;font-size:1.00rem;">
+                                    <i class="ti ti-search"></i>
+                                </button>
+                                <div class="form-floating flex-grow-1">
+                                    {{ event_form.site }}
+                                    <label for="id_site" class="form-label">SITE NAME</label>
+                                </div>
+                                {% if perms.kiccd_app.add_samplesite %}
+                                <button type="button" class="btn btn-outline-success btn-sm p-1" id="addSiteBtn"
+                                        data-bs-toggle="modal" data-bs-target="#addSiteModal"
+                                        title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
+                                    <i class="ti ti-plus"></i>
+                                </button>
+                                {% endif %}
+                                {% if event_form.site.errors %}
+                                    <div class="text-danger small">{{ event_form.site.errors|striptags }}</div>
+                                {% endif %}
                             </div>
-                            {% if perms.kiccd_app.add_samplesite %}
-                            <button type="button" class="btn btn-outline-success btn-sm p-1" id="addSiteBtn"
-                                    data-bs-toggle="modal" data-bs-target="#addSiteModal"
-                                    title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
-                                <i class="ti ti-plus"></i>
-                            </button>
-                            {% endif %}
                         </div>
-                        {% if event_form.site.errors %}
-                            <div class="text-danger small">{{ event_form.site.errors|striptags }}</div>
-                        {% endif %}
                     </div>
                 </div>
 
@@ -562,195 +551,210 @@
                 </div>
                 </div>
             </div>
-            <div class="card-body p-2 p-md-2">
+            <div class="card-body flex-grow-1">
 
                 {{ formset.management_form }}
 
                 <div id="catch-formset">
-                {% for form in formset %}
-                <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
-                    <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
-                        <div class="col-md-2">
-                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                <div class="col-md-1 d-flex align-items-center justify-content-center">
-                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
-                                    <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #{{ forloop.counter }}</p>
+                    {% for form in formset %}
+                        <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded catch-row">
+                            <div class="col-md-0 p-md-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
+                                <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
+                                    <h5 class="d-block d-md-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #{{ forloop.counter }}</h5>
                                 </div>
-                                <div class="col-md-11">
-                                    <div class="form-floating">
-                                        {{ form.species }}
-                                        <label class="form-label" for="id_species">SPECIES</label>
+                            </div>
+                            <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
+                                        {% comment %} <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #{{ forloop.counter }}</p> {% endcomment %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.species }}
+                                            <label class="form-label" for="id_species">SPECIES</label>
+                                        </div>
+                                        {% if form.species.errors %}
+                                            <div class="text-danger small">{{ form.species.errors|striptags }}</div>
+                                        {% endif %}
                                     </div>
-                                    {% if form.species.errors %}
-                                        <div class="text-danger small">{{ form.species.errors|striptags }}</div>
-                                    {% endif %}
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="row g-md-2 g-2 mb-0 align-items-stretch">
-                                <div class="col-md-6 col-6 me-0">
-                                    <div class="form-floating">
-                                        {{ form.length_mm }}
-                                        <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
+                            <div class="col-md-3 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.length_mm }}
+                                            <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
+                                        </div>
+                                        {% if form.length_mm.errors %}
+                                            <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
+                                        {% endif %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.weight_g }}
+                                            <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
+                                        </div>
+                                        {% if form.weight_g.errors %}
+                                            <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
+                                        {% endif %}
                                     </div>
-                                    {% if form.length_mm.errors %}
-                                        <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
-                                    {% endif %}
                                 </div>
-                                <div class="col-md-6 col-6">
-                                    <div class="form-floating">
-                                        {{ form.weight_g }}
-                                        <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
+                            </div>
+                            <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.fish_sex }}
+                                            <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
+                                            <label class="form-label d-block d-md-none" for="id_fish_sex">SEX</label>
+                                        </div>
+                                        {% if form.fish_sex.errors %}
+                                            <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
+                                        {% endif %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.fish_count }}
+                                            <label class="form-label" for="id_fish_count">COUNT</label>
+                                        </div>
+                                        {% if form.fish_count.errors %}
+                                            <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
+                                        {% endif %}
                                     </div>
-                                    {% if form.weight_g.errors %}
-                                        <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
-                                    {% endif %}
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-1 col-sm-6">
-                            <div class="form-floating">
-                                {{ form.fish_sex }}
-                                <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
-                                <label class="form-label d-block d-md-none" for="id_fish_sex">FISH SEX</label>
-                            </div>
-                            {% if form.fish_sex.errors %}
-                                <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-1 col-sm-6 offset-sm-0 offset-md-0 ps-1">
-                            <div class="form-floating">
-                                {{ form.fish_count }}
-                                <label class="form-label" for="id_fish_count">COUNT</label>
-                            </div>
-                            {% if form.fish_count.errors %}
-                                <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
+                            </div> 
 
-                        <div class="col-md-1 col-sm-4 offset-sm-2 offset-md-0">
-                            <div class="form-floating">
-                                {{ form.gonad_stage }}
-                                <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
-                                <label class="form-label d-block d-md-none" for="id_gonad_stage">GONAD STAGE</label>
-                            </div>
-                            {% if form.gonad_stage.errors %}
-                                <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-1 col-sm-4 offset-md-0 ps-1">
-                            <div class="form-floating">
-                                {{ form.gonad_wt_g }}
-                                <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
-                                <label class="form-label d-block d-md-none" for="id_gonad_wt_g">GONAD WT (g)</label>
-                            </div>
-                            {% if form.gonad_wt_g.errors %}
-                                <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 mt-md-1 col-12">
-                            <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
-                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
-                                    <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
-                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
-                                    <div class="form-check form-switch">
-                                        {{ form.spawn_patch }}
+                            <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.gonad_stage }}
+                                            <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
+                                            <label class="form-label d-block d-md-none" for="id_gonad_stage">GONAD STAGE</label>
+                                        </div>
+                                        {% if form.gonad_stage.errors %}
+                                            <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
+                                        {% endif %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.gonad_wt_g }}
+                                            <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
+                                            <label class="form-label d-block d-md-none" for="id_gonad_wt_g">GONAD WT (g)</label>
+                                        </div>
+                                        {% if form.gonad_wt_g.errors %}
+                                            <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
+                                        {% endif %}
                                     </div>
-                                    {% if form.spawn_patch.errors %}
-                                        <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age &amp; Growth?">
-                                    <p class="d-none d-md-block mb-1 text-muted fs-11">A&amp;G</p>
-                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE &amp; GROWTH?</p>
-                                    <div class="form-check form-switch">
-                                        {{ form.collected4ag }}
-                                    </div>
-                                    {% if form.collected4ag.errors %}
-                                        <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
-                                    {% endif %}
                                 </div>
                             </div>
+
+                            <div class="col-md-2 pt-md-3 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0 align-items-center">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center align-items-stretch">
+                                        <div class="col-md-6 offset-md-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
+                                            <div class="form-check form-switch flex-grow-1">
+                                                    {{ form.spawn_patch }}
+                                            </div>
+                                                <label class="form-label d-none d-md-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
+                                                <label class="form-label d-block d-md-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
+                                                {% if form.spawn_patch.errors %}
+                                                    <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
+                                                {% endif %}
+                                        </div>
+                                        <div class="col-md-6 offset-md-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
+                                            <div class="form-check form-switch flex-grow-1">
+                                                {{ form.collected4ag }}
+                                            </div>
+                                                <label class="form-label d-none d-md-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
+                                                <label class="form-label d-block d-md-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
+                                            {% if form.collected4ag.errors %}
+                                                <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                {% endfor %}
+                        {% endfor %}
                 </div>{# /catch-formset #}
 
                 <!-- Empty form template for JS row cloning -->
                 <div id="empty-form-template" class="d-none">
-                    <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
-                        <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
-                            <div class="col-md-2">
-                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                    <div class="col-md-1 d-flex align-items-center justify-content-center">
-                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
-                                        <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #</p>
+                    <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded catch-row">
+                        <div class="col-md-0 p-md-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
+                            <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
+                                <h5 class="d-block d-md-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.species }}
+                                        <label class="form-label" for="id_species">SPECIES</label>
                                     </div>
-                                    <div class="col-md-11">
-                                        <div class="form-floating">
-                                            {{ formset.empty_form.species }}
-                                            <label class="form-label" for="id_species">SPECIES</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.length_mm }}
+                                        <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
+                                    </div>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.weight_g }}
+                                        <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.fish_sex }}
+                                        <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
+                                        <label class="form-label d-block d-md-none" for="id_fish_sex">SEX</label>
+                                    </div>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.fish_count }}
+                                        <label class="form-label" for="id_fish_count">COUNT</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+
+                        <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.gonad_stage }}
+                                        <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
+                                        <label class="form-label d-block d-md-none" for="id_gonad_stage">GONAD STAGE</label>
+                                    </div>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.gonad_wt_g }}
+                                        <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
+                                        <label class="form-label d-block d-md-none" for="id_gonad_wt_g">GONAD WT (g)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 pt-md-3 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0 align-items-center">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center align-items-stretch">
+                                    <div class="col-md-6 offset-md-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
+                                        <div class="form-check form-switch flex-grow-1">
+                                                {{ formset.empty_form.spawn_patch }}
                                         </div>
+                                            <label class="form-label d-none d-md-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
+                                            <label class="form-label d-block d-md-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                    <div class="col-md-6 me-0">
-                                        <div class="form-floating">
-                                            {{ formset.empty_form.length_mm }}
-                                            <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            {{ formset.empty_form.weight_g }}
-                                            <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.fish_sex }}
-                                    <label class="form-label" for="id_fish_sex">SEX</label>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.fish_count }}
-                                    <label class="form-label" for="id_fish_count">COUNT</label>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.gonad_stage }}
-                                    <label class="form-label" for="id_gonad_stage">STAGE</label>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.gonad_wt_g }}
-                                    <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
-                                </div>
-                            </div>
-                            <div class="col-md-2 mt-md-1 col-12">
-                                <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
-                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
-                                        <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
-                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
-                                        <div class="form-check form-switch">
-                                            {{ formset.empty_form.spawn_patch }}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age &amp; Growth?">
-                                        <p class="d-none d-md-block mb-1 text-muted fs-11">A&amp;G</p>
-                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE &amp; GROWTH?</p>
-                                        <div class="form-check form-switch">
+                                    <div class="col-md-6 offset-md-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
+                                        <div class="form-check form-switch flex-grow-1">
                                             {{ formset.empty_form.collected4ag }}
                                         </div>
+                                            <label class="form-label d-none d-md-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
+                                            <label class="form-label d-block d-md-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
                                     </div>
                                 </div>
                             </div>

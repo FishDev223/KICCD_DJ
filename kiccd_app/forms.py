@@ -671,7 +671,7 @@ class IcEventForm(forms.ModelForm):
             'agency': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
             'crew_lead': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
             'gear': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
-            'effort_num': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'effort_num': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 99}),
             'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
             'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
             'effort_min': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
@@ -789,11 +789,11 @@ class IcCatchForm(forms.ModelForm):
             'fish_sex': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
             'length_mm': forms.NumberInput(attrs={'step': '1.0', 'class': 'form-control'}),
             'weight_g': forms.NumberInput(attrs={'step': '1.0', 'class': 'form-control'}),
-            'fish_count': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'fish_count': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 999}),
             'spawn_patch': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'collected4ag': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'gonad_stage': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
-            'gonad_wt_g': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'gonad_wt_g': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': 0, 'max': 999}),
         }
 
     def __init__(self, *args, **kwargs):
