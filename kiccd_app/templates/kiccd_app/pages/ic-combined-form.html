@@ -60,7 +60,7 @@
             <div class="card-body flex-grow-1">
                 <!-- Row 1: Date / Project / Agency / Crew Lead -->
                 <div class="row g-0 mb-md-0 mb-2">
-                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-3 pt-md-2 pb-md-2 ps-md-2 pe-md-1 pt-2 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
@@ -80,7 +80,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-5 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-5 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
@@ -101,7 +101,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-4 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
@@ -125,7 +125,7 @@
 
                 <!-- Row 2: Gear / Run-Net# / Effort / Start-End Time -->
                 <div class="row g-0 mb-md-0 mb-2">
-                    <div class="col-md-3 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-3 pt-md-2 pb-md-2 ps-md-2 pe-md-1 pt-2 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
@@ -138,7 +138,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-4 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
@@ -159,7 +159,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-5 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
@@ -183,7 +183,7 @@
 
                 <!-- Row 3: GPS / Lat / Lng / Site -->
                 <div class="row g-0 mb-md-0 mb-2">
-                    <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-6 pt-md-2 pb-md-2 ps-md-2 pe-md-1 pt-2 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <button id="eventMyLocationBtn" type="button"
@@ -209,7 +209,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="col-md-6 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2 bg-dark bg-opacity-10">
                         <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
@@ -494,28 +494,32 @@
 
                 <!-- IC Sighted / No Fish toggles -->
                 <div class="row g-0 mb-0 bg-dark bg-opacity-10">
-                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
-                        <p class="mb-1 mt-md-0 text-muted fs-12">IC SIGHTED?</p>
+                    <div class="col-4 p-1 mb-md-1 mt-md-0 mb-1 mt-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Invasive Carp (IC) observed by Field Staff?">
+                        {% comment %} <p class="mb-1 mt-md-0 text-muted fs-12">IC SIGHTED?</p> {% endcomment %}
                         <div class="form-check form-switch">
                             {{ event_form.carp_sighted }}
                         </div>
+                        <label class="form-label text-muted fs-11" for="id_carp_sighted">IC SIGHTED?</label>
                         {% if event_form.carp_sighted.errors %}
                             <div class="text-danger small">{{ event_form.carp_sighted.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Young-of-Year (YOY) IC Observed?">
-                        <p class="mb-1 mt-md-0 text-muted fs-12">YOY IC?</p>
+                    <div class="col-4 p-1 mb-md-1 mt-md-0 mb-1 mt-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Were Young-of-Year (YOY) IC Observed?">
+                        {% comment %} <p class="mb-1 mt-md-0 text-muted fs-12">YOY IC?</p> {% endcomment %}
                         <div class="form-check form-switch">
                             {{ event_form.yoy_sighted }}
                         </div>
+                        <label class="form-label text-muted fs-11" for="id_yoy_sighted">YOY IC?</label>
                         {% if event_form.yoy_sighted.errors %}
                             <div class="text-danger small">{{ event_form.yoy_sighted.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-4 p-2 mb-md-1 mt-md-0 mb-3 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*<u>ZERO</u> fish captured during entire sampling effort.">
-                        <p class="mb-1 mt-md-0 text-muted fs-12">NO FISH?</p>
+                    <div class="col-4 p-1 mb-md-1 mt-md-0 mb-1 mt-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*<u>ZERO</u> fish captured during entire sampling effort.">
+                        {% comment %} <p class="mb-1 mt-md-0 text-muted fs-12">NO FISH?</p> {% endcomment %}
                         <div class="form-check form-switch">
                             <input type="checkbox" name="no_fish" id="id_no_fish" class="form-check-input" role="switch">
+                        </div>
+                        <label class="form-label text-muted fs-11" for="id_no_fish">NO FISH?</label>
                         </div>
                     </div>
                 </div>

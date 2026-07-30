@@ -43,57 +43,88 @@
 
 {% block page_content %}
 <div class="row mb-md-2 mt-2">
-    <div class="col-md-10 offset-md-1">
-        <div class="card bg-home-card">
+    <div class="col-md-8 offset-md-2">
+        <div class="card bg-home-card d-none d-md-block">
             <div class="card-header border-bottom border-dashed align-items-center">
-                <h4 class="d-none d-md-block text-center fs-20">Select an Invasive Carp Project to Enter & View Data</h4>
+                <h4 class="d-none d-md-block text-center fs-20">Select an Activity to begin Interacting with KICCD</h4>
                 <h4 class="d-block d-md-none text-center fs-18">Enter/View Invasive Carp Data</h4>
             </div>
 
             <div class="card-body bg-home-card bg-opacity-50">
                 <div class="row">
-                    <div class="col-sm-4 tablist-border">
+                    <div class="col-sm-3 tablist-border">
                         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 						
-                            <a class="nav-link active show" id="v-pills-agency-tab" data-bs-toggle="pill" href="#v-pills-agency" role="tab" aria-controls="v-pills-agency" aria-selected="true">
-                                <i class="ri ri-shield-star-line me-1 fs-18"></i> Agency Sampling
+                            <a class="nav-link active show" id="v-pills-newdata-tab" data-bs-toggle="pill" href="#v-pills-newdata" role="tab" aria-controls="v-pills-newdata" aria-selected="true">
+                                <i class="ri ri-menu-add-line me-1 fs-18"></i> ADD NEW DATA
                             </a>
-                            <a class="nav-link" id="v-pills-contract-tab" data-bs-toggle="pill" href="#v-pills-contract" role="tab" aria-controls="v-pills-contract" aria-selected="false">
-                                <i class="ri ri-contract-line me-1 fs-18"></i> Contract Fishing
+                            <a class="nav-link" id="v-pills-viewdata-tab" data-bs-toggle="pill" href="#v-pills-viewdata" role="tab" aria-controls="v-pills-viewdata" aria-selected="false">
+                                <i class="ri ri-table-line me-1 fs-18"></i> VIEW DATA TABLES
                             </a>
                             <a class="nav-link" id="v-pills-ra-tab" data-bs-toggle="pill" href="#v-pills-ra" role="tab" aria-controls="v-pills-ra" aria-selected="false">
-                                <i class="ri ri-ship-2-line me-1 fs-18"></i> ICHP Ride-Alongs
+                                <i class="ri ri-line-chart-line me-1 fs-18"></i> RESULTS & CHARTS
                             </a>
                             <a class="nav-link" id="v-pills-ichp-tab" data-bs-toggle="pill" href="#v-pills-ichp" role="tab" aria-controls="v-pills-ichp" aria-selected="false">
-                                <i class="ri ri-archive-stack-line me-1 fs-18"></i>Fisher Reports
+                                <i class="ri ri-road-map-line me-1 fs-18"></i> SITE INFORMATION
                             </a>
                             <a class="nav-link" id="v-pills-subsamples-tab" data-bs-toggle="pill" href="#v-pills-subsamples" role="tab" aria-controls="v-pills-subsamples" aria-selected="false">
-                                <i class="ri ri-bring-forward me-1 fs-18"></i>IC Subsamples
+                                <i class="ri ri-menu-search-line me-1 fs-18"></i> LOOKUP TABLES
                             </a>
                         </div>
                     </div> <!-- end col-->
 
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         <div class="tab-content" id="v-pills-tabContent">
-                            <div class="tab-pane fade active show" id="v-pills-agency" role="tabpanel" aria-labelledby="v-pills-agency-tab">
-                                <p class="mb-2 mt-3 mt-sm-0"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-info float-start">AS</span>This App currently   
-                                allows KDFWR staff to enter and view data contained withing the Kentucky Invasive Carp Centralized Database (KICCD).<br><br>
-                                Agency Sampling refers to field work completed for multiple Invasive Carp projects, including activities related to monitoring, Removal and Age & Growth.  
+                            <div class="tab-pane fade active show" id="v-pills-newdata" role="tabpanel" aria-labelledby="v-pills-newdata-tab">
+                                <p class="mb-2 mt-3 mt-sm-0 fw-semibold"> A primary app function is to allow registered KDFWR users to input new data into the Kentucky Invasive Carp Centralized Database (KICCD).<br>
                                 </p> 
                                 <div class="row container-fluid">
-                                    <div class="card col-md-5 ms-md-3 me-md-3 mb-2 mb-md-0 p-0">
+                                    <div class="card col-md-10 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
                                         <div class="card-body shadow-sm rounded">
-                                            <p class="text-body-secondary">ADD NEW...</p>
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">AGENCY WORK</span> <em>Field sampling conducted for Invasive Carp projects</em></p>
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:ic_event_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Sampling Effort</a>
-                                                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Catch Data</a>
-                                                <a href="{% url 'kiccd_app:ic_age_growth_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Age Data</a>
+                                                <a href="{% url 'kiccd_app:ic_combined_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add A Complete Sampling Record (Effort & Catch)</a>
+                                                <a href="{% url 'kiccd_app:ic_event_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add New Sampling Effort (w/o Catch Data)</a>
+                                                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add Catch Data to Existing Effort</a>
+                                                <a href="{% url 'kiccd_app:ic_age_growth_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add New Age & Growth Data</a>
+                                                <a href="{% url 'kiccd_app:sample_site_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add a New Sampling Site</a>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="card col-md-10 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <div class="card-body shadow-sm rounded">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">CONTRACT FISHING</span> <em>Agency-directed commercial fishing for Invasive Carp</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add Contract Fishing Catch Data</a>
+                                                <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add Contract Fishing Efforts (in Bulk)</a>
+                                                <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add a Contract Fishing Subsample</a>
+                                                <a href="{% url 'kiccd_app:cf_site_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add a New Contract Fishing Site</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card col-md-10 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <div class="card-body shadow-sm rounded">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">IC HARVEST PROGRAM</span> <em>Incentivized commercial fishing efforts for Invasive Carp</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <a href="{% url 'kiccd_app:ra_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Ride-Along Efforts</a>
+                                                <a href="{% url 'kiccd_app:ra_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>RA Catch Data</a>
+                                                <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Combined Single Net Entry</a>
+                                                <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>ICHP Fishing Effort</a>
+                                                <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>ICHP Reported Harvest</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="v-pills-viewdata" role="tabpanel" aria-labelledby="v-pills-viewdata-tab">
+                                <p class="mb-2 mt-3 mt-sm-0"><span
+                                        class="px-1 rounded me-1 fw-semibold d-inline-block bg-danger-subtle text-danger float-start">CF</span>
+                                        A KDFWR program where fishers are put on contract and provided a daily stipend to target and remove adult Invasive Carp from parts of the Ohio River Basin that often fail to attract commercial fishing efforts.
+                                        Data from this program is collected by seasonal technicians that the agency employs to serve as on-board observers.</p>
+                                <div class="row container-fluid">
                                     <div class="card col-md-5 ms-md-3 mb-1 mb-md-0 p-0">
                                         <div class="card-body shadow-sm rounded">               
-                                            <p class="text-body-secondary">VIEW...</p>
+                                            <p class="text-body-secondary">Invasive Carp Data</p>
                                             <div class="list-group mt-md-0">
                                                 <a href="{% url 'kiccd_app:recent_ic_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent Efforts</a>
                                                 <a href="{% url 'kiccd_app:ic_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filtered Data</a>
@@ -101,26 +132,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="v-pills-contract" role="tabpanel" aria-labelledby="v-pills-contract-tab">
-                                <p class="mb-2 mt-3 mt-sm-0"><span
-                                        class="px-1 rounded me-1 fw-semibold d-inline-block bg-danger-subtle text-danger float-start">CF</span>
-                                        A KDFWR program where fishers are put on contract and provided a daily stipend to target and remove adult Invasive Carp from parts of the Ohio River Basin that often fail to attract commercial fishing efforts.
-                                        Data from this program is collected by seasonal technicians that the agency employs to serve as on-board observers.</p>
-                                <div class="row container-fluid">
-                                    <div class="card col-md-5 ms-md-3 me-md-3 mb-2 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">
-                                            <p class="text-body-secondary">ADD NEW...</p>
-                                            <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Fishing Efforts</a>
-                                                <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Catch Data</a>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div class="card col-md-5 ms-md-3 mb-1 mb-md-0 p-0">
                                         <div class="card-body shadow-sm rounded">               
-                                            <p class="text-body-secondary">VIEW...</p>
+                                            <p class="text-body-secondary">Contract Fishing Program</p>
                                             <div class="list-group mt-md-0">
                                                 <a href="{% url 'kiccd_app:recent_cf_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent Efforts</a>
                                                 <a href="{% url 'kiccd_app:cf_report_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filtered Data</a>
@@ -137,15 +151,7 @@
                                     Invasive Carp Harvest Program (ICHP).  Staff members serve as observers to ICHP participants as they collect information on their fishing 
                                     efforts, by-catch of non-target species and actual harvest of Invasive Carp.</p>
                                 <div class="row container-fluid">
-                                    <div class="card col-md-5 ms-md-3 me-md-3 mb-2 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">
-                                            <p class="text-body-secondary">ADD NEW...</p>
-                                            <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:ra_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Ride-Along Efforts</a>
-                                                <a href="{% url 'kiccd_app:ra_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>RA Catch Data</a>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                     <div class="card col-md-5 ms-md-3 mb-1 mb-md-0 p-0">
                                         <div class="card-body shadow-sm rounded">            
                                             <p class="text-body-secondary">VIEW...</p>
@@ -168,9 +174,6 @@
                                         <div class="card-body shadow-sm rounded">
                                             <p class="text-body-secondary">ADD NEW...</p>
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Combined Single Net Entry</a>
-                                                <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>ICHP Fishing Effort</a>
-                                                <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>ICHP Reported Harvest</a>
                                             </div>
                                         </div>
                                     </div>
@@ -219,7 +222,7 @@
         </div> <!-- end card-->
     </div> <!-- end col -->
 </div>
-<div class="row mb-4">
+{% comment %} <div class="row mb-4">
     <div class="col-md-10 offset-md-1">
         <div class="row align-items-stretch g-0">
             <div class="card col-md-3 me-md-3 ms-md-5">
@@ -284,7 +287,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> {% endcomment %}
 
 {% endblock page_content %}
 
@@ -292,7 +295,7 @@
 
 <script src="{% static 'js/apexcharts.min.js' %}"></script> <!-- ApexCharts JS -->
 
-<script>
+{% comment %} <script>
 $(document).ready(function () {
     "use strict";
 
@@ -412,5 +415,5 @@ $(document).ready(function () {
 
     cardConfigs.forEach(hydrateTotalsCard);
 });
-</script>
+</script> {% endcomment %}
 {% endblock extra_javascript %}
