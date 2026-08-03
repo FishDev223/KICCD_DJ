@@ -192,7 +192,7 @@
                                                 <div class="form-floating flex-grow-1">
                                                     {{ form.start_time }}
                                                     <label class="form-label" for="id_start_time">SET TIME</label>
-                                                </div>
+                                                </div>{% comment %} 
                                                 <button
                                                     type="button"
                                                     class="btn btn-outline-secondary btn-sm p-1 cf-time-now-btn"
@@ -201,7 +201,7 @@
                                                     style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
                                                 >
                                                     <i class="ti ti-clock"></i>
-                                                </button>
+                                                </button> {% endcomment %}
                                             </div>
 
                                             {% if form.start_time.errors %}
@@ -213,7 +213,7 @@
                                                 <div class="form-floating flex-grow-1">
                                                     {{ form.end_time }}
                                                     <label class="form-label" for="id_end_time">PULL TIME</label>
-                                                </div>
+                                                </div>{% comment %} 
                                                 <button
                                                     type="button"
                                                     class="btn btn-outline-secondary btn-sm p-1 cf-time-now-btn"
@@ -222,7 +222,7 @@
                                                     style="height:25px;width:25px;min-width:25px;font-size:0.85rem;"
                                                 >
                                                     <i class="ti ti-clock"></i>
-                                                </button>
+                                                </button> {% endcomment %}
                                             </div>
                                             {% if form.end_time.errors %}
                                                 <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>

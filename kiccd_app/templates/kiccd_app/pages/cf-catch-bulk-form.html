@@ -12,6 +12,32 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <style>
 #effort-site-coord-picker-map { width: 100%; height: 300px; cursor: crosshair; }
+.total-count-display .form-control {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--bs-secondary-color);
+    cursor: default;
+    font-size: 1.05rem;
+    font-weight: 600;
+    pointer-events: none;
+    text-align: center;
+}
+
+.total-count-display input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.total-count-display input[type="number"]::-webkit-inner-spin-button,
+.total-count-display input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.total-count-display .form-control:focus {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
 </style>
 {% endblock extra_css %}
 
@@ -20,7 +46,7 @@
     <div class="card col-md-8 offset-md-2">
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
             <h5 class="d-none d-md-block text-muted mb-0">1) SELECT an existing fishing effort, or CREATE a new one.</h5>
-            <h4 class="d-block d-md-none mb-0 text-center">1. Select, or Create, a Contract Fishing Event.</h4>
+            <h4 class="d-block d-md-none mb-0 text-center">FISHING EFFORT</h4>
             <div class="d-flex gap-2">
                 <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Fishing Effort in Bulk...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> Bulk Effort</a>
             </div>	
@@ -88,75 +114,94 @@
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
 
                 <h5 class="d-none d-md-block text-muted mb-0">2) Provide catch counts for the selected net set.</h5>
-                <h4 class="d-block d-md-none mb-0 text-center">2. Add Counts for All Captured Fish.</h4>
-                <div class="d-flex gap-2">
+                <h4 class="d-block d-md-none mb-0 ps-0 pt-0 pe-4 pb-0 text-center">FISH COUNTS </h4>
+                <div class="d-flex gap-2 align-items-center">
                     {% if perms.kiccd_app.add_subsample %}
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#subsampleModal" title="Add a subsample for this Fishing Effort..."><i class="ti ti-copy-plus me-1"></i> Subsample</button>
+                    <button type="button" class="btn btn-sm btn-secondary ps-md-2 pt-md-1 pe-md-2 pb-md-1 ps-1 pt-1 pe-1 pb-1" data-bs-toggle="modal" data-bs-target="#subsampleModal" title="Add a subsample for this Fishing Effort..."><i class="ti ti-copy-plus me-1"></i> Subsample</button>
                     {% endif %}
                 </div>	
 
         </div>
-        <div class="card-body">
-                    {{ formset.management_form }}
+        <div class="card-body flex-grow-1">
+            {{ formset.management_form }}
 
-                    {% for form in formset %}
-                        <div class="border rounded p-md-2 p-sm-3 mb-md-1 mb-2 bg-dark bg-opacity-10 csv-row">
-                            <div class="row g-1 mb-0 mt-0 align-items-stretch">
-                                <div class="col-md-3">
-                                    <div class="form-floating">
-                                        {{ form.species }}
-                                        <label for="{{ form.species.id_for_label }}" class="form-label">SPECIES</label>
-                                    </div>
-                                    {% if form.species.errors %}
-                                        <div class="text-danger small">{{ form.species.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-3 ps-md-3 pe-md-3">
-                                    <div class="d-flex gap-1 align-items-center">
-                                        <div class="form-floating flex-grow-1">
-                                            {{ form.healthy_cnt }}
-                                            <label class="form-label" for="{{ form.healthy_cnt.id_for_label }}">HEALTHY C&amp;R</label>
-                                        </div>
-                                        <button type="button" class="btn btn-outline-primary p-md-2 p-3 count-increment-btn"
-                                                data-target="{{ form.healthy_cnt.id_for_label }}" title="Add 1 Fish"
-                                                style="height:40px;width:36px;min-width:36px;font-size:1.3rem;">
-                                            <i class="ti ti-plus"></i>
-                                        </button>
-                                    </div>
-                                    {% if form.healthy_cnt.errors %}
-                                        <div class="text-danger small">{{ form.healthy_cnt.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-3 ps-md-3 pe-md-3">
-                                    <div class="d-flex gap-1 align-items-center">
-                                        <div class="form-floating flex-grow-1">
-                                            {{ form.moribund_cnt }}
-                                            <label class="form-label" for="{{ form.moribund_cnt.id_for_label }}">MORIBUND C&amp;R</label>
-                                        </div>
-                                        <button type="button" class="btn btn-outline-success btn-sm p-md-2 p-3 count-increment-btn"
-                                                data-target="{{ form.moribund_cnt.id_for_label }}" title="Add 1 Fish"
-                                                style="height:40px;width:36px;min-width:36px;font-size:1.3rem;">
-                                            <i class="ti ti-plus"></i>
-                                        </button>
-                                    </div>
-                                    {% if form.moribund_cnt.errors %}
-                                        <div class="text-danger small">{{ form.moribund_cnt.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-2 offset-md-0 col-4 offset-6 ps-md-3 pe-0">
-                                    <div class="form-floating">
-                                        {{ form.total_cnt }}
-                                        <label class="d-none d-md-block form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL</label>
-                                        <label class="d-block d-md-none form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL FISH</label>
-                                    </div>
-                                    {% if form.total_cnt.errors %}
-                                        <div class="text-danger small">{{ form.total_cnt.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
+            {% for form in formset %}
+            <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded bg-dark bg-opacity-10 csv-row">
+                <div class="col-md-4 pt-md-2 pb-md-2 ps-md-2 pe-md-1 pt-2 pb-1 ps-2 pe-2">
+                    <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ form.species }}
+                                <label for="{{ form.species.id_for_label }}" class="form-label">SPECIES</label>
                             </div>
+                            {% if form.species.errors %}
+                                <div class="text-danger small">{{ form.species.errors|striptags }}</div>
+                            {% endif %}
                         </div>
-                    {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2">
+                    <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                        <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ form.moribund_cnt }}
+                                <label class="form-label" for="{{ form.moribund_cnt.id_for_label }}">MORIBUND C&amp;R</label>
+                            </div>
+
+                            <button type="button" class="btn btn-outline-success btn-sm ps-md-3 pe-md-3 pt-md-3 pb-md-3 ps-4 pe-4 pt-3 pb-3 count-increment-btn"
+                                    data-target="{{ form.moribund_cnt.id_for_label }}" title="Add 1 Fish"
+                                    style="height:40px;width:36px;min-width:36px;font-size:1.3rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+
+                            {% if form.moribund_cnt.errors %}
+                                <div class="text-danger small">{{ form.moribund_cnt.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2">
+                    <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                        <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                {{ form.healthy_cnt }}
+                                <label class="form-label" for="{{ form.healthy_cnt.id_for_label }}">HEALTHY C&amp;R</label>
+                            </div>
+
+                            <button type="button" class="btn btn-outline-primary ps-md-3 pe-md-3 pt-md-3 pb-md-3 ps-4 pe-4 pt-3 pb-3 count-increment-btn"
+                                    data-target="{{ form.healthy_cnt.id_for_label }}" title="Add 1 Fish"
+                                    style="height:40px;width:36px;min-width:36px;font-size:1.3rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+
+                            {% if form.healthy_cnt.errors %}
+                                <div class="text-danger small">{{ form.healthy_cnt.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2 align-items-center">
+                    <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                        <div class="d-flex gap-md-1 gap-sm-1 align-items-center w-100 text-center">
+                            <div class="form flex-grow-1 total-count-display">
+                                <p class="d-none d-md-block mb-0 mt-0 pb-0 pt-0 fs-11">TOTAL</p>
+                                <p class="d-block d-md-none mb-0 mt-0 pb-0 pt-0 fs-11">TOTAL FISH</p>
+                                {{ form.total_cnt }}
+                                {% comment %} <label class="d-none d-md-block form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL</label> {% endcomment %}
+                                {% comment %} <label class="d-block d-md-none form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL FISH</label> {% endcomment %}
+                            </div>
+
+                            {% if form.total_cnt.errors %}
+                                <div class="text-danger small">{{ form.total_cnt.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
 
                         <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
                             <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
@@ -678,13 +723,13 @@
                                         <div class="form-floating flex-grow-1">
                                             {{ effort_form.start_time }}
                                             <label class="form-label" for="{{ effort_form.start_time.id_for_label }}">SET TIME</label>
-                                        </div>
+                                        </div>{% comment %} 
                                         <button type="button" class="btn btn-outline-secondary btn-sm p-1 effort-time-now-btn"
                                                 data-target-id="{{ effort_form.start_time.id_for_label }}"
                                                 title="Current local time"
                                                 style="height:25px;width:25px;min-width:25px;font-size:0.85rem;">
                                             <i class="ti ti-clock"></i>
-                                        </button>
+                                        </button> {% endcomment %}
                                     </div>
                                 </div>
                                 <div class="col-6 pt-2 pb-2 pe-2">
@@ -692,13 +737,13 @@
                                         <div class="form-floating flex-grow-1">
                                             {{ effort_form.end_time }}
                                             <label class="form-label" for="{{ effort_form.end_time.id_for_label }}">PULL TIME</label>
-                                        </div>
+                                        </div>{% comment %} 
                                         <button type="button" class="btn btn-outline-secondary btn-sm p-1 effort-time-now-btn"
                                                 data-target-id="{{ effort_form.end_time.id_for_label }}"
                                                 title="Current local time"
                                                 style="height:25px;width:25px;min-width:25px;font-size:0.85rem;">
                                             <i class="ti ti-clock"></i>
-                                        </button>
+                                        </button> {% endcomment %}
                                     </div>
                                 </div>
                             </div>
@@ -707,6 +752,14 @@
                     <div class="row g-md-2 g-1 ps-md-1 pe-md-1 mb-md-0 mb-0 align-items-stretch">
                         <div class="col-md-4 mb-0 mb-md-0 pt-2 pb-2 ps-1 bg-dark bg-opacity-10">
                             <div class="d-flex gap-1 align-items-center">
+                                <button type="button" class="btn btn-outline-secondary px-2 py-2 cf-site-lookup-btn"
+                                        data-site-select-id="{{ effort_form.site.id_for_label }}"
+                                        data-lat-id="{{ effort_form.latitude.id_for_label }}"
+                                        data-lon-id="{{ effort_form.longitude.id_for_label }}"
+                                        title="Find nearest site..."
+                                        style="height:30px;min-width:30px;font-size:1.00rem;">
+                                    <i class="ti ti-search"></i>
+                                </button>
                                 <div class="form-floating flex-grow-1">
                                     {{ effort_form.site }}
                                     <label class="form-label" for="{{ effort_form.site.id_for_label }}">SITE NAME</label>
@@ -1946,6 +1999,27 @@
                 addEffortGlobalErrors.textContent = '';
             }
 
+            function normalizeTimeTo24Hour(timeInput) {
+                if (!timeInput) return;
+
+                var value = String(timeInput.value || '').trim();
+                var match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
+                if (!match) return;
+
+                var hour = parseInt(match[1], 10);
+                var minute = match[2];
+                var meridiem = match[3].toUpperCase();
+                if (hour < 1 || hour > 12) return;
+
+                if (meridiem === 'AM') {
+                    if (hour === 12) hour = 0;
+                } else if (hour !== 12) {
+                    hour += 12;
+                }
+
+                timeInput.value = String(hour).padStart(2, '0') + ':' + minute;
+            }
+
             document.querySelectorAll('.add-fisher-target').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     activeFisherTargetId = btn.getAttribute('data-target-select-id') || 'id_fisher';
@@ -2261,6 +2335,8 @@
 
             saveEffortBtn.addEventListener('click', function () {
                 clearAddEffortErrors();
+                normalizeTimeTo24Hour(document.getElementById('{{ effort_form.start_time.id_for_label }}'));
+                normalizeTimeTo24Hour(document.getElementById('{{ effort_form.end_time.id_for_label }}'));
                 var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 var formData = new FormData(addEffortForm);
 
@@ -2771,23 +2847,9 @@
     var siteSelect = document.getElementById('{{ effort_form.site.id_for_label }}');
     var sitesUrl = "{% url 'kiccd_app:api_cf_sites_geojson' %}";
     var sitesPromise = null;
-    var lookupTimer = null;
     var lookupSequence = 0;
-    var latitudeEdited = false;
-    var longitudeEdited = false;
 
     if (!latitudeInput || !longitudeInput || !siteSelect) return;
-
-    function distanceSquared(latitude, longitude, siteLatitude, siteLongitude) {
-        var latitudeRadians = (latitude * Math.PI) / 180;
-        var longitudeRadians = (longitude * Math.PI) / 180;
-        var siteLatitudeRadians = (siteLatitude * Math.PI) / 180;
-        var siteLongitudeRadians = (siteLongitude * Math.PI) / 180;
-        var deltaLatitude = siteLatitudeRadians - latitudeRadians;
-        var deltaLongitude = siteLongitudeRadians - longitudeRadians;
-        var adjustedLongitude = deltaLongitude * Math.cos((latitudeRadians + siteLatitudeRadians) / 2);
-        return (deltaLatitude * deltaLatitude) + (adjustedLongitude * adjustedLongitude);
-    }
 
     function fetchSites() {
         if (!sitesPromise) {
@@ -2805,17 +2867,19 @@
         return sitesPromise;
     }
 
-    function selectNearestSite() {
-        if (!latitudeEdited || !longitudeEdited) return;
-
+    function selectNearestSite(button) {
         var latitudeValue = latitudeInput.value.trim();
         var longitudeValue = longitudeInput.value.trim();
         var latitude = Number(latitudeValue);
         var longitude = Number(longitudeValue);
         if (!Number.isFinite(latitude) || !Number.isFinite(longitude) ||
-            latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return;
+            latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            alert('Enter valid latitude and longitude coordinates before using Site Lookup.');
+            return;
+        }
 
         var requestSequence = ++lookupSequence;
+        if (button) button.disabled = true;
 
         fetchSites().then(function (features) {
             if (requestSequence !== lookupSequence ||
@@ -2830,7 +2894,10 @@
                 var siteLongitude = Number(coordinates[0]);
                 var siteLatitude = Number(coordinates[1]);
                 if (!Number.isFinite(siteLatitude) || !Number.isFinite(siteLongitude)) return;
-                var distance = distanceSquared(latitude, longitude, siteLatitude, siteLongitude);
+                var distance = window.turf.distance(
+                    window.turf.point([longitude, latitude]),
+                    window.turf.point([siteLongitude, siteLatitude])
+                );
                 if (distance < nearestDistance) {
                     nearest = feature;
                     nearestDistance = distance;
@@ -2852,37 +2919,19 @@
             } else {
                 siteSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
-        }).catch(function () {});
-    }
-
-    function scheduleNearestSiteLookup() {
-        window.clearTimeout(lookupTimer);
-        lookupSequence += 1;
-        lookupTimer = window.setTimeout(selectNearestSite, 800);
-    }
-
-    latitudeInput.addEventListener('input', function () {
-        latitudeEdited = true;
-        scheduleNearestSiteLookup();
-    });
-    longitudeInput.addEventListener('input', function () {
-        longitudeEdited = true;
-        scheduleNearestSiteLookup();
-    });
-    latitudeInput.addEventListener('effort:coordinates-updated', function () {
-        latitudeEdited = true;
-        longitudeEdited = true;
-        scheduleNearestSiteLookup();
-    });
-    var addEffortModalEl = document.getElementById('addEffortModal');
-    if (addEffortModalEl) {
-        addEffortModalEl.addEventListener('hidden.bs.modal', function () {
-            window.clearTimeout(lookupTimer);
-            lookupSequence += 1;
-            latitudeEdited = false;
-            longitudeEdited = false;
+        }).catch(function () {
+            alert('Unable to find the nearest site. Please try again.');
+        }).finally(function () {
+            if (button) button.disabled = false;
         });
     }
+
+    document.querySelectorAll('.cf-site-lookup-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            selectNearestSite(button);
+        });
+    });
+
 }());
 </script>
 

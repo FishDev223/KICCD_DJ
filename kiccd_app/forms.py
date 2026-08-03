@@ -636,9 +636,9 @@ class CfCatchRowForm(forms.ModelForm):
         fields = ['species', 'healthy_cnt', 'moribund_cnt', 'total_cnt']
         widgets = {
             'species': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': '...'}),
-            'healthy_cnt': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
-            'moribund_cnt': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
-            'total_cnt': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'healthy_cnt': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 9999}),
+            'moribund_cnt': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 9999}),
+            'total_cnt': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 9999}),
          }
 
     def __init__(self, *args, **kwargs):

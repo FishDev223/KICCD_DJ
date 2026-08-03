@@ -499,7 +499,7 @@ class IcAgeGrowthAdmin(admin.ModelAdmin):
         obj.save(user=request.user)
 
 class CfEventAdmin(admin.ModelAdmin):
-    list_display = ('event_id', 'cfdate', 'fisher', 'site', 'gear', 'set_num', 'latitude', 'longitude', 'stime', 'etime', 'gear_length', 'gear_depth', 'mesh_size', )
+    list_display = ('event_id', 'cfdate', 'fisher', 'observer__last_name', 'site', 'gear', 'set_num', 'latitude', 'longitude', 'stime', 'etime', 'gear_length', 'gear_depth', 'mesh_size', )
     search_fields = ('fisher__name', 'site__name', )
     ordering = ('-cf_date', 'fisher', 'set_num', )
     list_filter = ('site__pool', 'fisher__name',  'datez__cal_year', 'datez__cf_peak_season', 'datez__ic_month2', 'datez__ic_season',)
@@ -522,10 +522,10 @@ class CfEventAdmin(admin.ModelAdmin):
         return obj.cf_date.strftime('%Y-%m-%d')
     
     def stime(self, obj):
-        return obj.start_time.strftime('%H:%M')
+        return obj.start_time.strftime('%H:%M') if obj.start_time else '-'
 
     def etime(self, obj):
-        return obj.end_time.strftime('%H:%M')
+        return obj.end_time.strftime('%H:%M') if obj.end_time else '-'
 	
     cfdate.admin_order_field = 'cf_date'
     stime.admin_order_field = 'start_time'
@@ -539,9 +539,10 @@ class CfEventAdmin(admin.ModelAdmin):
         obj.save(user=request.user)
 
 class CfCatchAdmin(admin.ModelAdmin):
-    list_display = ('catch_id', 'event', 'species__name', 'healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', )
+    list_display = ('catch_id', 'event', 'ev_pool', 'ev_site', 'spp', 'healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', )
     search_fields = ('event__fisher__name', 'species__name', 'event__site__name')
-    ordering = ('-event__cf_date', 'event__fisher', 'species', )
+    ordering = ('-event__cf_date', 'event__fisher', 'event__site', 'event__set_num', )
+    list_editable = ['healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', ]
     list_filter = ('species', 'event__site__pool', 'event__fisher__name', )
     readonly_fields = ('catch_id', 'added_on', 'added_by', )
     fieldsets = (
@@ -561,6 +562,24 @@ class CfCatchAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
     )
+
+    def spp(self, obj):
+        return obj.species.name if obj.species else '-'
+
+    spp.admin_order_field = 'species__name'
+    spp.short_description = 'Species'
+
+    def ev_pool(self, obj):
+        return obj.event.site.pool.abbrev if obj.event and obj.event.site and obj.event.site.pool else '-'
+
+    ev_pool.admin_order_field = 'event__site__pool__abbrev'
+    ev_pool.short_description = 'Pool'
+
+    def ev_site(self, obj):
+        return obj.event.site.name if obj.event and obj.event.site else '-'
+
+    ev_site.admin_order_field = 'event__site__name'
+    ev_site.short_description = 'Site'
 
     def save_model(self, request, obj, form, change):
         obj.save(user=request.user)
