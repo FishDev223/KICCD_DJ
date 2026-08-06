@@ -16,7 +16,7 @@
 <div class="row container-fluid mx-auto py-2">
     <div class="card col-md-12 mb-0">
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
-            <h5 class="d-none d-md-block text-muted mb-0">1) Choose an existing sampling event from the dropdown.</h5>
+            <h5 class="d-none d-md-block text-muted mb-0">Choose an existing sampling effort.</h5>
             <h4 class="d-block d-md-none mb-0 text-center">Choose A Sampling Effort</h4>
             <div class="d-flex gap-2">
                 <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Sampling<br>Effort Instead...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW EFFORT</a>
@@ -51,7 +51,7 @@
                     <div class="col-md-6 mt-md-0 mt-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>* Efforts derived from:<br>Date (Site - Transect/Net #)</em>">
                         <div class="form-floating">
                             {{ shared_form.event }}
-                            <label class="form-label" for="id_event">AGENCY SAMPLING EVENT...</label>
+                            <label class="form-label" for="id_event">Select an Agency Sampling Event...</label>
                         </div>
                         {% if shared_form.event.errors %}
                             <div class="text-danger small">{{ shared_form.event.errors|striptags }}</div>
@@ -72,7 +72,7 @@
                             <div class="text-danger small">{{ shared_form.no_fish.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-md-2 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
+                    <div class="col-md-1 offset-md-1 col-sm-6 offset-sm-3 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
                         <p class="mb-1 mt-1 text-muted fs-11">ROWS</p>
                         <select id="visible_rows" class="form-select form-select-sm">
                             <option value="25" selected>25</option>
@@ -87,194 +87,218 @@
         </div>
     </div>
     <div class="card col-md-12 mt-3">
-        <div class="card-header border-bottom border-dashed d-flex">
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
             <div class="row g-2 mb-0 w-100">
-                <h5 class="d-none d-md-block text-muted mb-0">2) Provide count and size data for all sampled fish species.</h5>
-                <h4 class="d-block d-md-none mb-0 text-center">Input Data On All Fish</h4>
+                <h5 class="d-none d-md-block text-muted mb-0">Size & counts for all sampled fish species.</h5>
+                <h4 class="d-block d-md-none mb-0">Catch Data</h4>
             </div>
+            <button type="button" class="btn btn-sm btn-outline-success p-2" id="unitsModalBtn"
+                    data-bs-toggle="modal" data-bs-target="#catchUnitsModal"
+                    title="Choose Length &amp; Weight units"
+                    style="height:30px;min-width:25px;font-size:1.20rem;">
+                <i class="ri ri-pencil-ruler-line"></i>
+            </button>
         </div>
-        <div class="card-body p-1 p-md-1">
+        <div class="card-body flex-grow-1">
                 {{ formset.management_form }}
   
                 <div id="catch-formset">
-                {% for form in formset %}
-                <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
-                    <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
-                        <div class="col-md-2">
-                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                <div class="col-md-1 d-flex align-items-center justify-content-center">
-                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
-                                    <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #{{ forloop.counter }}</p>
-                                </div>
-                                <div class="col-md-11">
-                                    <div class="form-floating">
-                                        {{ form.species }}
-                                        <label class="form-label" for="id_species">SPECIES</label>
-                                    </div>
-                                    {% if form.species.errors %}
-                                        <div class="text-danger small">{{ form.species.errors|striptags }}</div>
-                                    {% endif %}
+                    {% for form in formset %}
+                        <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded catch-row">
+                            <div class="col-md-0 p-md-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
+                                <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
+                                    <h5 class="d-block d-md-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #{{ forloop.counter }}</h5>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                <div class="col-md-6 me-0">
-                                    <div class="form-floating">
-                                        {{ form.length_mm }}
-                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
-                                    </div>
-                                    {% if form.length_mm.errors %}
-                                    <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        {{ form.weight_g }}
-                                        <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
-                                    </div>
-                                    {% if form.weight_g.errors %}
-                                    <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-1">
-                            <div class="form-floating">
-                                {{ form.fish_sex }}
-                                <label class="form-label" for="id_fish_sex">SEX</label>
-                            </div>
-                            {% if form.fish_sex.errors %}
-                            <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-1">
-                            <div class="form-floating">
-                                {{ form.fish_count }}
-                                <label class="form-label" for="id_fish_count">COUNT</label>
-                            </div>
-                            {% if form.fish_count.errors %}
-                            <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-1">
-                            <div class="form-floating">
-                                {{ form.gonad_stage }}
-                                <label class="form-label" for="id_gonad_stage">STAGE</label>
-                            </div>
-                            {% if form.gonad_stage.errors %}
-                            <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-1">
-                            <div class="form-floating">
-                                {{ form.gonad_wt_g }}
-                                <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
-                            </div>
-                            {% if form.gonad_wt_g.errors %}
-                            <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 mt-md-1 col-12">
-                            <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
-                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
-                                    <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
-                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
-                                    <div class="form-check form-switch">
-                                        {{ form.spawn_patch }}
-                                    </div>
-                                    {% if form.spawn_patch.errors %}
-                                    <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age & Growth?">
-                                    <p class="d-none d-md-block mb-1 text-muted fs-11">A&G</p>
-                                    <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE & GROWTH?</p>
-                                    <div class="form-check form-switch">
-                                        {{ form.collected4ag }}
-                                    </div>
-                                    {% if form.collected4ag.errors %}
-                                    <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-                </div>
-                <div id="empty-form-template" class="d-none">
-                    <div class="border col-md-12 rounded p-1 mb-md-1 mb-3 bg-dark bg-opacity-10 catch-row">
-                        <div class="row g-md-2 g-1 mb-md-0 mb-1 align-items-stretch">
-                            <div class="col-md-2">
-                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                    <div class="col-md-1 d-flex align-items-center justify-content-center">
-                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
-                                        <p class="d-block d-md-none text-center me-0 ms-0 mb-1 row-number-mobile">FISH #</p>
-                                    </div>
-                                    <div class="col-md-11">
-                                        <div class="form-floating">
-                                            {{ formset.empty_form.species }}
+                            <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.species }}
                                             <label class="form-label" for="id_species">SPECIES</label>
                                         </div>
+                                        {% if form.species.errors %}
+                                            <div class="text-danger small">{{ form.species.errors|striptags }}</div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="row g-md-2 g-1 mb-0 align-items-stretch">
-                                    <div class="col-md-6 me-0">
-                                        <div class="form-floating">
-                                            {{ formset.empty_form.length_mm }}
-                                            <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                            <div class="col-md-3 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.length_mm }}
+                                            <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
+                                        </div>
+                                        {% if form.length_mm.errors %}
+                                            <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
+                                        {% endif %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.weight_g }}
+                                            <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
+                                        </div>
+                                        {% if form.weight_g.errors %}
+                                            <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.fish_sex }}
+                                            <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
+                                            <label class="form-label d-block d-md-none" for="id_fish_sex">SEX</label>
+                                        </div>
+                                        {% if form.fish_sex.errors %}
+                                            <div class="text-danger small">{{ form.fish_sex.errors|striptags }}</div>
+                                        {% endif %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.fish_count }}
+                                            <label class="form-label" for="id_fish_count">COUNT</label>
+                                        </div>
+                                        {% if form.fish_count.errors %}
+                                            <div class="text-danger small">{{ form.fish_count.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div> 
+
+                            <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.gonad_stage }}
+                                            <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
+                                            <label class="form-label d-block d-md-none" for="id_gonad_stage">GONAD STAGE</label>
+                                        </div>
+                                        {% if form.gonad_stage.errors %}
+                                            <div class="text-danger small">{{ form.gonad_stage.errors|striptags }}</div>
+                                        {% endif %}
+                                        <div class="form-floating flex-grow-1">
+                                            {{ form.gonad_wt_g }}
+                                            <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
+                                            <label class="form-label d-block d-md-none" for="id_gonad_wt_g">GONAD WT (g)</label>
+                                        </div>
+                                        {% if form.gonad_wt_g.errors %}
+                                            <div class="text-danger small">{{ form.gonad_wt_g.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 pt-md-3 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0 align-items-center">
+                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center align-items-stretch">
+                                        <div class="col-md-6 offset-md-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
+                                            <div class="form-check form-switch flex-grow-1">
+                                                    {{ form.spawn_patch }}
+                                            </div>
+                                                <label class="form-label d-none d-md-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
+                                                <label class="form-label d-block d-md-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
+                                                {% if form.spawn_patch.errors %}
+                                                    <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
+                                                {% endif %}
+                                        </div>
+                                        <div class="col-md-6 offset-md-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
+                                            <div class="form-check form-switch flex-grow-1">
+                                                {{ form.collected4ag }}
+                                            </div>
+                                                <label class="form-label d-none d-md-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
+                                                <label class="form-label d-block d-md-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
+                                            {% if form.collected4ag.errors %}
+                                                <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
+                                            {% endif %}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            {{ formset.empty_form.weight_g }}
-                                            <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                </div>{# /catch-formset #}
+                <div id="empty-form-template" class="d-none">
+                    <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded catch-row">
+                        <div class="col-md-0 p-md-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
+                            <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
+                                <h5 class="d-block d-md-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.species }}
+                                        <label class="form-label" for="id_species">SPECIES</label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.fish_sex }}
-                                    <label class="form-label" for="id_fish_sex">SEX</label>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.fish_count }}
-                                    <label class="form-label" for="id_fish_count">COUNT</label>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.gonad_stage }}
-                                    <label class="form-label" for="id_gonad_stage">STAGE</label>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="form-floating">
-                                    {{ formset.empty_form.gonad_wt_g }}
-                                    <label class="form-label" for="id_gonad_wt_g">GWT (g)</label>
-                                </div>
-                            </div>
-                            <div class="col-md-2 mt-md-1 col-12">
-                                <div class="row g-md-2 g-0 mb-md-0 mt-md-0 mt-1 mb-1 align-items-stretch">
-                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was a Spawning<br>Patch Present?">
-                                        <p class="d-none d-md-block mb-1 text-muted fs-11">SPAWN PATCH</p>
-                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">SPAWNING PATCH?</p>
-                                        <div class="form-check form-switch">
-                                            {{ formset.empty_form.spawn_patch }}
-                                        </div>
+                        </div>
+                        <div class="col-md-3 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.length_mm }}
+                                        <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
                                     </div>
-                                    <div class="col-md-6 offset-md-0 col-3 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Was it Collected for<br>Age & Growth?">
-                                        <p class="d-none d-md-block mb-1 text-muted fs-11">A&G</p>
-                                        <p class="d-block d-md-none mb-1 mt-1 text-muted fs-11">AGE & GROWTH?</p>
-                                        <div class="form-check form-switch">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.weight_g }}
+                                        <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.fish_sex }}
+                                        <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
+                                        <label class="form-label d-block d-md-none" for="id_fish_sex">SEX</label>
+                                    </div>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.fish_count }}
+                                        <label class="form-label" for="id_fish_count">COUNT</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+
+                        <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.gonad_stage }}
+                                        <label class="form-label d-none d-md-block" for="id_gonad_stage">STAGE</label>
+                                        <label class="form-label d-block d-md-none" for="id_gonad_stage">GONAD STAGE</label>
+                                    </div>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ formset.empty_form.gonad_wt_g }}
+                                        <label class="form-label d-none d-md-block" for="id_gonad_wt_g">GWT (g)</label>
+                                        <label class="form-label d-block d-md-none" for="id_gonad_wt_g">GONAD WT (g)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 pt-md-3 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0 align-items-center">
+                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center align-items-stretch">
+                                    <div class="col-md-6 offset-md-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
+                                        <div class="form-check form-switch flex-grow-1">
+                                                {{ formset.empty_form.spawn_patch }}
+                                        </div>
+                                            <label class="form-label d-none d-md-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
+                                            <label class="form-label d-block d-md-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
+                                    </div>
+                                    <div class="col-md-6 offset-md-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
+                                        <div class="form-check form-switch flex-grow-1">
                                             {{ formset.empty_form.collected4ag }}
                                         </div>
+                                            <label class="form-label d-none d-md-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
+                                            <label class="form-label d-block d-md-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
                                     </div>
                                 </div>
                             </div>
@@ -337,6 +361,53 @@
         </div>
     </div>
 </div>
+<!-- Catch input units modal -->
+<div class="modal fade" id="catchUnitsModal" tabindex="-1" aria-labelledby="catchUnitsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="catchUnitsModalLabel"><i class="ti ti-ruler-2 me-1"></i>Measurement Units</h6>
+                <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pb-2">
+                <p class="text-muted small mb-2">Note: Length and weight values are converted into millimeters and grams prior to submission.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold mb-1 small">LENGTH</label>
+                    <div class="d-flex gap-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" checked>
+                            <label class="form-check-label small" for="lengthUnitMm">mm <span class="text-muted">(default)</span></label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in">
+                            <label class="form-check-label small" for="lengthUnitIn">inches</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" checked>
+                            <label class="form-check-label small" for="weightUnitG">g <span class="text-muted">(default)</span></label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg">
+                            <label class="form-check-label small" for="weightUnitKg">kg</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb">
+                            <label class="form-check-label small" for="weightUnitLb">lb</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-success" id="applyUnitsBtn">APPLY</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page_content %}
 
 {% block extra_javascript %}
@@ -364,6 +435,45 @@ document.addEventListener('DOMContentLoaded', function () {
     const eventHasErrors = {{ event_has_errors|yesno:"true,false" }};
     const eventCountUrl = "{% url 'kiccd_app:api_ic_event_catch_count' %}";
     let lastSyncedEventId = null;
+
+    let lengthUnit = 'mm';
+    let weightUnit = 'g';
+    const unitLengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
+    const unitWeightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
+
+    function updateUnitLabels() {
+        const lengthText = unitLengthLabels[lengthUnit] || 'LENGTH (mm)';
+        const weightText = unitWeightLabels[weightUnit] || 'WEIGHT (g)';
+        document.querySelectorAll('.catch-length-label').forEach(function (label) { label.textContent = lengthText; });
+        document.querySelectorAll('.catch-weight-label').forEach(function (label) { label.textContent = weightText; });
+    }
+
+    function toDefaultLength(value, unit) {
+        const number = parseFloat(value);
+        if (Number.isNaN(number)) return value;
+        return unit === 'in' ? String(Math.round(number * 25.4)) : value;
+    }
+
+    function toDefaultWeight(value, unit) {
+        const number = parseFloat(value);
+        if (Number.isNaN(number)) return value;
+        if (unit === 'kg') return String(Math.round(number * 1000 * 100) / 100);
+        if (unit === 'lb') return String(Math.round(number * 453.59237 * 100) / 100);
+        return value;
+    }
+
+    const applyUnitsButton = document.getElementById('applyUnitsBtn');
+    if (applyUnitsButton) {
+        applyUnitsButton.addEventListener('click', function () {
+            const lengthRadio = document.querySelector('input[name="lengthUnitRadio"]:checked');
+            const weightRadio = document.querySelector('input[name="weightUnitRadio"]:checked');
+            lengthUnit = lengthRadio ? lengthRadio.value : 'mm';
+            weightUnit = weightRadio ? weightRadio.value : 'g';
+            updateUnitLabels();
+            bootstrap.Modal.getInstance(document.getElementById('catchUnitsModal')).hide();
+        });
+    }
+    updateUnitLabels();
 
     function setEventRecordCountDisplay(value) {
         if (!eventRecordCount) {
@@ -1149,6 +1259,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             const rows = getRows();
+            if (lengthUnit !== 'mm' || weightUnit !== 'g') {
+                rows.forEach(function (row) {
+                    const fields = getRowFields(row);
+                    if (fields.length && fields.length.value) {
+                        fields.length.value = toDefaultLength(fields.length.value, lengthUnit);
+                    }
+                    if (fields.weight && fields.weight.value) {
+                        fields.weight.value = toDefaultWeight(fields.weight.value, weightUnit);
+                    }
+                });
+                lengthUnit = 'mm';
+                weightUnit = 'g';
+                const lengthDefault = document.getElementById('lengthUnitMm');
+                const weightDefault = document.getElementById('weightUnitG');
+                if (lengthDefault) lengthDefault.checked = true;
+                if (weightDefault) weightDefault.checked = true;
+                updateUnitLabels();
+            }
             if (totalFormsInput) {
                 totalFormsInput.value = String(rows.length);
             }

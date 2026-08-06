@@ -607,7 +607,11 @@ class CfCatchEventForm(forms.Form):
     event = forms.ModelChoiceField(
         queryset=CfEvent.objects.all().order_by('-event_id')[:100],
         label='Fishing Event',
-        widget=forms.Select(attrs={'class': 'form-control select2', 'data-toggle': 'select2', 'placeholder': '...'}),
+        widget=forms.Select(attrs={
+            'class': 'form-control select2 cf-event-select',
+            'data-toggle': 'select2',
+            'placeholder': '...',
+        }),
         empty_label='...'
     )
 

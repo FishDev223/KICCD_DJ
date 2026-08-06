@@ -150,12 +150,27 @@
         </div>
     </div>
     <div class="card col-md-8 offset-md-2">
-        <div class="card-header border-bottom border-dashed d-flex">
-            <div class="row g-0 mb-0 w-100">
-                <div class="col-6">
-                    <h5 class="d-none d-md-block text-muted mb-0">2) Input size, sex and age information for each fish.</h5>
-                    <h4 class="d-block d-md-none mb-0 text-center">Size & Age Data</h4>
+        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
+            <h5 class="d-none d-md-block text-muted mb-0">2) Input size, sex and age information for each fish.</h5>
+            <h4 class="d-block d-md-none mb-0 text-center">Size & Age Data</h4>
+
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" class="btn btn-sm btn-outline-success p-2" id="unitsModalBtn"
+                        data-bs-toggle="modal" data-bs-target="#catchUnitsModal"
+                        title="Choose Length & Weight units"
+                        style="height:30px;min-width:25px;font-size:1.20rem;">
+                    <i class="ri ri-pencil-ruler-line"></i>
+                </button>
+                <div class="d-flex align-items-center gap-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
+                    <span class="text-muted fs-11 text-nowrap">ROWS</span>
+                    <select id="visible_rows" class="form-select form-select-sm" style="width:auto;">
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="75">75</option>
+                        <option value="100">100</option>
+                    </select>
                 </div>
+            </div>{% comment %}                 
                 <div class="col-6 align-items-end d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
                     <div class="row g-0 mb-0 w-99">
                         <div class="col-5">
@@ -170,8 +185,7 @@
                             </select>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div> {% endcomment %}
         </div>
         <div class="card-body">
             {{ formset.management_form }}
@@ -190,7 +204,7 @@
                                 <div class="col-md-11">
                                     <div class="form-floating">
                                         {{ form.length_mm }}
-                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                        <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
                                     </div>
                                     {% if form.length_mm.errors %}
                                         <div class="text-danger small">{{ form.length_mm.errors|striptags }}</div>
@@ -201,7 +215,7 @@
                         <div class="col-md-3">
                             <div class="form-floating">
                                 {{ form.weight_g }}
-                                <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
                             </div>
                             {% if form.weight_g.errors %}
                                 <div class="text-danger small">{{ form.weight_g.errors|striptags }}</div>
@@ -242,7 +256,7 @@
                                 <div class="col-md-11">
                                     <div class="form-floating">
                                         {{ formset.empty_form.length_mm }}
-                                        <label class="form-label" for="id_length_mm">LENGTH (mm)</label>
+                                        <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
                                     </div>
                                 </div>
                             </div>
@@ -250,7 +264,7 @@
                         <div class="col-md-3">
                             <div class="form-floating">
                                 {{ formset.empty_form.weight_g }}
-                                <label class="form-label" for="id_weight_g">WEIGHT (g)</label>
+                                <label class="form-label catch-weight-label" for="id_weight_g">WEIGHT (g)</label>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -336,6 +350,118 @@
         submitSpinner.classList.remove('d-none');
         submitBtn.disabled = true;
     });
+}());
+</script>
+
+<!-- Catch input units modal -->
+<div class="modal fade" id="catchUnitsModal" tabindex="-1" aria-labelledby="catchUnitsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title" id="catchUnitsModalLabel"><i class="ti ti-ruler-2 me-1"></i>Measurement Units</h6>
+                <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pb-2">
+                <p class="text-muted small mb-2">Note: Length and weight values are converted into millimeters and grams prior to submission.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold mb-1 small">LENGTH</label>
+                    <div class="d-flex gap-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" checked>
+                            <label class="form-check-label small" for="lengthUnitMm">mm <span class="text-muted">(default)</span></label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in">
+                            <label class="form-check-label small" for="lengthUnitIn">inches</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" checked>
+                            <label class="form-check-label small" for="weightUnitG">g <span class="text-muted">(default)</span></label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg">
+                            <label class="form-check-label small" for="weightUnitKg">kg</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb">
+                            <label class="form-check-label small" for="weightUnitLb">lb</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-success" id="applyUnitsBtn">APPLY</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var lengthUnit = 'mm';
+    var weightUnit = 'g';
+    var lengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
+    var weightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
+    var form = document.querySelector('form[method="post"][novalidate]');
+    var applyUnitsBtn = document.getElementById('applyUnitsBtn');
+
+    function updateUnitLabels() {
+        var lengthText = lengthLabels[lengthUnit] || lengthLabels.mm;
+        var weightText = weightLabels[weightUnit] || weightLabels.g;
+        document.querySelectorAll('.catch-length-label').forEach(function (label) { label.textContent = lengthText; });
+        document.querySelectorAll('.catch-weight-label').forEach(function (label) { label.textContent = weightText; });
+    }
+
+    function toDefaultLength(value) {
+        var number = parseFloat(value);
+        return Number.isNaN(number) || lengthUnit !== 'in' ? value : String(Math.round(number * 25.4));
+    }
+
+    function toDefaultWeight(value) {
+        var number = parseFloat(value);
+        if (Number.isNaN(number)) return value;
+        if (weightUnit === 'kg') return String(Math.round(number * 1000 * 100) / 100);
+        if (weightUnit === 'lb') return String(Math.round(number * 453.59237 * 100) / 100);
+        return value;
+    }
+
+    if (applyUnitsBtn) {
+        applyUnitsBtn.addEventListener('click', function () {
+            var lengthRadio = document.querySelector('input[name="lengthUnitRadio"]:checked');
+            var weightRadio = document.querySelector('input[name="weightUnitRadio"]:checked');
+            lengthUnit = lengthRadio ? lengthRadio.value : 'mm';
+            weightUnit = weightRadio ? weightRadio.value : 'g';
+            updateUnitLabels();
+            bootstrap.Modal.getInstance(document.getElementById('catchUnitsModal')).hide();
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', function () {
+            if (lengthUnit !== 'mm' || weightUnit !== 'g') {
+                form.querySelectorAll('.csv-row').forEach(function (row) {
+                    var lengthInput = row.querySelector('input[id*="length_mm"]');
+                    var weightInput = row.querySelector('input[id*="weight_g"]');
+                    if (lengthInput && lengthInput.value) lengthInput.value = toDefaultLength(lengthInput.value);
+                    if (weightInput && weightInput.value) weightInput.value = toDefaultWeight(weightInput.value);
+                });
+                lengthUnit = 'mm';
+                weightUnit = 'g';
+                var lengthDefault = document.getElementById('lengthUnitMm');
+                var weightDefault = document.getElementById('weightUnitG');
+                if (lengthDefault) lengthDefault.checked = true;
+                if (weightDefault) weightDefault.checked = true;
+                updateUnitLabels();
+            }
+        });
+    }
+
+    updateUnitLabels();
 }());
 </script>
 

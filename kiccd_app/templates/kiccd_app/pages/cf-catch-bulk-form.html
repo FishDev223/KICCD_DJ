@@ -67,7 +67,7 @@
                 </div>
             {% endif %}
 
-            <form method="post" novalidate>
+            <form method="post" novalidate id="cfCatchForm">
                 {% csrf_token %}
 
                 <div class="row p-md-2 p-2 mt-0 mb-md-0 bg-dark bg-opacity-10">
@@ -520,7 +520,7 @@
             <button type="button" class="btn-close btn-close-sm" id="ssCloseUnitsBtn" aria-label="Close"></button>
         </div>
         <div class="card-body pb-2">
-            <p class="text-muted small mb-2">Values are converted to default units (mm / g) automatically before save.</p>
+            <p class="text-muted small mb-2">Values are converted to storage units (mm / g) automatically before save.</p>
             <div class="mb-3">
                 <label class="form-label fw-semibold mb-1 small">LENGTH</label>
                 <div class="d-flex gap-2">
@@ -538,12 +538,12 @@
                 <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
                 <div class="d-flex gap-2 flex-wrap">
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="ssWeightUnitRadio" id="ssWeightUnitG" value="g" checked>
-                        <label class="form-check-label small" for="ssWeightUnitG">g <span class="text-muted">(default)</span></label>
+                        <input class="form-check-input" type="radio" name="ssWeightUnitRadio" id="ssWeightUnitG" value="g">
+                        <label class="form-check-label small" for="ssWeightUnitG">g</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="ssWeightUnitRadio" id="ssWeightUnitKg" value="kg">
-                        <label class="form-check-label small" for="ssWeightUnitKg">kg</label>
+                        <input class="form-check-input" type="radio" name="ssWeightUnitRadio" id="ssWeightUnitKg" value="kg" checked>
+                        <label class="form-check-label small" for="ssWeightUnitKg">kg <span class="text-muted">(default)</span></label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="ssWeightUnitRadio" id="ssWeightUnitLb" value="lb">
@@ -560,14 +560,62 @@
 
 <script>
 (function () {
+    var catchForm = document.getElementById('cfCatchForm');
     var ssForm = document.querySelector('#subsampleModal form');
     var ssSubmitBtn = document.getElementById('subsampleSubmitBtn');
     var ssSubmitSpinner = document.getElementById('subsampleSubmitSpinner');
+    var formStateKey = 'cfCatchFormState';
+
+    function saveCatchFormState() {
+        if (!catchForm) return;
+        var state = {};
+        catchForm.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (!field.name || field.name === 'csrfmiddlewaretoken') return;
+            state[field.name] = field.type === 'checkbox' ? field.checked : field.value;
+            if (field.name === 'event' && field.selectedOptions.length) {
+                state.event_text = field.selectedOptions[0].textContent;
+            }
+        });
+        sessionStorage.setItem(formStateKey, JSON.stringify(state));
+    }
+
+    function restoreCatchFormState() {
+        if (!catchForm) return;
+        var savedState = sessionStorage.getItem(formStateKey);
+        if (!savedState) return;
+
+        try {
+            var state = JSON.parse(savedState);
+            catchForm.querySelectorAll('input, select, textarea').forEach(function (field) {
+                if (!field.name || !Object.prototype.hasOwnProperty.call(state, field.name)) return;
+                if (field.name === 'event') return;
+                if (field.type === 'checkbox') {
+                    field.checked = Boolean(state[field.name]);
+                } else {
+                    field.value = state[field.name];
+                }
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        } catch (error) {
+            // Ignore malformed session state and start with a fresh form.
+        }
+    }
+
+    restoreCatchFormState();
+
     if (!ssForm || !ssSubmitBtn) return;
     ssForm.addEventListener('submit', function () {
+        saveCatchFormState();
         ssSubmitSpinner.classList.remove('d-none');
         ssSubmitBtn.disabled = true;
     });
+
+    if (catchForm) {
+        catchForm.addEventListener('submit', function () {
+            sessionStorage.removeItem(formStateKey);
+        });
+    }
 }());
 </script>
 
@@ -1144,7 +1192,56 @@
         const eventSelect = document.getElementById('id_event');
         const eventRecordCount = document.getElementById('cf_event_record_count');
         const eventCountUrl = "{% url 'kiccd_app:api_cf_event_catch_count' %}";
+        const eventSearchUrl = "{% url 'kiccd_app:api_cf_event_search' %}";
         let lastSyncedEventId = null;
+
+        if (eventSelect && window.jQuery && window.jQuery.fn.select2) {
+            window.jQuery(eventSelect).select2('destroy').select2({
+                placeholder: 'Select...',
+                allowClear: true,
+                ajax: {
+                    url: eventSearchUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            term: params.term || '',
+                            page: params.page || 1,
+                        };
+                    },
+                    processResults: function (data) {
+                        return data;
+                    },
+                    cache: true,
+                },
+            });
+        }
+
+        function restoreEventState() {
+            if (!eventSelect) { return; }
+            const savedState = sessionStorage.getItem('cfCatchFormState');
+            if (!savedState) { return; }
+
+            try {
+                const state = JSON.parse(savedState);
+                if (state.event) {
+                    const eventId = String(state.event);
+                    const eventOption = Array.from(eventSelect.options).find(function (option) {
+                        return option.value === eventId;
+                    });
+                    if (!eventOption) {
+                        eventSelect.add(new Option(state.event_text || eventId, eventId, true, true));
+                    }
+                    eventSelect.value = eventId;
+                    eventSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } catch (error) {
+                // Ignore malformed session state and start with a fresh event selection.
+            }
+            sessionStorage.removeItem('cfCatchFormState');
+        }
+
+        restoreEventState();
 
         function setEventRecordCountDisplay(value) {
             if (!eventRecordCount) { return; }
@@ -1593,14 +1690,14 @@
 
         // ---- Subsample unit state ----
         let ssLengthUnit = 'mm';
-        let ssWeightUnit = 'g';
+        let ssWeightUnit = 'kg';
 
         const ssLengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
         const ssWeightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
 
         function updateSsUnitLabels() {
             const lenText = ssLengthLabels[ssLengthUnit] || 'LENGTH (mm)';
-            const wtText = ssWeightLabels[ssWeightUnit] || 'WEIGHT (g)';
+            const wtText = ssWeightLabels[ssWeightUnit] || 'WEIGHT (kg)';
             document.querySelectorAll('.ss-length-label').forEach(function (el) { el.textContent = lenText; });
             document.querySelectorAll('.ss-weight-label').forEach(function (el) { el.textContent = wtText; });
         }
@@ -1626,7 +1723,7 @@
                 const lenRadio = document.querySelector('input[name="ssLengthUnitRadio"]:checked');
                 const wtRadio = document.querySelector('input[name="ssWeightUnitRadio"]:checked');
                 ssLengthUnit = lenRadio ? lenRadio.value : 'mm';
-                ssWeightUnit = wtRadio ? wtRadio.value : 'g';
+                ssWeightUnit = wtRadio ? wtRadio.value : 'kg';
                 updateSsUnitLabels();
                 if (ssUnitsOverlay) {
                     ssUnitsOverlay.classList.add('d-none');
@@ -1661,9 +1758,6 @@
 
         if (ssForm) {
             ssForm.addEventListener('submit', function () {
-                if (ssLengthUnit === 'mm' && ssWeightUnit === 'g') {
-                    return;
-                }
                 getSsRows().forEach(function (row) {
                     const fields = getSsRowFields(row);
                     if (fields.length && fields.length.value) {
@@ -1676,9 +1770,9 @@
 
                 // Reset unit UI/state to defaults after conversion for consistency.
                 ssLengthUnit = 'mm';
-                ssWeightUnit = 'g';
+                ssWeightUnit = 'kg';
                 var lenDefault = document.getElementById('ssLengthUnitMm');
-                var wtDefault = document.getElementById('ssWeightUnitG');
+                var wtDefault = document.getElementById('ssWeightUnitKg');
                 if (lenDefault) lenDefault.checked = true;
                 if (wtDefault) wtDefault.checked = true;
                 updateSsUnitLabels();

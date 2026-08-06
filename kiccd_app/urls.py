@@ -96,6 +96,7 @@ urlpatterns = [
     path('api/ichp/harvest-stats/', _views.ichp_harvest_stats, name='ichp_harvest_stats'),
     path('api/ic/event-catch-count/', _views.ic_catch_count_by_event, name='api_ic_event_catch_count'),
     path('api/ic/event-catch-count/<int:event_id>/', _views.ic_catch_count_by_event, name='api_ic_event_catch_count_by_id'),
+    path('api/cf/event-search/', _views.cf_event_search, name='api_cf_event_search'),
     path('api/ichp/event-search/', _views.ichp_event_search, name='api_ichp_event_search'),
     path('api/ichp/event-catch-count/', _views.ichp_catch_count_by_event, name='api_ichp_event_catch_count'),
     path('api/ichp/event-catch-count/<int:event_id>/', _views.ichp_catch_count_by_event, name='api_ichp_event_catch_count_by_id'),

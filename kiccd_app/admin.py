@@ -539,10 +539,10 @@ class CfEventAdmin(admin.ModelAdmin):
         obj.save(user=request.user)
 
 class CfCatchAdmin(admin.ModelAdmin):
-    list_display = ('catch_id', 'event', 'ev_pool', 'ev_site', 'spp', 'healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', )
-    search_fields = ('event__fisher__name', 'species__name', 'event__site__name')
+    list_display = ('catch_id', 'event', 'ev_pool', 'ev_site', 'spp', 'healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', 'ss_code', )
+    search_fields = ('event__fisher__name', 'species__name', 'event__site__name', 'event__cf_date', )
     ordering = ('-event__cf_date', 'event__fisher', 'event__site', 'event__set_num', )
-    list_editable = ['healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', ]
+    list_editable = ['healthy_cnt', 'moribund_cnt', 'total_cnt', 'mean_length_mm', 'mean_weight_g', 'predicted_weight_g', 'ss_code', ]
     list_filter = ('species', 'event__site__pool', 'event__fisher__name', )
     readonly_fields = ('catch_id', 'added_on', 'added_by', )
     fieldsets = (
@@ -714,11 +714,12 @@ class IcCatchAdmin(admin.ModelAdmin):
         obj.save(user=request.user)
 
 class SubsampleAdmin(admin.ModelAdmin):
-    list_display = ('ssdate', 'basin', 'fisher', 'spp', 'sex', 'length_mm', 'weight_g', )
-    search_fields = ('ss_code', 'fisher__name', 'spp__name', 'basin__name', )
+    list_display = ('ssdate', 'basin', 'fisher', 'spp', 'sex', 'length_mm', 'weight_g', 'ss_code', )
+    search_fields = ('ss_code', 'cf_date', 'fisher__name', 'spp__name', 'basin__name', )
     ordering = ('cf_date', 'fisher', 'spp',)
+    list_editable = ['length_mm', 'weight_g', 'ss_code', ]
     # ordering = ('-ss_id', )
-    list_filter = ('pool', 'basin', 'datez__cal_year', 'datez__cf_peak_season', "datez__ic_month2", "datez__ic_season",)
+    list_filter = ('pool', 'basin', 'spp', 'datez__cal_year', 'datez__cf_peak_season', "datez__ic_month2", "datez__ic_season",)
     readonly_fields = ('ss_id', 'added_on',)
     fieldsets = (
         ('Event Details', {

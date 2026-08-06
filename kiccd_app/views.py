@@ -3537,7 +3537,7 @@ def cf_refresh_subsample_means(request):
 
     updated = 0
     skipped = 0
-    recent_catches = CfCatch.objects.order_by('-event__event_id')[:500]
+    recent_catches = CfCatch.objects.order_by('-event__event_id')[:5000]
 
     for catch in recent_catches:
         if not catch.ss_code:
@@ -4267,6 +4267,34 @@ def ic_catch_count_by_event(request, event_id=None):
 
     record_count = IcCatch.objects.filter(event_id=resolved_event_id).count()
     return JsonResponse({'event_id': resolved_event_id, 'record_count': record_count})
+
+
+@login_required
+def cf_event_search(request):
+    """AJAX endpoint: search all CfEvent records for Select2 autocomplete."""
+    if not request.user.has_perm('kiccd_app.add_cfcatch'):
+        return JsonResponse({'results': []}, status=403)
+
+    term = request.GET.get('term', '').strip()
+    queryset = CfEvent.objects.select_related('fisher', 'site').order_by(
+        '-cf_date', 'fisher__last_name', 'fisher__first_name', 'set_num'
+    )
+    if term:
+        queryset = queryset.filter(
+            Q(event_id__icontains=term) |
+            Q(cf_date__icontains=term) |
+            Q(fisher__lookup__icontains=term) |
+            Q(fisher__name__icontains=term) |
+            Q(fisher__last_name__icontains=term) |
+            Q(fisher__first_name__icontains=term) |
+            Q(site__name__icontains=term)
+        )
+
+    results = [
+        {'id': event.event_id, 'text': str(event)}
+        for event in queryset[:50]
+    ]
+    return JsonResponse({'results': results, 'pagination': {'more': False}})
 
 
 @login_required
