@@ -3707,7 +3707,7 @@ class RecentIcCatchView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
         return (
             IcCatch.objects.select_related('event__site', 'species', 'event__site__pool', 'event__site__basin', 'fish_sex', 'event__datez')
-            .order_by('-catch_id')[:2500]
+            .order_by('-catch_id')[:1000]
         )
 
 class IcAgeGrowthListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):

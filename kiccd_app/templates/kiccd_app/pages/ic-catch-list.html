@@ -20,10 +20,10 @@
             <h5 class="d-none d-md-block text-muted mb-0">Results of all agency sampling efforts grouped by date and species.</h5>
             <h4 class="d-block d-md-none mb-0 text-center">Results of All Sampling Efforts</h4>
         
-            <div class="d-flex gap-2">
+            {% comment %} <div class="d-flex gap-2">
                 <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New <br> Sampling Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> EFFORT</a>
                 <a href="{% url 'kiccd_app:ic_catch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Results to an<br> Existing Sampling Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> RESULTS</a>
-            </div>
+            </div> {% endcomment %}
         </div>
         <div class="card-body">
             <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
