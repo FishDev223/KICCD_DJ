@@ -140,10 +140,10 @@
                     <tr>
                         <th>Date</th>
                         <th>Pool</th>
-                        <th>Site</th>
                         <th>Fisher</th>
-                        <th>Gear</th>
                         <th>Set #</th>
+                        <th>Site</th>
+                        <th>Gear</th>
                         <th>Net (L'x D'x M")</th>
                         <th>Species</th>
                         <th>Healthy</th>
@@ -159,10 +159,10 @@
                     <tr>
                         <td>{{ catch.event.datez }}</td>
                         <td>{{ catch.event.site.pool.abbrev }}</td>
-                        <td>{{ catch.event.site.name }}</td>
                         <td>{{ catch.event.fisher.name }}</td>
-                        <td>{{ catch.event.gear }}</td>
                         <td>{{ catch.event.set_num }}</td>
+                        <td>{{ catch.event.site.name }}</td>
+                        <td>{{ catch.event.gear }}</td>
                         <td>{% if catch.gear_spec %}{{ catch.gear_spec }}{% else %}&mdash;{% endif %}</td>
                         <td>{{ catch.species.abbrev }}</td>
                         <td>{{ catch.healthy_cnt|default:0 }}</td>

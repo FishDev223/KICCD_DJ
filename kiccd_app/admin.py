@@ -653,7 +653,7 @@ class RaCatchAdmin(admin.ModelAdmin):
 
 class IcEventAdmin(admin.ModelAdmin):
     list_display = ('edate', 'project', 'agency__abbrev', 'crew_lead', 'site__name', 'gear', 'effort_num', 'effort_min', 'carp_sighted', 'net_length_ft', )
-    list_editable = ('effort_num', 'effort_min', 'carp_sighted', 'project', )
+    list_editable = ('effort_num', 'effort_min', 'carp_sighted', )
     search_fields = ('project__name', 'site__name', 'event_date' )
     ordering = ('-event_date', 'effort_num', )
     list_filter = ('project', 'agency', 'gear', 'site__pool', 'datez__cal_year', 'datez__ic_month2', 'datez__ic_season', )

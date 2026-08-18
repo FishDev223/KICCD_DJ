@@ -98,7 +98,7 @@
                                             <div class="list-group mt-md-0">
                                                 <a href="{% url 'kiccd_app:ic_combined_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Complete Sampling Record</a>
                                                 <a href="{% url 'kiccd_app:ic_event_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Sampling Effort Only</a>
-                                                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Catch Data for a Saved Effort</a>
+                                                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Catch Data (Previous Effort)</a>
                                                 <a href="{% url 'kiccd_app:ic_age_growth_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>New A&G Data</a>
                                                 <a href="{% url 'kiccd_app:sample_site_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>New Sample Site</a>
                                             </div>
@@ -202,10 +202,10 @@
                                         <div class="card-body shadow-sm rounded d-md-none d-block">
                                             <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">CONTRACT FISHING (CF)</span> <em>Directed commercial fishing</em></p>
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:cf_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>CF Catch Data</a>
-                                                <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>CF Bulk Efforts</a>
-                                                <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>CF Subsample</a>
-                                                <a href="{% url 'kiccd_app:cf_site_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>New CF Site</a>
+                                                <a href="{% url 'kiccd_app:cf_report_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable CF Data</a>
+                                                <a href="{% url 'kiccd_app:recent_cf_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent CF Efforts (200)</a>
+                                                <a href="{% url 'kiccd_app:cf_catch_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>ALL CF Data <em>(Big table!)</em></a>
+                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>CF Site List</a>
                                             </div>
                                         </div>
                                     </div>
