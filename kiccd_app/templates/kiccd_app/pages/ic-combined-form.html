@@ -837,7 +837,7 @@
                 <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pb-2">
-                <p class="text-muted small mb-2">Note: All length and weight values are converted into the default units (mm / g) prior to submission.</p>
+                <p class="text-muted small mb-2">Note: Entered values are converted to the stored units (mm / g) before the record is saved.</p>
                 <div class="mb-3">
                     <label class="form-label fw-semibold mb-1 small">LENGTH</label>
                     <div class="d-flex gap-2">
@@ -855,12 +855,12 @@
                     <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
                     <div class="d-flex gap-2 flex-wrap">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" checked>
-                            <label class="form-check-label small" for="weightUnitG">g <span class="text-muted">(default)</span></label>
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g">
+                            <label class="form-check-label small" for="weightUnitG">g</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg">
-                            <label class="form-check-label small" for="weightUnitKg">kg</label>
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg" checked>
+                            <label class="form-check-label small" for="weightUnitKg">kg <span class="text-muted">(default)</span></label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb">
@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---- Unit state ----
     let lengthUnit = 'mm';  // 'mm' | 'in'
-    let weightUnit = 'g';   // 'g'  | 'kg' | 'lb'
+    let weightUnit = 'kg';  // 'g'  | 'kg' | 'lb'
 
     const unitLengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
     const unitWeightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
@@ -1173,6 +1173,8 @@ document.addEventListener('DOMContentLoaded', function () {
             btnLbl.textContent = parts.length ? 'UNITS (' + parts.join('/') + ')' : 'UNITS';
         }
     }
+
+    updateUnitLabels();
 
     function toDefaultLength(val, unit) {
         var n = parseFloat(val);

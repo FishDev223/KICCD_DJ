@@ -201,7 +201,7 @@ class Partner(models.Model):
     }
 
     partner_id = models.AutoField("ID", primary_key=True, unique=True, blank=False, null=False, db_comment='ID for the agency or instituion that collaborates on ORB Invasive Carp research.')
-    abbrev = models.CharField("Abbrev", max_length=5, blank=False, null=False, db_comment='Abbreviation of the agency or institution.')
+    abbrev = models.CharField("Abbrev", max_length=10, blank=False, null=False, db_comment='Abbreviation of the agency or institution.')
     name = models.CharField("Name", max_length=75, blank=False, null=False, db_comment='Full name of the agency or institution.')
     type = models.CharField("Type", max_length=15, blank=True, null=True, choices=PART_TYPE.items(), db_comment='Type of the agency or institution.')
     level = models.CharField("Level", max_length=15, blank=True, null=True, choices=PART_LEVEL.items(), db_comment='Level of the agency or institution.')
@@ -257,7 +257,7 @@ class FishSex(models.Model):
 
 class Project(models.Model):
     project_id = models.IntegerField("ID", primary_key=True, unique=True, blank=False, null=False, db_comment='ID representing the Ohio River Basin (ORB) Invasive Carp Projects.')
-    name = models.CharField("Name", max_length=64, blank=False, null=False, db_comment='Name of the ORB Invasive Carp Project.')
+    name = models.CharField("Name", max_length=40, blank=False, null=False, db_comment='Name of the ORB Invasive Carp Project.')
     description = models.TextField("Description", blank=True, null=True, db_comment='Additional info about the ORB Invasive Carp Project.')
     last_update = models.DateTimeField(auto_now=True, db_comment='Date-time of creation or update.')
     
