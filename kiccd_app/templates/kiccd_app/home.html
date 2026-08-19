@@ -42,7 +42,7 @@
 {% endblock page_title %}
 
 {% block page_content %}
-<div class="row mb-lg-2 mb-xl-2 mb-md-1 mt-2 container-fluid">
+<div class="row mb-lg-2 mb-xl-2 mb-md-1 mt-2">
     <div class="col-lg-8 offset-lg-2 col-xl-8 offset-xl-2 col-md-12 col-sm-12 col-12">
         <div class="card bg-home-card">
             <div class="card-header border-bottom border-dashed align-items-center">
@@ -50,22 +50,22 @@
                 <h4 class="d-block d-md-none text-center fs-18">Enter/View Invasive Carp Data</h4>
             </div>
 
-            <div class="card-body bg-home-card bg-opacity-50 container-fluid">
-                <div class="row container-fluid">
-                    <div class="col-xl-3 col-lg-3 col-md-4 tablist-border">
+            <div class="card-body bg-home-card bg-opacity-50 ms-0 me-0 ps-0 pe-0">
+                <div class="row">
+                    <div class="col-xl-3 offset-xl-0 col-lg-3 offset-lg-0 col-md-4 offset-md-0 col-sm-10 offset-sm-1 col-10 offset-1 tablist-border">
                         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 						
                             <a class="nav-link active show" id="v-pills-newdata-tab" data-bs-toggle="pill" href="#v-pills-newdata" role="tab" aria-controls="v-pills-newdata" aria-selected="true">
-                                <i class="ri ri-menu-add-line me-1 fs-18"></i> ADD NEW DATA
+                                <i class="ri ri-menu-add-line me-1 fs-18"></i> ADD DATA
                             </a>
                             <a class="nav-link" id="v-pills-viewdata-tab" data-bs-toggle="pill" href="#v-pills-viewdata" role="tab" aria-controls="v-pills-viewdata" aria-selected="false">
-                                <i class="ri ri-table-line me-1 fs-18"></i> VIEW DATA TABLES
+                                <i class="ri ri-table-line me-1 fs-18"></i> VIEW TABLES
                             </a>
                             <a class="nav-link" id="v-pills-ra-tab" data-bs-toggle="pill" href="#v-pills-ra" role="tab" aria-controls="v-pills-ra" aria-selected="false">
-                                <i class="ri ri-line-chart-line me-1 fs-18"></i> RESULTS & CHARTS
+                                <i class="ri ri-line-chart-line me-1 fs-18"></i> SEE RESULTS
                             </a>
                             <a class="nav-link" id="v-pills-ichp-tab" data-bs-toggle="pill" href="#v-pills-ichp" role="tab" aria-controls="v-pills-ichp" aria-selected="false">
-                                <i class="ri ri-road-map-line me-1 fs-18"></i> SITE INFORMATION
+                                <i class="ri ri-road-map-line me-1 fs-18"></i> SITE DETAILS
                             </a>
                             <a class="nav-link" id="v-pills-subsamples-tab" data-bs-toggle="pill" href="#v-pills-subsamples" role="tab" aria-controls="v-pills-subsamples" aria-selected="false">
                                 <i class="ri ri-menu-search-line me-1 fs-18"></i> LOOKUP TABLES
@@ -73,7 +73,7 @@
                         </div>
                     </div> <!-- end col-->
 
-                    <div class="col-xl-9 col-lg-9 col-md-8 ">
+                    <div class="col-xl-9 col-lg-9 col-md-8 col-sm-12 col-12 pt-sm-2">
                         <div class="tab-content" id="v-pills-tabContent">
                             <div class="tab-pane fade active show" id="v-pills-newdata" role="tabpanel" aria-labelledby="v-pills-newdata-tab">
                                 <p class="mb-2 mt-3 mt-sm-0 fw-semibold d-none d-md-block"> A primary app function that allows registered KDFWR users to input new data into the Kentucky Invasive Carp Centralized Database (KICCD).<br>
