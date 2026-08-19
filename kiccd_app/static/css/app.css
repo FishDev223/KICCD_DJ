@@ -7,7 +7,9 @@ File: App Css File
   --ct-logo-lg-height: 50px;
   --ct-logo-sm-height: 32px;
   --ct-sidenav-width: 245px;
-  --ct-sidenav-width-md: 160px;
+  --ct-sidenav-width-xl: 245px;
+  --ct-sidenav-width-lg: 245px;
+  --ct-sidenav-width-md: 80px;
   --ct-sidenav-width-sm: 80px;
   --ct-topbar-height: 85px;
   --ct-menu-item-icon-size: 20px;

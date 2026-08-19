@@ -7,13 +7,13 @@
             <!-- Brand Logo -->
             <a href="/" class="logo">
                 <span class="logo-light">
-                    <span class="logo-lg"><img src="{% static 'images/logo.png' %}" alt="logo"></span>
-                    <span class="logo-sm"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
+                    <span class="logo-lg logo-xl"><img src="{% static 'images/logo.png' %}" alt="logo"></span>
+                    <span class="logo-sm logo-md logo"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
                 </span>
 
                 <span class="logo-dark">
-                    <span class="logo-lg"><img src="{% static 'images/logo-dark.png' %}" alt="dark logo"></span>
-                    <span class="logo-sm"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
+                    <span class="logo-lg logo-xl"><img src="{% static 'images/logo-dark.png' %}" alt="dark logo"></span>
+                    <span class="logo-sm logo-md logo"><img src="{% static 'images/logo-sm.png' %}" alt="small logo"></span>
                 </span>
             </a>
 
@@ -72,7 +72,7 @@
             </div>
              {% endcomment %}
             <!-- Light/Dark Mode Button -->
-            <div class="topbar-item d-none d-sm-flex">
+            <div class="topbar-item d-sm-flex">
                 <button class="topbar-link" id="light-dark-mode" type="button">
                     <i class="ri-moon-line light-mode-icon fs-22"></i>
                     <i class="ri-sun-line dark-mode-icon fs-22"></i>
@@ -81,7 +81,7 @@
 
             <!-- Admin dropdown (visible to staff only) -->
             {% if user.is_staff %}
-            <div class="topbar-item d-none d-sm-flex">
+            <div class="topbar-item d-none d-lg-flex">
                 <div class="dropdown">
                     <button class="topbar-link dropdown-toggle drop-arrow-none" id="kiccdTablesDdown" data-bs-toggle="dropdown" data-bs-offset="0,10" type="button" aria-labelledby="kiccdTablesDdown" aria-haspopup="true" aria-expanded="false" title="KICCD Tables">
                         <i class="ri-table-line fs-22" aria-hidden="true"></i>

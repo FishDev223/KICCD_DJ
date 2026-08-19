@@ -42,17 +42,17 @@
 {% endblock page_title %}
 
 {% block page_content %}
-<div class="row mb-md-2 mt-2">
-    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+<div class="row mb-lg-2 mb-xl-2 mb-md-1 mt-2 container-fluid">
+    <div class="col-lg-8 offset-lg-2 col-xl-8 offset-xl-2 col-md-12 col-sm-12 col-12">
         <div class="card bg-home-card">
             <div class="card-header border-bottom border-dashed align-items-center">
                 <h4 class="d-none d-md-block text-center fs-20">Select an Activity to begin Interacting with KICCD</h4>
                 <h4 class="d-block d-md-none text-center fs-18">Enter/View Invasive Carp Data</h4>
             </div>
 
-            <div class="card-body bg-home-card bg-opacity-50">
-                <div class="row">
-                    <div class="col-sm-3 tablist-border">
+            <div class="card-body bg-home-card bg-opacity-50 container-fluid">
+                <div class="row container-fluid">
+                    <div class="col-xl-3 col-lg-3 col-md-4 tablist-border">
                         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 						
                             <a class="nav-link active show" id="v-pills-newdata-tab" data-bs-toggle="pill" href="#v-pills-newdata" role="tab" aria-controls="v-pills-newdata" aria-selected="true">
@@ -73,7 +73,7 @@
                         </div>
                     </div> <!-- end col-->
 
-                    <div class="col-sm-9">
+                    <div class="col-xl-9 col-lg-9 col-md-8 ">
                         <div class="tab-content" id="v-pills-tabContent">
                             <div class="tab-pane fade active show" id="v-pills-newdata" role="tabpanel" aria-labelledby="v-pills-newdata-tab">
                                 <p class="mb-2 mt-3 mt-sm-0 fw-semibold d-none d-md-block"> A primary app function that allows registered KDFWR users to input new data into the Kentucky Invasive Carp Centralized Database (KICCD).<br>
@@ -82,7 +82,7 @@
                                 <div class="row container-fluid">
                                     <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
                                         <!-- New Agency Data Section (Desktop) -->
-                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                        <div class="card-body shadow-sm rounded d-none d-sm-none d-md-none d-lg-block d-xl-block">
                                             <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">AGENCY WORK</span> <em>Field sampling conducted for Invasive Carp projects</em></p>
                                             <div class="list-group mt-md-0">
                                                 <a href="{% url 'kiccd_app:ic_combined_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add A Complete Sampling Record (Effort & Catch)</a>
@@ -93,7 +93,7 @@
                                             </div>
                                         </div>
                                         <!-- New Agency Data Section (Mobile) -->
-                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                        <div class="card-body shadow-sm rounded d-block d-sm-block d-md-block d-lg-none d-xl-none">
                                             <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">AGENCY WORK</span> <em>Invasive Carp Sampling</em></p>
                                             <div class="list-group mt-md-0">
                                                 <a href="{% url 'kiccd_app:ic_combined_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Complete Sampling Record</a>
