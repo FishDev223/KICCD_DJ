@@ -52,6 +52,11 @@
         config = JSON.parse(savedConfig);
     }
 
+    var supportedSidenavSizes = ["default", "condensed", "full"];
+    if (!supportedSidenavSizes.includes(config.sidenav.size)) {
+        config.sidenav.size = defaultConfig.sidenav.size;
+    }
+
     window.config = config;
 
     if (config) {

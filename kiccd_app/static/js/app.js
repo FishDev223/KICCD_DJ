@@ -681,18 +681,10 @@ class ThemeCustomizer {
                 if (size === 'full') {
                     self.showBackdrop();
                 } else {
-                    if (configSize == 'fullscreen') {
-                        if (size === 'fullscreen') {
-                            self.changeLeftbarSize(configSize == 'fullscreen' ? 'default' : configSize, false);
-                        } else {
-                            self.changeLeftbarSize('fullscreen', false);
-                        }
+                    if (size === 'condensed') {
+                        self.changeLeftbarSize('default', false);
                     } else {
-                        if (size === 'condensed') {
-                            self.changeLeftbarSize(configSize == 'condensed' ? 'default' : configSize, false);
-                        } else {
-                            self.changeLeftbarSize('condensed', false);
-                        }
+                        self.changeLeftbarSize('condensed', false);
                     }
                 }
 
@@ -709,19 +701,6 @@ class ThemeCustomizer {
             });
         }
 
-        var hoverBtn = document.querySelectorAll('.button-sm-hover');
-        hoverBtn.forEach(function (element) {
-            element.addEventListener('click', function () {
-                var configSize = self.config.sidenav.size;
-                var size = self.html.getAttribute('data-sidenav-size', configSize);
-
-                if (size === 'sm-hover-active') {
-                    self.changeLeftbarSize('sm-hover', false);
-                } else {
-                    self.changeLeftbarSize('sm-hover-active', false);
-                }
-            });
-        })
     }
 
     showBackdrop() {

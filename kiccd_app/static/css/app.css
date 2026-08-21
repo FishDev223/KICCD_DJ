@@ -4,7 +4,7 @@ File: App Css File
 */
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 :root {
-  --ct-logo-lg-height: 50px;
+  --ct-logo-lg-height: 44px;
   --ct-logo-sm-height: 32px;
   --ct-sidenav-width: 245px;
   --ct-sidenav-width-xl: 245px;
@@ -13833,6 +13833,18 @@ html[data-sidenav-size=condensed]:not([data-layout=topnav]) .app-topbar {
   z-index: 1005;
   margin-left: var(--ct-sidenav-width-sm);
 }
+html[data-sidenav-size=condensed]:not([data-layout=topnav]) .app-topbar .topbar-menu > .d-flex:first-child {
+  gap: 0.25rem !important;
+}
+html[data-sidenav-size=condensed]:not([data-layout=topnav]) .app-topbar .logo {
+  display: block;
+}
+html[data-sidenav-size=condensed]:not([data-layout=topnav]) .app-topbar .logo span.logo-lg {
+  display: none;
+}
+html[data-sidenav-size=condensed]:not([data-layout=topnav]) .app-topbar .logo span.logo-sm {
+  display: block;
+}
 html[data-sidenav-size=condensed]:not([data-layout=topnav]) .page-content {
   margin-left: var(--ct-sidenav-width-sm);
   min-height: 1800px;
@@ -13856,15 +13868,7 @@ html[data-sidenav-size=condensed]:not([data-layout=topnav]) .sidenav-menu .simpl
   bottom: 0 !important;
 }
 html[data-sidenav-size=condensed]:not([data-layout=topnav]) .sidenav-menu .logo {
-  z-index: 1;
-  background: var(--ct-menu-bg);
-  border-radius: 4px;
-}
-html[data-sidenav-size=condensed]:not([data-layout=topnav]) .sidenav-menu .logo span.logo-lg {
   display: none;
-}
-html[data-sidenav-size=condensed]:not([data-layout=topnav]) .sidenav-menu .logo span.logo-sm {
-  display: block;
 }
 html[data-sidenav-size=condensed]:not([data-layout=topnav]) .sidenav-menu .side-nav > .side-nav-item {
   padding: 0px;
@@ -14119,6 +14123,18 @@ html[data-sidenav-size=sm-hover-active]:not([data-layout=topnav]) .sidenav-menu 
 html[data-sidenav-size=full]:not([data-layout=topnav]) .page-content,
 html[data-sidenav-size=full]:not([data-layout=topnav]) .app-topbar {
   margin-left: 0;
+}
+html[data-sidenav-size=full]:not([data-layout=topnav]) .app-topbar .topbar-menu > .d-flex:first-child {
+  gap: 0.25rem !important;
+}
+html[data-sidenav-size=full]:not([data-layout=topnav]) .app-topbar .logo {
+  display: block;
+}
+html[data-sidenav-size=full]:not([data-layout=topnav]) .app-topbar .logo span.logo-lg {
+  display: none;
+}
+html[data-sidenav-size=full]:not([data-layout=topnav]) .app-topbar .logo span.logo-sm {
+  display: block;
 }
 html[data-sidenav-size=full]:not([data-layout=topnav]) .app-topbar .sidenav-toggle-button,
 html[data-sidenav-size=full]:not([data-layout=topnav]) .button-close-fullsidebar {
