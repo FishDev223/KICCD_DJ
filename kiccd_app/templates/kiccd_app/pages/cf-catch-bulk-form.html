@@ -43,54 +43,64 @@
 
 {% block page_content %}
 <div class="row container-fluid mx-auto py-2">
-    <div class="card col-md-8 offset-md-2">
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
+    <div class="card col-sm-12 offset-sm-0 col-md-12 offset-md-0 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
             <h5 class="d-none d-md-block text-muted mb-0">1) SELECT an existing fishing effort, or CREATE a new one.</h5>
             <h4 class="d-block d-md-none mb-0 text-center">FISHING EFFORT</h4>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-md-1 gap-lg-2 gap-xl-2">
                 <a href="{% url 'kiccd_app:cf_event_batch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Fishing Effort in Bulk...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> Bulk Effort</a>
             </div>	
         </div>
 
-        <div class="card-body">
-            <!-- {% if messages %}
-            <div>
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
-                {% endfor %}
-            </div>
-            {% endif %} -->
+        <div class="card-body flex-grow-1">
 
-            {% if formset.non_form_errors %}
-                <div class="alert alert-danger">
-                    {{ formset.non_form_errors }}
-                </div>
-            {% endif %}
 
             <form method="post" novalidate id="cfCatchForm">
                 {% csrf_token %}
 
                 <div class="row p-md-2 p-2 mt-0 mb-md-0 bg-dark bg-opacity-10">
-                    <div class="col-md-7 mt-md-0 mt-2">
+                    <div class="col-md-10 offset-md-1 col-lg-6 offset-lg-0 mt-lg-0 mt-2">
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ shared_form.event }}
                                 <label class="form-label" for="id_event">SELECT AN EXISTING EFFORT, OR...</label>
                             </div>
-                            {% if perms.kiccd_app.add_cfevent %}
-                            <button type="button" class="btn btn-success btn-sm p-1" id="addEffortBtn"
-                                    data-bs-toggle="modal" data-bs-target="#addEffortModal"
-                                    title="Add a Single Fishing Effort" style="height:40px;min-width:36px;font-size:0.95rem;">
-                                <i class="ti ti-plus"></i> Create New
-                            </button>
-                            {% endif %}
+
                         </div>
                         {% if shared_form.event.errors %}
                             <div class="text-danger small">{{ shared_form.event.errors|striptags }}</div>
                         {% endif %}
                     </div>
 
-                    <div class="col-md-2 mt-md-0 mt-2 d-flex align-items-center">
+                    <div class="col-10 offset-1 col-sm-10 offset-sm-1 col-md-6 offset-md-3 col-lg-2 offset-lg-0 mt-lg-0 mt-2 d-flex align-items-center">
+                        {% if perms.kiccd_app.add_cfevent %}
+                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 d-lg-block d-md-none d-sm-none d-xl-block d-none" id="addEffortBtn"
+                                data-bs-toggle="modal" data-bs-target="#addEffortModal"
+                                title="Add a Single Fishing Effort" style="height:40px;min-width:36px;font-size:0.95rem;">
+                            <i class="ti ti-plus"></i> ADD NEW
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 w-100 d-lg-none d-md-block d-sm-block" id="addEffortBtn"
+                                data-bs-toggle="modal" data-bs-target="#addEffortModal"
+                                title="Add a Single Fishing Effort" style="height:40px;min-width:36px;font-size:0.95rem;">
+                            <i class="ti ti-plus"></i> Add a New Fishing Effort
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 col-lg-2 mt-lg-0 mt-2 d-flex align-items-center">
                         <div class="w-100 text-center" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Current number of existing Catch Records.">
                             <p class="mb-1 mt-1 text-muted fs-11">RECORD COUNT</p>
                             <p id="cf_event_record_count" class="mb-0 fw-semibold fs-16">-</p>
@@ -98,7 +108,7 @@
                     </div>
 
 
-                    <div class="col-md-2 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*Only when <u>ZERO</u> fish were caught in the entire net.">
+                    <div class="col-md-6 col-lg-2 mt-lg-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="*Only when <u>ZERO</u> fish were caught in the entire net.">
                         <p class="mb-1 mt-1 fs-11">NO FISH CAUGHT?</p>
                         <div class="form-check form-switch">
                             {{ shared_form.no_fish }}
@@ -110,11 +120,12 @@
                 </div>
         </div>
     </div>
-    <div class="card col-md-8 offset-md-2">
+   <div class="card col-sm-12 offset-sm-0 col-md-12 offset-md-0 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
 
-                <h5 class="d-none d-md-block text-muted mb-0">2) Provide catch counts for the selected net set.</h5>
-                <h4 class="d-block d-md-none mb-0 ps-0 pt-0 pe-4 pb-0 text-center">FISH COUNTS </h4>
+                <h5 class="d-none d-lg-block text-muted mb-0">2) Provide catch counts for the selected net set.</h5>
+                <h4 class="d-none d-md-block d-lg-none mb-0 ps-0 pt-0 pe-4 pb-0 text-center">FISH COUNTS </h4>
+                <h4 class="d-block d-md-none mb-0 ps-0 pt-0 pe-4 pb-0 text-center">COUNTS</h4>
                 <div class="d-flex gap-2 align-items-center">
                     {% if perms.kiccd_app.add_subsample %}
                     <button type="button" class="btn btn-sm btn-secondary ps-md-2 pt-md-1 pe-md-2 pb-md-1 ps-1 pt-1 pe-1 pb-1" data-bs-toggle="modal" data-bs-target="#subsampleModal" title="Add a subsample for this Fishing Effort..."><i class="ti ti-copy-plus me-1"></i> Subsample</button>
@@ -127,7 +138,7 @@
 
             {% for form in formset %}
             <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded bg-dark bg-opacity-10 csv-row">
-                <div class="col-md-4 pt-md-2 pb-md-2 ps-md-2 pe-md-1 pt-2 pb-1 ps-2 pe-2">
+                <div class="col-md-12 offset-md-0 col-lg-4 offset-lg-0 pb-lg-2 ps-lg-2 pe-lg-1 pt-2 pb-1 ps-2 pe-2">
                     <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                         <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                             <div class="form-floating flex-grow-1">
@@ -141,7 +152,7 @@
                     </div>
                 </div>
                 
-                <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2">
+                <div class="col-md-6 col-lg-3 pt-lg-2 pb-lg-2 ps-lg-1 pe-lg-2 pt-1 pb-2 ps-2 pe-2">
                     <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                         <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                             <div class="form-floating flex-grow-1">
@@ -162,7 +173,7 @@
                     </div>
                 </div>
                 
-                <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2">
+                <div class="col-md-6 col-lg-3 pt-lg-2 pb-lg-2 ps-lg-1 pe-lg-2 pt-1 pb-2 ps-2 pe-2">
                     <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                         <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                             <div class="form-floating flex-grow-1">
@@ -183,13 +194,13 @@
                     </div>
                 </div>
                 
-                <div class="col-md-2 pt-md-2 pb-md-2 ps-md-1 pe-md-2 pt-1 pb-2 ps-2 pe-2 align-items-center">
+                <div class="col-md-3 offset-md-9 col-lg-2 offset-lg-0 pt-lg-2 pb-lg-2 ps-lg-1 pe-lg-2 pt-1 pb-2 ps-2 pe-2 align-items-center">
                     <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
                         <div class="d-flex gap-md-1 gap-sm-1 align-items-center w-100 text-center">
                             <div class="form flex-grow-1 total-count-display">
-                                <p class="d-none d-md-block mb-0 mt-0 pb-0 pt-0 fs-11">TOTAL</p>
-                                <p class="d-block d-md-none mb-0 mt-0 pb-0 pt-0 fs-11">TOTAL FISH</p>
+                                <p class="d-none d-lg-block mb-0 mt-0 pb-0 pt-0 fs-11">TOTAL</p>
                                 {{ form.total_cnt }}
+                                <p class="d-block d-lg-none mb-0 mt-0 pb-0 pt-0 fs-11">TOTAL FISH</p>
                                 {% comment %} <label class="d-none d-md-block form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL</label> {% endcomment %}
                                 {% comment %} <label class="d-block d-md-none form-label" for="{{ form.total_cnt.id_for_label }}">TOTAL FISH</label> {% endcomment %}
                             </div>
@@ -250,9 +261,11 @@
                                     <span id="cfCatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
                                     SUBMIT
                                 </button>
-                            <div>
-                                <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
-                                <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-secondary me-2 d-none d-md-inline-block d-lg-inline-block" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                                <button type="button" class="btn btn-info d-none d-md-inline-block d-lg-inline-block" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                                <button type="button" class="btn btn-secondary me-2 d-block d-md-none d-lg-none" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Reset Form" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();"><i class="ti ti-refresh"></i></button>
+                                <button type="button" class="btn btn-info px-1 py-1 d-block d-md-none d-lg-none" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
                             </div>
                         </div>
                 </form>
@@ -675,8 +688,8 @@
                 <form id="addEffortForm" novalidate>
                     {% csrf_token %}
 
-                    <div class="row g-2 mb-md-0 mb-2">
-                        <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                    <div class="row g-1 g-lg-2 ps-lg-1 pe-lg-1 mt-1 mt-lg-0 mb-lg-0 mb-0 align-items-stretch">
+                        <div class="col-lg-4 p-lg-2 p-2 mb-lg-0 bg-dark bg-opacity-10">
                             <div class="d-flex gap-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
                                     {{ effort_form.cf_date }}
@@ -691,7 +704,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="col-lg-4 p-lg-2 p-2 bg-dark bg-opacity-10">
                             <div class="d-flex gap-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
                                     {{ effort_form.fisher }}
@@ -707,7 +720,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
+                        <div class="col-lg-4 p-lg-2 p-2 bg-dark bg-opacity-10">
                             <div class="d-flex gap-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
                                     {{ effort_form.observer }}
@@ -725,16 +738,16 @@
                         </div>
                     </div>
 
-                    <div class="row g-1 g-md-2 ps-md-1 pe-md-1 mt-1 mb-md-0 mb-0 align-items-stretch">
-                        <div class="col-md-3 mb-0 mb-md-0 bg-dark bg-opacity-10">
+                    <div class="row g-1 g-lg-2 ps-lg-1 pe-lg-1 mt-1 mt-lg-0 mb-lg-0 mb-0 align-items-stretch">
+                        <div class="col-lg-3 mb-lg-0 bg-dark bg-opacity-10">
                             <div class="row g-1 ms-0 me-0">
-                                <div class="col-4 pt-2 pb-2">
+                                <div class="col-lg-4 col-4 pt-2 pb-2">
                                     <div class="form-floating">
                                         {{ effort_form.set_num }}
                                         <label class="form-label" for="{{ effort_form.set_num.id_for_label }}">SET</label>
                                     </div>
                                 </div>
-                                <div class="col-8 pt-2 pb-2">
+                                <div class="col-lg-8 col-8 pt-2 pb-2">
                                     <div class="form-floating">
                                         {{ effort_form.gear }}
                                         <label class="form-label" for="{{ effort_form.gear.id_for_label }}">GEAR TYPE</label>
@@ -742,21 +755,21 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-5 mb-0 mb-md-0 bg-dark bg-opacity-10">
+                        <div class="col-lg-5 mb-0 mb-lg-0 bg-dark bg-opacity-10">
                             <div class="row g-1 ms-0 me-0">
-                                <div class="col-md-4 col-5 pt-2 pb-2">
+                                <div class="col-lg-4 col-5 pt-2 pb-2">
                                     <div class="form-floating">
                                         {{ effort_form.gear_length }}
                                         <label class="form-label" for="{{ effort_form.gear_length.id_for_label }}">LENGTH (ft)</label>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-3 pt-2 pb-2">
+                                <div class="col-lg-4 col-3 pt-2 pb-2">
                                     <div class="form-floating">
                                         {{ effort_form.gear_depth }}
                                         <label class="form-label" for="{{ effort_form.gear_depth.id_for_label }}">DEPTH (ft)</label>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-4 pt-2 pb-2">
+                                <div class="col-lg-4 col-4 pt-2 pb-2">
                                     <div class="form-floating">
                                         {{ effort_form.mesh_size }}
                                         <label class="form-label" for="{{ effort_form.mesh_size.id_for_label }}">MESH (in)</label>
@@ -764,93 +777,75 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-1 mb-md-0 bg-dark bg-opacity-10">
+                        <div class="col-lg-4 mb-1 mb-lg-0 mb-0 pb-2 pt-2 bg-dark bg-opacity-10">
                             <div class="row g-1 ms-0 me-0">
-                                <div class="col-6 pt-2 pb-2 pe-3">
-                                    <div class="d-flex gap-0 align-items-center">
-                                        <div class="form-floating flex-grow-1">
-                                            {{ effort_form.start_time }}
-                                            <label class="form-label" for="{{ effort_form.start_time.id_for_label }}">SET TIME</label>
-                                        </div>{% comment %} 
-                                        <button type="button" class="btn btn-outline-secondary btn-sm p-1 effort-time-now-btn"
-                                                data-target-id="{{ effort_form.start_time.id_for_label }}"
-                                                title="Current local time"
-                                                style="height:25px;width:25px;min-width:25px;font-size:0.85rem;">
-                                            <i class="ti ti-clock"></i>
-                                        </button> {% endcomment %}
+                                <div class="d-flex gap-lg-2 gap-sm-1 align-items-center">
+                                    <div class="form-floating flex-grow-1">
+                                        {{ effort_form.start_time }}
+                                        <label class="form-label" for="{{ effort_form.start_time.id_for_label }}">SET TIME</label>
                                     </div>
-                                </div>
-                                <div class="col-6 pt-2 pb-2 pe-2">
-                                    <div class="d-flex gap-0 align-items-center">
-                                        <div class="form-floating flex-grow-1">
-                                            {{ effort_form.end_time }}
-                                            <label class="form-label" for="{{ effort_form.end_time.id_for_label }}">PULL TIME</label>
-                                        </div>{% comment %} 
-                                        <button type="button" class="btn btn-outline-secondary btn-sm p-1 effort-time-now-btn"
-                                                data-target-id="{{ effort_form.end_time.id_for_label }}"
-                                                title="Current local time"
-                                                style="height:25px;width:25px;min-width:25px;font-size:0.85rem;">
-                                            <i class="ti ti-clock"></i>
-                                        </button> {% endcomment %}
+                                    <div class="form-floating flex-grow-1">
+                                        {{ effort_form.end_time }}
+                                        <label class="form-label" for="{{ effort_form.end_time.id_for_label }}">PULL TIME</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row g-md-2 g-1 ps-md-1 pe-md-1 mb-md-0 mb-0 align-items-stretch">
-                        <div class="col-md-4 mb-0 mb-md-0 pt-2 pb-2 ps-1 bg-dark bg-opacity-10">
-                            <div class="d-flex gap-1 align-items-center">
-                                <button type="button" class="btn btn-outline-secondary px-2 py-2 cf-site-lookup-btn"
-                                        data-site-select-id="{{ effort_form.site.id_for_label }}"
-                                        data-lat-id="{{ effort_form.latitude.id_for_label }}"
-                                        data-lon-id="{{ effort_form.longitude.id_for_label }}"
-                                        title="Find nearest site..."
-                                        style="height:30px;min-width:30px;font-size:1.00rem;">
-                                    <i class="ti ti-search"></i>
-                                </button>
-                                <div class="form-floating flex-grow-1">
-                                    {{ effort_form.site }}
-                                    <label class="form-label" for="{{ effort_form.site.id_for_label }}">SITE NAME</label>
-                                </div>
-                                {% if perms.kiccd_app.add_fishingsite_cf %}
-                                <button type="button" class="btn btn-outline-success btn-sm p-0 add-effort-site-btn"
-                                        data-site-select-id="{{ effort_form.site.id_for_label }}"
-                                        data-bs-toggle="modal" data-bs-target="#addEffortSiteModal"
-                                        title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
-                                    <i class="ti ti-plus"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-0 bg-dark bg-opacity-10">
+                    
+                    <div class="row g-lg-2 g-1 ps-lg-1 pe-lg-1 mb-lg-0 mb-0 align-items-stretch">
+                        <div class="col-sm-12 col-md-12 col-lg-6 mb-0 pb-2 pt-2 bg-dark bg-opacity-10">
                             <div class="row g-1 ms-0 me-0">
-                                <div class="col-md-5 col-6 mb-0 pt-md-2 pt-2 pb-md-2">
-                                    <div class="form-floating">
-                                        {{ effort_form.latitude }}
-                                        <label class="form-label" for="{{ effort_form.latitude.id_for_label }}">LATITUDE</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-5 col-6 mb-0 pt-md-2 pt-2 pb-md-2">
-                                    <div class="form-floating">
-                                        {{ effort_form.longitude }}
-                                        <label class="form-label" for="{{ effort_form.longitude.id_for_label }}">LONGITUDE</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-1 offset-md-0 col-sm-4 offset-sm-4 d-flex align-items-center ps-md-1 pe-md-3 pb-md-2 pb-2 pt-md-2 pt-0">
+                                <div class="d-flex gap-lg-2 gap-sm-1 align-items-center">
                                     <button type="button"
-                                            class="btn btn-outline-secondary w-sm-100 effort-my-location-btn"
+                                            class="btn btn-outline-secondary px-2 py-2 effort-my-location-btn"
                                             data-lat-id="{{ effort_form.latitude.id_for_label }}"
                                             data-lon-id="{{ effort_form.longitude.id_for_label }}"
                                             title="Use Your Location"
                                             style="height:30px;min-width:36px;font-size:0.85rem;">
-                                        <i class="d-none d-md-block ri ri-gps-fill"></i>
-                                        <i class="d-block d-md-none ri ri-gps-fill"> My Location</i>
+                                        <i class="ri ri-gps-fill"></i>
+                                        {% comment %} <i class="d-block d-md-none ri ri-gps-fill"> My Location</i> {% endcomment %}
                                     </button>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ effort_form.latitude }}
+                                        <label class="form-label" for="{{ effort_form.latitude.id_for_label }}">LATITUDE</label>
+                                    </div>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ effort_form.longitude }}
+                                        <label class="form-label" for="{{ effort_form.longitude.id_for_label }}">LONGITUDE</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2 mb-0 pt-2 pb-2 ps-2 pe-4 bg-dark bg-opacity-10">
-                            <div class="form-floating">
+
+                        <div class="col-sm-12 col-md-12 col-lg-4 mb-0 pb-2 pt-2 bg-dark bg-opacity-10">
+                            <div class="row g-1 ms-0 me-0">
+                                <div class="d-flex gap-lg-2 gap-sm-1 align-items-center">
+                                    <button type="button" class="btn btn-outline-secondary px-2 py-2 cf-site-lookup-btn"
+                                            data-site-select-id="{{ effort_form.site.id_for_label }}"
+                                            data-lat-id="{{ effort_form.latitude.id_for_label }}"
+                                            data-lon-id="{{ effort_form.longitude.id_for_label }}"
+                                            title="Find nearest site..."
+                                            style="height:30px;min-width:30px;font-size:1.00rem;">
+                                        <i class="ti ti-search"></i>
+                                    </button>
+                                    <div class="form-floating flex-grow-1">
+                                        {{ effort_form.site }}
+                                        <label class="form-label" for="{{ effort_form.site.id_for_label }}">SITE NAME</label>
+                                    </div>
+                                    {% if perms.kiccd_app.add_fishingsite_cf %}
+                                    <button type="button" class="btn btn-outline-success btn-sm p-0 add-effort-site-btn"
+                                            data-site-select-id="{{ effort_form.site.id_for_label }}"
+                                            data-bs-toggle="modal" data-bs-target="#addEffortSiteModal"
+                                            title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                        <i class="ti ti-plus"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-2 mb-0 pb-2 pt-2 pe-2 ps-2 bg-dark bg-opacity-10">
+                            <div class="form-floating flex-grow-1">
                                 {{ effort_form.water_temp_f }}
                                 <label class="d-none d-md-block form-label" for="{{ effort_form.water_temp_f.id_for_label }}">WATER TEMP (F)</label>
                                 <label class="d-block d-md-none form-label" for="{{ effort_form.water_temp_f.id_for_label }}">WATER TEMPERATURE (F)</label>
