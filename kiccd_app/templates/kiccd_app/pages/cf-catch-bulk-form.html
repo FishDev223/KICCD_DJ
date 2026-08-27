@@ -76,7 +76,7 @@
                         <div class="d-flex gap-1 align-items-center">
                             <div class="form-floating flex-grow-1">
                                 {{ shared_form.event }}
-                                <label class="form-label" for="id_event">SELECT AN EXISTING EFFORT, OR...</label>
+                                <label class="form-label" for="id_event">SELECT A SAVED EFFORT...</label>
                             </div>
 
                         </div>
@@ -87,15 +87,20 @@
 
                     <div class="col-10 offset-1 col-sm-10 offset-sm-1 col-md-6 offset-md-3 col-lg-2 offset-lg-0 mt-lg-0 mt-2 d-flex align-items-center">
                         {% if perms.kiccd_app.add_cfevent %}
-                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 d-lg-block d-md-none d-sm-none d-xl-block d-none" id="addEffortBtn"
+                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 d-lg-block d-xl-block d-md-none d-sm-none d-none" id="addEffortBtn"
                                 data-bs-toggle="modal" data-bs-target="#addEffortModal"
                                 title="Add a Single Fishing Effort" style="height:40px;min-width:36px;font-size:0.95rem;">
                             <i class="ti ti-plus"></i> ADD NEW
                         </button>
-                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 w-100 d-lg-none d-md-block d-sm-block" id="addEffortBtn"
+                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 w-100 d-lg-none d-xl-none d-md-block d-sm-none d-none" id="addEffortBtn"
                                 data-bs-toggle="modal" data-bs-target="#addEffortModal"
                                 title="Add a Single Fishing Effort" style="height:40px;min-width:36px;font-size:0.95rem;">
                             <i class="ti ti-plus"></i> Add a New Fishing Effort
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm p-1 w-lg-100 w-md-100 w-sm-100 w-100 d-lg-none d-xl-none d-md-none d-sm-block d-block" id="addEffortBtn"
+                                data-bs-toggle="modal" data-bs-target="#addEffortModal"
+                                title="Add a Single Fishing Effort" style="height:40px;min-width:36px;font-size:0.95rem;">
+                            <i class="ti ti-plus"></i> Add a New Effort
                         </button>
                         {% endif %}
                     </div>
