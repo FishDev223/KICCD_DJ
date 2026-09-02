@@ -14,20 +14,15 @@
 {% endblock page_title %}
 
 {% block page_content %}
-<div class="row container-fluid mx-auto py-2">
-    <div class="card col-12">
+<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+    <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
         <div class="card-header border-bottom border-dashed align-items-center mb-0">
             <h5 class="d-none d-md-block text-muted mb-0">Filtered Agency IC Sampling Efforts & Catch Data</h5>
             <h4 class="d-block d-md-none mb-0 text-center">Filtered IC Sampling Results</h4>
-
-            {% comment %} <div class="d-flex gap-2">
-                <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New <br> Sampling Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> EFFORT</a>
-                <a href="{% url 'kiccd_app:ic_catch_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add Results to an<br> Existing Sampling Effort</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> RESULTS</a>
-            </div> {% endcomment %}
         </div>
-        <div class="card-body">
-            <form method="get" class="row g-1 align-items-end">
-                <div class="col-12 col-md-1">
+        <div class="card-body flex-grow-1">
+            <form id="ic-filter-form" method="get" class="row g-1 align-items-end">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-1 ps-1 pt-2 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
                     <div class="form-floating">
                         <select id="ic-filter-year" class="form-select" name="year">
                             <option value="">...</option>
@@ -39,79 +34,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-2">
-                    <div class="form-floating">
-                        <select id="ic-filter-project" class="form-select" name="project">
-                            <option value="">...</option>
-                            {% for project in project_options %}
-                            <option value="{{ project.project_id }}" {% if selected_project == project.project_id %}selected{% endif %}>{{ project.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="ic-filter-project" class="form-label">PROJECT</label>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-1">
-                    <div class="form-floating">
-                        <select id="ic-filter-agency" class="form-select" name="agency">
-                            <option value="">...</option>
-                            {% for agency in agency_options %}
-                            <option value="{{ agency.partner_id }}" {% if selected_agency == agency.partner_id %}selected{% endif %}>{{ agency.abbrev }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="ic-filter-agency" class="form-label">AGENCY</label>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-2">
-                    <div class="form-floating">
-                        <select id="ic-filter-basin" class="form-select" name="basin">
-                            <option value="">...</option>
-                            {% for basin in basin_options %}
-                            <option value="{{ basin.basin_id }}" {% if selected_basin == basin.basin_id %}selected{% endif %}>{{ basin.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="ic-filter-basin" class="form-label">BASIN</label>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-2">
-                    <div class="form-floating">
-                        <select id="ic-filter-pool" class="form-select" name="pool">
-                            <option value="">...</option>
-                            {% for pool in pool_options %}
-                            <option value="{{ pool.pool_id }}" {% if selected_pool == pool.pool_id %}selected{% endif %}>{{ pool.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="ic-filter-pool" class="form-label">POOL</label>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-2">
-                    <div class="form-floating">
-                        <select id="ic-filter-site" class="form-select" name="site">
-                            <option value="">...</option>
-                            {% for site in site_options %}
-                            <option value="{{ site.site_id }}" {% if selected_site == site.site_id %}selected{% endif %}>{{ site.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="ic-filter-site" class="form-label">SITE</label>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-1">
-                    <div class="form-floating">
-                        <select id="ic-filter-month" class="form-select" name="month">
-                            <option value="">...</option>
-                            {% for month in month_options %}
-                            <option value="{{ month.ic_month1 }}" {% if selected_month == month.ic_month1 %}selected{% endif %}>{{ month.ic_mon }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="ic-filter-month" class="form-label">MONTH</label>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-1">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-1 ps-1 pt-1 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
                     <div class="form-floating">
                         <select id="ic-filter-season" class="form-select" name="season">
                             <option value="">...</option>
@@ -123,9 +46,84 @@
                     </div>
                 </div>
 
+                <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-1 ps-1 pt-1 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
+                    <div class="form-floating">
+                        <select id="ic-filter-month" class="form-select" name="month">
+                            <option value="">...</option>
+                            {% for month in month_options %}
+                            <option value="{{ month.ic_month1 }}" {% if selected_month == month.ic_month1 %}selected{% endif %}>{{ month.ic_month2 }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ic-filter-month" class="form-label">MONTH</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-2 ps-1 pt-1 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
+                    <div class="form-floating">
+                        <select id="ic-filter-project" class="form-select" name="project">
+                            <option value="">...</option>
+                            {% for project in project_options %}
+                            <option value="{{ project.project_id }}" {% if selected_project == project.project_id %}selected{% endif %}>{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ic-filter-project" class="form-label">PROJECT</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-2 ps-1 pt-1 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
+                    <div class="form-floating">
+                        <select id="ic-filter-basin" class="form-select" name="basin">
+                            <option value="">...</option>
+                            {% for basin in basin_options %}
+                            <option value="{{ basin.basin_id }}" {% if selected_basin == basin.basin_id %}selected{% endif %}>{{ basin.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ic-filter-basin" class="form-label">BASIN</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-1 ps-1 pt-1 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
+                    <div class="form-floating">
+                        <select id="ic-filter-pool" class="form-select" name="pool">
+                            <option value="">...</option>
+                            {% for pool in pool_options %}
+                            <option value="{{ pool.pool_id }}" {% if selected_pool == pool.pool_id %}selected{% endif %}>{{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ic-filter-pool" class="form-label">POOL</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-9 col-xl-3 ps-1 pt-1 pe-1 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
+                    <div class="form-floating">
+                        <select id="ic-filter-site" class="form-select" name="site">
+                            <option value="">...</option>
+                            {% for site in site_options %}
+                            <option value="{{ site.site_id }}" {% if selected_site == site.site_id %}selected{% endif %}>{{ site.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ic-filter-site" class="form-label">SITE</label>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-1 ps-1 pt-1 pe-1 pb-2 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1">
+                    <div class="form-floating">
+                        <select id="ic-filter-agency" class="form-select" name="agency">
+                            <option value="">...</option>
+                            {% for agency in agency_options %}
+                            <option value="{{ agency.partner_id }}" {% if selected_agency == agency.partner_id %}selected{% endif %}>{{ agency.abbrev }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="ic-filter-agency" class="form-label">AGENCY</label>
+                    </div>
+                </div>
+
                 <div class="row g-2 align-items-center mt-1">
                     <div class="col-6 col-md-2 offset-md-4">
-                        <button type="submit" name="apply" value="1" class="btn btn-sm btn-primary w-100">APPLY</button>
+                        <button id="ic-filter-apply-button" type="submit" name="apply" value="1" class="btn btn-sm btn-primary w-100">
+                            <span id="ApplyFilterSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                            APPLY
+                        </button>
                     </div>
                     <div class="col-6 col-md-2">
                         <a href="{% url 'kiccd_app:ic_filtered' %}" class="btn btn-sm btn-secondary w-100">RESET</a>
@@ -163,20 +161,20 @@
                         <td>{{ catch.event.site.pool.abbrev }}</td>
                         <td>{{ catch.event.site.name }}</td>
                         <td>{{ catch.event.gear }}</td>
-                        <td>{{ catch.event.effort_min }}</td>
                         <td>{{ catch.event.effort_num }}</td>
+                        <td>{{ catch.event.effort_min }}</td>
                         <td>{{ catch.species.abbrev }}</td>
                         <td>{% if catch.length_mm %}{{ catch.length_mm }}{% else %}&mdash;{% endif %}</td>
                         <td>{% if catch.weight_g %}{{ catch.weight_g }}{% else %}&mdash;{% endif %}</td>
                         <td>{{ catch.fish_count|default:0 }}</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="13" class="text-center">No records matched the selected filters.</td></tr>
+                    <tr><td colspan="13" class="text-center">No matches for your selected filters.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
-            <div class="mt-4 alert alert-light mb-0"><em>Select some filters & click "APPLY" to view the records.</em></div>
+            <div class="mt-4 alert alert-light mb-0"><em>Select filters & click "APPLY" to view matching records.</em></div>
             {% endif %}
         </div>
     </div>
@@ -194,6 +192,10 @@
 <script>
 $(document).ready(function () {
     "use strict";
+
+    $('#ic-filter-form').on('submit', function () {
+        $('#ApplyFilterSpinner').removeClass('d-none');
+    });
 
     if ($('#basic-datatable').length) {
         $('#basic-datatable').DataTable({

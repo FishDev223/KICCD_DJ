@@ -17,103 +17,109 @@
  
 {% block page_content %}
 
-<div class="row container-fluid mx-auto py-2">
-    <div class="card col-md-10 offset-md-1">
-        <div class="card-header border-bottom border-dashed d-flex d-block d-md-none">
-            <div class="row g-2 mb-0 w-100">
-                {% comment %} <h5 class="d-none d-md-block text-muted mb-0">Add a new sampling site by providing the information below...</h5> {% endcomment %}
-                <h4 class="mb-0 text-center">Add a New Sampling Site</h4>
-            </div>
-        </div>
-        <div class="card-body">
-
-            {% if messages %}
+<div class="col-12 col-sm-12 col-md-12 col-lg-8 offset-lg-2 col-xl-8 offset-xl-2">
+    {% if messages %}
+    <div class="col-12 col-sm-12 col-md-12 px-0 mb-2">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+	
+	<form method="post" novalidate>
+		<div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+			<div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                 <div>
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
-                    {% endfor %}
+                    <h5 class="d-none d-md-block text-muted mb-0">Add a new sampling site by providing the information below...</h5>
+                    <h4 class="d-block d-md-none mb-0">New Sampling Site</h4>
                 </div>
-            {% endif %}
+               </div>
 
-            <form method="post" novalidate>
-                    {% csrf_token %}
-                <div class="row g-0 mb-md-0 mb-1 mt-0 ms-0 me-0 mt-md-0">
-                    <div class="col-md-10 offset-md-1 pt-md-2 pb-md-2 ps-md-2 pe-md-2 pt-2 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
-
-                        <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
-                            <div class="form-floating flex-grow-1">
-                                {{ form.name }}
-                                <label class="form-label" for="id_name" >SITE NAME</label>
-                            </div>
-                            {% if form.name.errors %}
-                                <div class="text-danger small">{{ form.name.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-
+			<div class="card-body flex-grow-1">
+				{% csrf_token %}
+				
+				<!-- Row 1 -->
+				<div class="row g-0 mb-1 mb-sm-1 mb-md-0 mb-lg-0">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+						<div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+							<div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+								<div class="form-floating flex-grow-1">
+									{{ form.name }}
+									<label class="form-label" for="id_name" >SITE NAME</label>
+								</div>
+								{% if form.name.errors %}
+									<div class="text-danger small">{{ form.name.errors|striptags }}</div>
+								{% endif %}
+							</div>
+						</div>
 					</div>
 				</div>
-                <div class="row g-0 mb-md-0 mb-1 mt-0 ms-0 me-0 mt-md-0">
-                    <div class="col-md-2 offset-md-1 pt-md-2 pb-md-2 ps-md-2 pe-md-2 pt-1 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
-
-                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
-                            <div class="form-floating flex-grow-1">
-                                {{ form.type }}
-                                <label for="id_type" class="form-label">SITE TYPE</label>
-                            </div>
-                            {% if form.type.errors %}
-                                <div class="text-danger small">{{ form.type.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-
-                    </div>
-                    <div class="col-md-8 pt-md-2 pb-md-2 ps-md-4 pe-md-2 pt-1 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
-                        <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
-                            <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+					
+				<!-- Row 2 -->	
+                <div class="row g-0 mb-0 mb-sm-0 mb-md-0 mb-lg-0">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-3 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+                        <div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
                                 <div class="form-floating flex-grow-1">
-                                    {{ form.latitude }}
-                                    <label for="id_latitude" class="form-label">LATITUDE</label>
-                                </div>
-                            
-                                {% if form.latitude.errors %}
+									{{ form.type }}
+									<label for="id_type" class="form-label">SITE TYPE</label>
+								</div>
+								{% if form.type.errors %}
+									<div class="text-danger small">{{ form.type.errors|striptags }}</div>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					
+					
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-9 col-xl-9 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+                        <div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+                            <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                                <button id="myLocationBtn" type="button"
+                                        class="btn btn-outline-secondary px-2 py-2"
+										style="height:36px;min-width:25px;font-size:1.00rem;"
+										title="Use my current location">
+										<i class="ri ri-gps-fill"></i>
+                                </button>
+                                <div class="form-floating flex-grow-1">
+										{{ form.latitude }}
+										<label for="id_latitude" class="form-label">LATITUDE</label>
+								</div>
+                                {% if event_form.latitude.errors %}
                                     <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
                                 {% endif %}
-
                                 <div class="form-floating flex-grow-1">
                                     {{ form.longitude }}
                                     <label for="id_longitude" class="form-label">LONGITUDE</label>
                                 </div>
-                        
-                                {% if form.longitude.errors %}
+                                {% if event_form.longitude.errors %}
                                     <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
                                 {% endif %}
-                                <button id="myLocationBtn" type="button"
-                                    class="btn btn-outline-secondary px-2 py-2"
-                                    style="height:36px;min-width:25px;font-size:1.00rem;"
-                                    title="Use my current location">
-                                    <i class="ri ri-gps-fill"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row g-0 mb-md-0 mb-1 mt-0 ms-0 me-0 mt-md-0">
-                    <div class="col-md-3 offset-md-1 pt-md-2 pb-md-2 ps-md-2 pe-md-4 pt-1 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
-
-                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
-                            <div class="form-floating flex-grow-1">
-								{{ form.river_mi }}
-								<label for="id_river_mi" class="form-label">RIVER MI</label>
+				
+				<!-- Row 3 -->
+                <div class="row g-0 mb-0 mb-sm-0 mb-md-0 mb-lg-0">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-3 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+						<div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+							<div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+								<div class="form-floating flex-grow-1">
+									{{ form.river_mi }}
+									<label for="id_river_mi" class="form-label">RIVER MI</label>
+								</div>
+									{% if form.river_mi.errors %}
+										<div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
+									{% endif %}
 							</div>
-								{% if form.river_mi.errors %}
-									<div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
-								{% endif %}
-                        </div>
-
-                    </div>
-                    <div class="col-md-7 pt-md-2 pb-md-2 ps-md-4 pe-md-2 pt-1 pb-1 ps-2 pe-2 bg-dark bg-opacity-10">
-                        <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
-                            <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
-                                <div class="form-floating flex-grow-1">
+						</div>
+					</div>
+						
+					<div class="col-12 col-sm-12 col-md-12 col-lg-9 col-xl-9 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+						<div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+							<div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+								<div class="form-floating flex-grow-1">
 									{{ form.state }}
 									<label for="id_state" class="form-label">STATE</label>
 								</div>
@@ -121,7 +127,7 @@
 									<div class="text-danger small">{{ form.state.errors|striptags }}</div>
 								{% endif %}
 
-                                <div class="form-floating flex-grow-1">
+								<div class="form-floating flex-grow-1">
 									{{ form.county }}
 									<label for="id_county" class="form-label">COUNTY</label>
 								</div>
@@ -129,210 +135,142 @@
 									<div class="text-danger small">{{ form.county.errors|striptags }}</div>
 								{% endif %}
 
-                            </div>
-                        </div>
+							</div>
+						</div>
+					</div>
+				</div>
+						
+				<!-- Row 4 -->
+                <div class="row g-0 mb-0 mb-sm-0 mb-md-0 mb-lg-0">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-9 col-xl-9 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+						<div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+							<div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+								<div class="form-floating flex-grow-1">
+									{{ form.pool }}
+									<label for="id_pool" class="form-label">POOL</label>
+								</div>
+								{% if form.pool.errors %}
+									<div class="text-danger small">{{ form.pool.errors|striptags }}</div>
+								{% endif %}
+								
+								<div class="form-floating flex-grow-1">
+									{{ form.basin }}
+									<label for="id_basin" class="form-label">BASIN</label>
+								</div>
+								{% if form.basin.errors %}
+									<div class="text-danger small">{{ form.basin.errors|striptags }}</div>
+								{% endif %}							
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-3 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+						<div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+							<div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+								<div class="form-floating flex-grow-1">
+									{{ form.trib }}
+									<label for="id_trib" class="form-label">TRIBUTARY</label>
+								</div>
+								{% if form.trib.errors %}
+									<div class="text-danger small">{{ form.trib.errors|striptags }}</div>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Accordian 1 -->
+				<div class="row g-0 mb-0 mt-0 ps-2 pt-2 pe-2 pb-0 pb-md-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+					<div class="accordion accordion-flush mb-2 mb-md-1" id="fisherOptionalAccordion">
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="headingOptional">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+									data-bs-target="#collapseOptional" aria-expanded="false" aria-controls="collapseOptional">
+									<em>Optional Details...</em>
+								</button>
+							</h2>
+							<div id="collapseOptional" class="accordion-collapse collapse" 
+								aria-labelledby="headingOptional" data-bs-parent="#fisherOptionalAccordion">
+								<div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+									<div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-0">
+										<div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 mb-0 mt-0 ps-4 pe-4 pt-1 pb-0 p-md-1">
+											<div class="form-floating flex-grow-1">
+												{{ form.site_code }}
+												<label for="id_site_code" class="form-label">SITE CODE</label>
+											</div>
+											{% if form.site_code.errors %}
+												<div class="text-danger small">{{ form.site_code.errors|striptags }}</div>
+											{% endif %}
+										</div>
+										<div class="col-6 col-sm-6 col-md-6 col-lg-3 col-xl-3 p-1 mb-md-1 mt-md-0 mb-1 mt-1 align-items-center d-flex flex-column">
+											<p class="mb-1 mt-1 fs-11">WOODY DEBRIS?</p>
+											<div class="form-check form-switch">
+												{{ form.woody_debris }}
+											</div>
+											{% if form.woody_debris.errors %}
+												<div class="text-danger small">{{ form.woody_debris.errors|striptags }}</div>
+											{% endif %}
+										</div>
+										<div class="col-6 col-sm-6 col-md-6 col-lg-3 col-xl-3 p-1 mb-md-1 mt-md-0 mb-1 mt-1 align-items-center d-flex flex-column">
+											<p class="mb-1 mt-1 fs-11">SUBMERGED VEG?</p>
+											<div class="form-check form-switch">
+												{{ form.submersed_av }}
+											</div>
+											{% if form.submersed_av.errors %}
+												<div class="text-danger small">{{ form.submersed_av.errors|striptags }}</div>
+											{% endif %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+					
+				<!-- Accordian 2 -->
+				<div class="row g-0 mb-0 mt-1 ps-2 pt-2 pe-2 pb-0 pb-md-1 ps-lg-1 pt-lg-2 pe-lg-1 pb-lg-1 bg-dark bg-opacity-10">
+					<div class="accordion accordion-flush mb-2 mb-md-1" id="coordPickerAccordion">
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="headingCoordPicker">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+									data-bs-target="#collapseCoordPicker" aria-expanded="false" aria-controls="collapseCoordPicker">
+									<em>Use A Map...</em>
+								</button>
+							</h2>
+							<div id="collapseCoordPicker" class="accordion-collapse collapse" aria-labelledby="headingCoordPicker">
+								<div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+									<div class="d-flex align-items-center gap-2 mb-2">
+										<span class="text-muted small">Click anywhere on the map. Drag the marker to adjust.</span>
+										<button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="coordPickerLocBtn">&#128205; My Location</button>
+									</div>
+									<div id="coord-picker-map"></div>
+									<div id="coordPickerDisplay" class="mt-2 small text-center text-muted d-none">
+										Selected &mdash; Lat: <strong id="coordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="coordPickerLng"></strong>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-success" id="sampleSiteSubmitBtn">
+                        <span id="sampleSiteSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                        SUBMIT
+                    </button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-secondary me-2 d-none d-md-block d-lg-block" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
+                        <button type="button" class="btn btn-secondary me-2 d-block d-md-none d-lg-none" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Reset Form" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();"><i class="ti ti-refresh"></i></button>
+						<button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
                     </div>
                 </div>
-                    {% comment %}<div class="row g-2 mb-md-0 mb-2">
-                    <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.name }}
-                        <label class="form-label" for="id_name" >SITE NAME</label>
-                        </div>
-                        {% if form.name.errors %}
-                            <div class="text-danger small">{{ form.name.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.type }}
-                        <label for="id_type" class="form-label">SITE TYPE</label>
-                        </div>
-                        {% if form.type.errors %}
-                            <div class="text-danger small">{{ form.type.errors|striptags }}</div>
-                        {% endif %}
-                    </div>  
-                
-                 
-                <div class="row g-2 mb-md-0 mb-2">
-                                  
-                    <div class="col-md-7 ps-md-4 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-2 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                {{ form.latitude }}
-                                <label for="id_latitude" class="form-label">LATITUDE</label>
-                                </div>
-                                
-                                {% if form.latitude.errors %}
-                                    <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-5 ps-md-1 ps-1 pb-md-2 pt-md-2 pt-1 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                {{ form.longitude }}
-                                <label for="id_longitude" class="form-label">LONGITUDE</label>
-                                </div>
-                                {% if form.longitude.errors %}
-                                    <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-1 d-flex align-items-center ps-md-0 pe-md-2 pb-2 pt-md-2 pt-1 ps-5 pe-5">
-                                <button id="myLocationBtn" type="button"
-                                        class="btn btn-outline-primary text-nowrap w-100"
-                                        style="height:calc(2.5rem + 2px);"
-                                        title="Use my current location">
-                                    <i class="ri ri-gps-fill"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row g-2 mb-md-0 mb-0">
-                    <div class="col-md-3 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-						<div class="form-floating">
-                        {{ form.river_mi }}
-                        <label for="id_river_mi" class="form-label">RIVER MI</label>
-                        </div>
-                        {% if form.river_mi.errors %}
-                            <div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3 col-4 p-md-2 ps-2 pt-2 pb-2 pe-1 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.state }}
-                        <label for="id_state" class="form-label">STATE</label>
-                        </div>
-                        {% if form.state.errors %}
-                            <div class="text-danger small">{{ form.state.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-4 col-8 p-md-2 ps-0 pt-2 pb-2 pe-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.county }}
-                        <label for="id_county" class="form-label">COUNTY</label>
-                        </div>
-                        {% if form.county.errors %}
-                            <div class="text-danger small">{{ form.county.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div> 
-                {% endcomment %}
-                <div class="row g-2 mb-md-0 mb-0">
-                    <div class="col-md-3 offset-md-1 col-4 p-md-2 ps-2 pt-2 pb-2 pe-1 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.pool }}
-                        <label for="id_pool" class="form-label">POOL</label>
-                        </div>
-                        {% if form.pool.errors %}
-                            <div class="text-danger small">{{ form.pool.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3 col-8 p-md-2 ps-0 pt-2 pb-2 pe-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.basin }}
-                        <label for="id_basin" class="form-label">BASIN</label>
-                        </div>
-                        {% if form.basin.errors %}
-                            <div class="text-danger small">{{ form.basin.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-4 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.trib }}
-                        <label for="id_trib" class="form-label">TRIBUTARY</label>
-                        </div>
-                        {% if form.trib.errors %}
-                            <div class="text-danger small">{{ form.trib.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row g-2 mb-md-0 mb-2 mt-1">
-                    <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="accordion  accordion-flush mb-2 mb-md-1" id="fisherOptionalAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingOptional">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOptional" aria-expanded="false" aria-controls="collapseOptional">
-                                        <em>Optional Details...</em>
-                                    </button>
-                                </h2>
-                                <div id="collapseOptional" class="accordion-collapse collapse" aria-labelledby="headingOptional" data-bs-parent="#fisherOptionalAccordion">
-                                    <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
-                                        <div class="row p-md-0 p-0 g-md-1 mt-0 mb-md-0 mt-md-1">
-                                            <div class="col-md-5 mb-2 mb-md-0 mt-2 mt-md-0">
-                                                <div class="form-floating">
-                                                    {{ form.site_code }}
-                                                    <label for="id_site_code" class="form-label">SITE CODE</label>
-                                                </div>
-                                                {% if form.site_code.errors %}
-                                                    <div class="text-danger small">{{ form.site_code.errors|striptags }}</div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-3 mb-2 mb-md-0 mt-2 mt-md-0 align-items-center d-flex flex-column">
-                                                <p class="mb-1 mt-1 fs-11">WOODY DEBRIS?</p>
-                                                <div class="form-check form-switch">
-                                                    {{ form.woody_debris }}
-                                                </div>
-                                                {% if form.woody_debris.errors %}
-                                                    <div class="text-danger small">{{ form.woody_debris.errors|striptags }}</div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-3 mb-2 mb-md-0 mt-2 mt-md-0 align-items-center d-flex flex-column">
-                                                <p class="mb-1 mt-1 fs-11">SUBMERGED VEG?</p>
-                                                <div class="form-check form-switch">
-                                                    {{ form.submersed_av }}
-                                                </div>
-                                                {% if form.submersed_av.errors %}
-                                                    <div class="text-danger small">{{ form.submersed_av.errors|striptags }}</div>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-2 mb-md-0 mb-2">
-                    <div class="col-md-10 offset-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="accordion accordion-flush mb-2 mb-md-1" id="coordPickerAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingCoordPicker">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCoordPicker" aria-expanded="false" aria-controls="collapseCoordPicker">
-                                        <em>Use A Map...</em>
-                                    </button>
-                                </h2>
-                                <div id="collapseCoordPicker" class="accordion-collapse collapse" aria-labelledby="headingCoordPicker">
-                                    <div class="accordion-body p-1 bg-dark bg-opacity-10">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <span class="text-muted small">Click anywhere on the map. Drag the marker to adjust.</span>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="coordPickerLocBtn">&#128205; My Location</button>
-                                        </div>
-                                        <div id="coord-picker-map"></div>
-                                        <div id="coordPickerDisplay" class="mt-2 small text-center text-muted d-none">
-                                            Selected &mdash; Lat: <strong id="coordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="coordPickerLng"></strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3 col-md-10 offset-md-1 d-flex justify-content-between align-items-center">
-                        <button type="submit" class="btn btn-success" id="sampleSiteSubmitBtn">
-                            <span id="sampleSiteSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                            ADD SITE
-                        </button>
-                    <div>
-                        <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
-                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>  
+					
+
+			</div>
+		</div>
+		
+	</form>
 </div>
 
 <script>

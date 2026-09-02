@@ -1827,7 +1827,7 @@ def ic_filtered_view(request):
     )
     months = list(
         Dates.objects.filter(icevent__iccatch__isnull=False)
-        .values('ic_month1', 'ic_mon')
+        .values('ic_month1', 'ic_month2', 'ic_mon')
         .distinct()
         .order_by('ic_month1')
     )
