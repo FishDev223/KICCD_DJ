@@ -87,7 +87,12 @@
             </div>
             <div class="modal-body p-0">
                 <div id="modal-site-map"></div>
-                <div id="modalSiteCoords" class="px-3 py-2 border-top small text-muted"></div>
+                <div class="d-flex justify-content-between align-items-center px-2 py-2">
+                    <div id="modalSiteCoords" class="small text-muted"></div>
+                    <button id="copySiteKmlButton" type="button" class="btn btn-sm btn-outline-secondary">
+                        <i class="ti ti-clipboard-copy me-1"></i>KML
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -144,6 +149,7 @@ $(document).ready(function () {
     const modal       = document.getElementById('siteMapModal');
     const modalLabel  = document.getElementById('siteMapModalLabel');
     const modalCoords = document.getElementById('modalSiteCoords');
+    const copyKmlButton = document.getElementById('copySiteKmlButton');
 
     let modalMap    = null;
     let modalMarker = null;
@@ -152,9 +158,46 @@ $(document).ready(function () {
         const btn = e.relatedTarget;
         if (!btn) return;
         modalLabel.textContent  = btn.dataset.name;
+        modal.dataset.name      = btn.dataset.name;
         modal.dataset.lat       = btn.dataset.lat;
         modal.dataset.lng       = btn.dataset.lng;
         modalCoords.textContent = 'Lat: ' + btn.dataset.lat + '   |   Lon: ' + btn.dataset.lng;
+    });
+
+    function escapeXml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+    }
+
+    copyKmlButton.addEventListener('click', function () {
+        const name = modal.dataset.name;
+        const lat = parseFloat(modal.dataset.lat);
+        const lng = parseFloat(modal.dataset.lng);
+        if (!name || isNaN(lat) || isNaN(lng) || !navigator.clipboard) return;
+
+        const kml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<kml xmlns="http://www.opengis.net/kml/2.2">',
+            '  <Placemark>',
+            '    <name>' + escapeXml(name) + '</name>',
+            '    <Point><coordinates>' + lng + ',' + lat + ',0</coordinates></Point>',
+            '  </Placemark>',
+            '</kml>'
+        ].join('\n');
+
+        navigator.clipboard.writeText(kml).then(function () {
+            const originalContent = copyKmlButton.innerHTML;
+            copyKmlButton.innerHTML = '<i class="ti ti-check me-1"></i>COPIED!';
+            copyKmlButton.classList.replace('btn-outline-secondary', 'btn-success');
+            setTimeout(function () {
+                copyKmlButton.innerHTML = originalContent;
+                copyKmlButton.classList.replace('btn-success', 'btn-outline-secondary');
+            }, 2000);
+        });
     });
 
     modal.addEventListener('shown.bs.modal', function () {

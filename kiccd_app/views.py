@@ -3752,6 +3752,26 @@ class PoolListView(ListView):
     def get_queryset(self):
         return Pool.objects.all().order_by('pool_id')
 
+class HucListView(ListView):
+    model = Huc12
+    template_name = 'kiccd_app/pages/lookup-hucs.html'
+    context_object_name = 'hucs'
+    # paginate_by = 20
+
+    def get_queryset(self):
+        return Huc12.objects.all().order_by('huc12_name')
+
+class RiverMileListView(ListView):
+    model = RiverMile
+    template_name = 'kiccd_app/pages/lookup-rm.html'
+    context_object_name = 'river_miles'
+    # paginate_by = 150
+
+    # Show river miles for basin 3, 4 and 5
+    def get_queryset(self):
+        return RiverMile.objects.filter(basin__in=[2, 3, 4]).order_by('pool','-mile')
+
+
 class SpeciesListView(ListView):
     model = FishSpecies
     template_name = 'kiccd_app/pages/lookup-species.html'

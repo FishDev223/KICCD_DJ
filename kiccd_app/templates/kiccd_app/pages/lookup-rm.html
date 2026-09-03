@@ -1,0 +1,114 @@
+{% extends 'kiccd_app/vertical.html' %}
+
+{% load static %}
+
+{% block title %}Ohio River Miles{% endblock title %}
+
+{% block extra_css %}
+<link href="https://cdn.datatables.net/2.3.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" integrity="sha384-zmMNeKbOwzvUmxN8Z/VoYM+i+cwyC14+U9lq4+ZL0Ro7p1GMoh8uq8/HvIBgnh9+" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/buttons/3.2.5/css/buttons.bootstrap5.min.css" rel="stylesheet" integrity="sha384-HI7qMf1hznIZrIds5RatHHAOCn/7uGgsYQCanIyCeJDebKwCnoWnm4cB9SH+Z/ab" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/fixedheader/4.0.5/css/fixedHeader.bootstrap5.min.css" rel="stylesheet" integrity="sha384-lS0jkAZhyUhxNq2ANCXWpF/ARfdfXrUvgWDYZjKbWIylNAm5rktrh7EQWnvYvX3j" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/keytable/2.12.2/css/keyTable.bootstrap5.min.css" rel="stylesheet" integrity="sha384-C74MMsrNjJFzEP9tqBu5EZZ2hLFMV161uHLM9pF5e5hp14W54ZRO02n4b6IAAAFK" crossorigin="anonymous">
+<link href="https://cdn.datatables.net/responsive/3.0.7/css/responsive.bootstrap5.min.css" rel="stylesheet" integrity="sha384-seyUnB//1QOFEqox9uI7YTLBgz9jBwFRqZvsEPFrTw6NAsFEo70nhBWsQfODqiYA" crossorigin="anonymous">
+{% endblock extra_css %}
+
+{% block page_title %}
+{% include 'kiccd_app/partials/topbar.html' with topbarTitle='ORB River Miles' %}
+{% endblock page_title %}
+
+{% block page_content %}
+<div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+    <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+        <div class="card-body flex-grow-1">
+            <p class="text-muted">
+                Locations for OHR River Miles by Pool.
+            </p>
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>River Mile</th>
+                        <th>Pool</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for rm in river_miles %}
+                    <tr>
+                        <td>{{ rm.mile }}</td>
+                        <td>{{ rm.pool.name }}</td>
+                        <td>{{ rm.latitude }}</td>
+                        <td>{{ rm.longitude }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No river miles found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                
+            </table>
+
+        </div> <!-- end card body-->
+    </div> <!-- end card -->
+</div><!-- end col-->
+
+
+
+{% endblock page_content %}
+
+{% block extra_javascript %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js" integrity="sha384-VQb2IR8f6y3bNbMe6kK6H+edzCXdt7Z/3GtWA7zYzXcvfwYRR5rHGl46q28FbtsY" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/2.3.5/js/dataTables.bootstrap5.min.js" integrity="sha384-3BApNGXgbm9rg2kjIbaEVprAGb2B0n9QyLjBrH090WdkzZ3IiUv8RZoTh5uP8oWH" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js" integrity="sha384-nShWTydNlLNjbeTudrIIbT/2GtisYB0Hdmc1BMuBNdWRkXb5+pqyKRuZzrwmmDpa" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.bootstrap5.min.js" integrity="sha384-gUHKtNwDWTZzNL3AtaUES875ooIVf1iMuwWhklVW7Cdv9gAVUijYefPr+HPH7wjT" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.html5.min.js" integrity="sha384-XT65ZByvRGLJG18n96xtO3veM0VfqLVC8Meh+QKwvKGlX483Ei/l2ocUgQYvPR/0" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.print.min.js" integrity="sha384-SbNRDguI7TGChBvvLf/a66MngtndT7TOurCIAwfkiKkzbM/hAsUwaL4MBBOgYWnH" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/fixedheader/4.0.5/js/dataTables.fixedHeader.min.js" integrity="sha384-JxStvM0Ok+ArQDY+V0vVrAfklIxU02MThxg/bD2B9O+oCUvX+V81pERBBXASWUDR" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/keytable/2.12.2/js/dataTables.keyTable.min.js" integrity="sha384-G+rv7bKd5bT5j04gGhAjehDV9gQy4C4kavlQnvrn+kDmNyEirE+WzSDCMOEZf9i/" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js" integrity="sha384-0o8p0hBO3h/Z1wlhV3vP9DEFA1nf3vlr2N6yAtAfy0eDJJBgBPhIOG0GRO0FzOX5" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.bootstrap5.js" integrity="sha384-hyp/YDWGBMFqg7pJuS+y+2VWJkwnOyX+oMN9fWcxINo2flqjC/SdNaHj8LIV4zKJ" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    // Basin Datatable
+    $('#basic-datatable').DataTable({
+		order:[],
+        keys: true,
+        fixedHeader: true,
+        pageLength: 50,
+		ordering: true,
+         layout: {
+		topStart: {pageLength: {menu: [25, 50, 100, 200]}},
+        topEnd: {search: {placeholder: 'Search'}},
+        bottomStart: 'info',
+        bottomEnd: 'paging',
+        bottom: {buttons: ['copy', 'csv', 'pdf']}  
+        },      
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            }
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    table.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $(".dataTables_length select").addClass('form-select form-select-sm');
+    $(".dataTables_length label").addClass('form-label');
+
+});
+</script>
+
+{% endblock extra_javascript %}

@@ -64,10 +64,10 @@
                             <a class="nav-link" id="v-pills-ra-tab" data-bs-toggle="pill" href="#v-pills-ra" role="tab" aria-controls="v-pills-ra" aria-selected="false">
                                 <i class="ri ri-line-chart-line me-1 fs-18"></i> SEE RESULTS
                             </a>
-                            <a class="nav-link" id="v-pills-ichp-tab" data-bs-toggle="pill" href="#v-pills-ichp" role="tab" aria-controls="v-pills-ichp" aria-selected="false">
+                            <a class="nav-link" id="v-pills-site-tab" data-bs-toggle="pill" href="#v-pills-site" role="tab" aria-controls="v-pills-site" aria-selected="false">
                                 <i class="ri ri-road-map-line me-1 fs-18"></i> SITE DETAILS
                             </a>
-                            <a class="nav-link" id="v-pills-subsamples-tab" data-bs-toggle="pill" href="#v-pills-subsamples" role="tab" aria-controls="v-pills-subsamples" aria-selected="false">
+                            <a class="nav-link" id="v-pills-lookup-tab" data-bs-toggle="pill" href="#v-pills-lookup" role="tab" aria-controls="v-pills-lookup" aria-selected="false">
                                 <i class="ri ri-menu-search-line me-1 fs-18"></i> LOOKUP TABLES
                             </a>
                         </div>
@@ -259,52 +259,85 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="v-pills-ichp" role="tabpanel" aria-labelledby="v-pills-ichp-tab">
-                                <p class="mb-2 mt-3 mt-sm-0"><span
-                                        class="px-1 rounded me-1 fw-semibold d-inline-block bg-secondary-subtle text-secondary float-start">HP</span>
-                                    The Invasive Carp Harvest Program (ICHP) provides an incentive to commercial fishers that target the invasive populations occupying 
-                                    the lower Tennessee (KY Lake), Cumberland (Barkley) and Ohio rivers.  Participants provide regular reports documenting any fishing efforts that result in the removal of Invasive Carp.</p>
+                            <div class="tab-pane fade" id="v-pills-site" role="tabpanel" aria-labelledby="v-pills-site-tab">
+                                {% comment %} <p class="mb-2 mt-3 mt-sm-0 fw-semibold d-none d-md-block"> Select/View a KICCD lookup table...<br>
+                                <h4 class="mb-2 mt-3 mt-sm-0 text-center d-block d-md-none"> Select/View a KICCD lookup table...</h4>
+                                </p>  {% endcomment %}
                                 <div class="row container-fluid">
-                                    <div class="card col-md-5 ms-md-3 me-md-3 mb-2 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">
-                                            <p class="text-body-secondary">ADD NEW...</p>
+                                    <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <!-- Site Maps (Desktop) -->
+                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">TOOLS</span> <em>Select the tool you want to use...</em></p> 
                                             <div class="list-group mt-md-0">
+                                                <a href="{% url 'kiccd_app:site_map' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Site Map</a>
+                                                <a href="{% url 'kiccd_app:site_check' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>LAT/LON Lookup</a>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="card col-md-5 ms-md-3 mb-2 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">               
-                                            <p class="text-body-secondary">VIEW...</p>
+                                        <!-- Site Tables (Desktop) -->
+                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">TABLES</span> <em>Select the table you want to view...</em></p> 
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:recent_ichp_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent Reports</a>
-                                                <a href="{% url 'kiccd_app:ichp_report_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>ICHP Harvest Data</a>
+                                                <a href="{% url 'kiccd_app:sample_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Agency Sampling Sites</a>
+                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Contract Fishing (CF) Sites</a>
+                                                <a href="{% url 'kiccd_app:hp_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Invasive Carp Harvest Program (ICHP) Sites</a>
+                                                <a href="{% url 'kiccd_app:trib_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Invasive Carp Tributary List</a>
+                                            </div>
+                                        </div><!-- Site Maps (Mobile) -->
+                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">TOOLS</span> <em>Select the tool you want to use...</em></p> 
+                                            <div class="list-group mt-md-0">
+                                                <a href="{% url 'kiccd_app:site_map' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Site Map</a>
+                                                <a href="{% url 'kiccd_app:site_check' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>LAT/LON Lookup</a>
+                                            </div>
+                                        </div>
+                                        <!-- Site Table Selection (Mobile) -->
+                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">SITE TABLES</span> <em>Select the table you want to view...</em></p> 
+                                            <div class="list-group mt-md-0">
+                                                <a href="{% url 'kiccd_app:sample_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Sampling Sites</a>
+                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>CF Sites</a>
+                                                <a href="{% url 'kiccd_app:hp_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>ICHP Sites</a>
+                                                <a href="{% url 'kiccd_app:trib_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>IC Tributaries</a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="v-pills-subsamples" role="tabpanel" aria-labelledby="v-pills-subsamples-tab">
-                                <p class="mb-2 mt-3 mt-sm-0"><span
-                                        class="px-1 rounded me-1 fw-semibold d-inline-block bg-secondary-subtle text-secondary float-start">SS</span>
-                                        Invasive Carp subsamples are often collected during both contract fishing and ICHP Ride-along efforts in order to monitor 
-                                        the size structure of fish being harvested by program participants.  All subsample data is entered into the same table 
-                                        regardless of program.
-                                        </p>
+                            <div class="tab-pane fade" id="v-pills-lookup" role="tabpanel" aria-labelledby="v-pills-lookup-tab">
+                                {% comment %} <p class="mb-2 mt-3 mt-sm-0 fw-semibold d-none d-md-block"> Select/View a KICCD lookup table...<br>
+                                <h4 class="mb-2 mt-3 mt-sm-0 text-center d-block d-md-none"> Select/View a KICCD lookup table...</h4>
+                                </p>  {% endcomment %}
                                 <div class="row container-fluid">
-                                    <div class="card col-md-5 ms-md-3 me-md-3 mb-2 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">
-                                            <p class="text-body-secondary">ADD A...</p>
+                                    <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <!-- Lookup Table Selection (Desktop) -->
+                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">LOOKUP TABLES</span> <em>Select the table you want to view...</em></p> 
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>New Subsample</a>
+                                                <a href="{% url 'kiccd_app:project_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Invasive Carp Project List</a>
+                                                <a href="{% url 'kiccd_app:pool_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Ohio River Pools</a>
+                                                <a href="{% url 'kiccd_app:basin_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>IC River Basin List</a>
+                                                <a href="{% url 'kiccd_app:huc_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>USGS HUC-12 List</a>
+                                                <a href="{% url 'kiccd_app:rm_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>USACE River Miles (OHR Pools Only)</a>
+                                                <a href="{% url 'kiccd_app:species_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Fish Species List</em></a>
+                                                <a href="{% url 'kiccd_app:crew_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Agency Field Crew Leaders</a>
+                                                <a href="{% url 'kiccd_app:fisher_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Contract Fishers/ICHP Participants</a>
+                                                <a href="{% url 'kiccd_app:observer_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Contract Fishing Observers</a>
+                                                <a href="{% url 'kiccd_app:lookup_collections' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Other Misc Tables (Agencies, States, Counties, etc)</a>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="card col-md-5 ms-md-3 mb-2 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">              
-                                            <p class="text-body-secondary">VIEW...</p>
+                                        <!-- Lookup Table Selection (Mobile) -->
+                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">LOOKUP TABLES</span> <em>Select the table you want to view...</em></p> 
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:subsample_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Subsample Data</a>
-                                                {% comment %} <a href="{% url 'kiccd_app:subsample_data' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Subsample Data</a> {% endcomment %}
+                                                <a href="{% url 'kiccd_app:project_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>IC Projects</a>
+                                                <a href="{% url 'kiccd_app:pool_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>OHR Pools</a>
+                                                <a href="{% url 'kiccd_app:basin_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>IC River Basins</a>
+                                                <a href="{% url 'kiccd_app:huc_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>USGS HUC-12's</a>
+                                                <a href="{% url 'kiccd_app:rm_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>OHR River Miles</a>
+                                                <a href="{% url 'kiccd_app:crew_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Crew Leaders</a>
+                                                <a href="{% url 'kiccd_app:fisher_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Fisher List</a>
+                                                <a href="{% url 'kiccd_app:observer_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>CF Observers</a>
+                                                <a href="{% url 'kiccd_app:lookup_collections' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Other Misc Tables</a>
                                             </div>
                                         </div>
                                     </div>

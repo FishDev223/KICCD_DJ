@@ -17,52 +17,63 @@
 
 {% block page_content %}
 
-<div class="row container-fluid mx-auto py-2">
-    <div class="card col-md-12">
+<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+    <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+        <div class="card-header border-bottom border-dashed bg-dark bg-opacity-10">
+           <div class="row g-0 mb-1 mb-sm-1 mb-md-0 mb-lg-0 p-0">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 ps-2 pt-2 pe-2 pb-1 ps-lg-1 pt-lg-1 pe-lg-1 pb-lg-1">
+                    <div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+                        <div class="d-flex gap-md-2 gap-sm-1 align-items-center">
+                            <div class="form-floating flex-grow-1">
+                                <input type="number" id="latInput" class="form-control" placeholder="Latitude"
+                                    step="any" min="-90" max="90">
+                                <label class="form-label" for="latInput">LATITUDE</label>
+                            </div>
+                            <div class="form-floating flex-grow-1">
+                                <input type="number" id="lngInput" class="form-control" placeholder="Longitude"
+                                    step="any" min="-180" max="180">
+                                <label class="form-label" for="lngInput">LONGITUDE</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-12 col-md-6 col-lg-2 col-xl-2 ps-2 pt-2 pe-2 pb-0 ps-lg-1 pt-lg-1 pe-lg-3 pb-lg-1 align-items-center">
+                    <div class="row g-1 g-sm-1 g-md-1 g-lg-0 w-md-100 ms-0 me-0 pt-lg-3 ">
+                        <div class="align-items-center gap-1 ms-2" style="height:calc(2.5rem + 2px);">
+                            <input class="form-check-input mt-0" type="checkbox" id="huc12Toggle"
+                                title="Enable HUC12 / HUC10 / HUC8 lookup">
+                            <label class="form-check-label text-nowrap" for="huc12Toggle"
+                                style="cursor:pointer;">HUC Lookup?</label>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="card-header border-bottom border-dashed">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3 col-sm-6">
-                    <div class="form-floating">
-                        <input type="number" id="latInput" class="form-control" placeholder="Latitude"
-                               step="any" min="-90" max="90">
-                        <label class="form-label" for="latInput">LATITUDE</label>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 ps-2 pt-0 pe-2 pb-1 ps-lg-3 pt-lg-1 pe-lg-1 pb-lg-1">
+                    <div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0 pt-1 align-items-end">
+                        <div class="d-flex gap-md-2 gap-1">
+                            <button id="goBtn" type="button" class="btn btn-sm btn-primary text-nowrap"
+                                    style="height:calc(2.5rem + 2px);"
+                                    title="Plot coordinates">
+                                <i class="ti ti-map-pin me-1"></i>Plot
+                            </button>
+                            <button id="locBtn" type="button" class="btn btn-sm btn-outline-secondary text-nowrap"
+                                    style="height:calc(2.5rem + 2px);"
+                                    title="Use my current location">
+                                <i class="ti ti-current-location me-1"></i>My Location
+                            </button>
+                            <button id="clearBtn" type="button" class="btn btn-sm btn-outline-danger"
+                                    style="height:calc(2.5rem + 2px);width:calc(2.5rem + 2px);"
+                                    title="Clear">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="form-floating">
-                        <input type="number" id="lngInput" class="form-control" placeholder="Longitude"
-                               step="any" min="-180" max="180">
-                        <label class="form-label" for="lngInput">LONGITUDE</label>
-                    </div>
-                </div>
-                <div class="col-auto d-flex align-items-end gap-2">
-                    <button id="goBtn" type="button" class="btn btn-primary text-nowrap"
-                            style="height:calc(3.5rem + 2px);"
-                            title="Plot coordinates">
-                        <i class="ti ti-map-pin me-1"></i>Plot
-                    </button>
-                    <button id="locBtn" type="button" class="btn btn-outline-secondary text-nowrap"
-                            style="height:calc(3.5rem + 2px);"
-                            title="Use my current location">
-                        <i class="ti ti-current-location me-1"></i>My Location
-                    </button>
-                    <button id="clearBtn" type="button" class="btn btn-outline-danger"
-                            style="height:calc(3.5rem + 2px);width:calc(3.5rem + 2px);"
-                            title="Clear">
-                        <i class="ti ti-x"></i>
-                    </button>
-                    <div class="d-flex align-items-center gap-1 ms-2" style="height:calc(3.5rem + 2px);">
-                        <input class="form-check-input mt-0" type="checkbox" id="huc12Toggle"
-                               title="Enable HUC12 / HUC10 / HUC8 lookup">
-                        <label class="form-check-label text-nowrap" for="huc12Toggle"
-                               style="cursor:pointer;">HUC Lookup?</label>
-                    </div>
-                </div>
-            </div>
+           </div>
         </div>
 
-        <div class="card-body p-0">
+        <div class="card-body flex-grow-1">
             <div id="check-map"></div>
             <div id="infoPanel" class="d-none border-top px-3 py-2 small">
                 <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">

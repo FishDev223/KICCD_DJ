@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (IchpHarvestListView, ProjectListView, PoolListView, RecentIcCatchView, SpeciesListView, BasinListView, 
+from .views import (HucListView, IchpHarvestListView, ProjectListView, PoolListView, RecentIcCatchView, RiverMileListView, SpeciesListView, BasinListView, 
                     GearListView, CrewListView, FisherListView, ObserverListView, CfCatchListView, IcCatchListView, RaCatchListView,
                     IcAgeGrowthListView)
 from . import views as _views
@@ -54,6 +54,8 @@ urlpatterns = [
     path('fishing/hp_sites/', _views.hp_site_list, name='hp_sites'),
     path('lookup/tributaries/', _views.trib_list, name='trib_list'),
     path('lookup/pools/', PoolListView.as_view(), name='pool_list'),
+    path('lookup/hucs/', HucListView.as_view(), name='huc_list'),
+    path('lookup/river-miles/', RiverMileListView.as_view(), name='rm_list'),
     path('lookup/collections/', _views.lookup_collections, name='lookup_collections'),
     path('lookup/species/', SpeciesListView.as_view(), name='species_list'),
     path('lookup/basins/', BasinListView.as_view(), name='basin_list'),
