@@ -26,14 +26,13 @@
             <h5 class="d-none d-md-block text-muted mb-0">Sites used by Agency Field Crews when conducting IC sampling activities.</h5>
             <h4 class="d-block d-md-none mb-0 text-center">Agency Sampling Locations.</h4>
             <div class="d-flex gap-2">
-                <a href="{% url 'kiccd_app:sample_site_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Sampling Site</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW SITE</a>
+                <a href="{% url 'kiccd_app:sample_site_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Sampling Site</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> SITE</a>
             </div>
         </div>    
         <div class="card-body">
-            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+            <table id="basic-datatable" class="table table-striped nowrap table-striped w-100">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Latitude</th>
                         <th>Longitude</th>
@@ -48,7 +47,6 @@
                 <tbody>
                 {% for site in sites %}
                     <tr>
-                        <td>{{ site.site_id }}</td>
                         <td>
                             {% if site.latitude and site.longitude %}
                             <button type="button" class="btn btn-link p-0 text-start lh-sm"
@@ -71,7 +69,7 @@
                         <td>{{ site.basin.name }}</td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="9">No records found.</td></tr>
+                    <tr><td colspan="8">No records found.</td></tr>
                 {% endfor %}
                 </tbody>
                 
@@ -118,6 +116,7 @@ $(document).ready(function () {
     $('#basic-datatable').DataTable({
         keys: true,
         fixedHeader: true,
+        scrollX: true,
         pageLength: 50,
          layout: {
         topStart: {pageLength: {menu: [25, 50, 100, 200]}},
