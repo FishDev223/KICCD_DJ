@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
+from decimal import Decimal, ROUND_HALF_UP
 from .models import *
 
 class CustomUserCreationForm(UserCreationForm):
@@ -95,6 +96,7 @@ class ObserverForm(forms.ModelForm):
         return instance
 
 class FishingSiteHPForm(forms.ModelForm):
+
     class Meta:
         model = FishingSite_HP
         fields = [
@@ -104,8 +106,8 @@ class FishingSiteHPForm(forms.ModelForm):
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
-            'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
+            'latitude': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
+            'longitude': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
             'river_mi': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select'}),
             'pool': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select'}),
@@ -127,6 +129,14 @@ class FishingSiteHPForm(forms.ModelForm):
     def clean_name(self):
         val = self.cleaned_data.get('name', '')
         return val.strip().title()
+
+    def clean_latitude(self):
+        latitude = self.cleaned_data['latitude']
+        return latitude.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+
+    def clean_longitude(self):
+        longitude = self.cleaned_data['longitude']
+        return longitude.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
 
     def clean(self):
         cleaned = super().clean()
@@ -207,6 +217,15 @@ class TribForm(forms.ModelForm):
         return instance
 
 class SampleSiteForm(forms.ModelForm):
+    latitude = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={'step': 'any', 'class': 'form-control'})
+    )
+    longitude = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={'step': 'any', 'class': 'form-control'})
+    )
+
     class Meta:
         model = SampleSite
         fields = [
@@ -217,8 +236,8 @@ class SampleSiteForm(forms.ModelForm):
         widgets = {
             'site_code': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
-            'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
+            'latitude': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
+            'longitude': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
             'river_mi': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': ''}),
             'pool': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': ''}),
@@ -248,6 +267,18 @@ class SampleSiteForm(forms.ModelForm):
         val = self.cleaned_data.get('site_code', '')
         return val.strip() if val else val
 
+    def clean_latitude(self):
+        latitude = self.cleaned_data['latitude']
+        if latitude is not None:
+            return latitude.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+        return latitude
+
+    def clean_longitude(self):
+        longitude = self.cleaned_data['longitude']
+        if longitude is not None:
+            return longitude.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+        return longitude
+
     def clean(self):
         cleaned = super().clean()
         lat = cleaned.get('latitude')
@@ -263,6 +294,7 @@ class SampleSiteForm(forms.ModelForm):
         return instance
 
 class FishingSiteCFForm(forms.ModelForm):
+
     class Meta:
         model = FishingSite_CF
         fields = [
@@ -273,8 +305,8 @@ class FishingSiteCFForm(forms.ModelForm):
         widgets = {
             'site_code': forms.TextInput(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'latitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
-            'longitude': forms.NumberInput(attrs={'step': '0.00001', 'class': 'form-control'}),
+            'latitude': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
+            'longitude': forms.NumberInput(attrs={'step': '0.000001', 'class': 'form-control'}),
             'river_mi': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select'}),
             'pool': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select'}),
@@ -301,6 +333,14 @@ class FishingSiteCFForm(forms.ModelForm):
     def clean_site_code(self):
         val = self.cleaned_data.get('site_code', '')
         return val.strip() if val else val
+
+    def clean_latitude(self):
+        latitude = self.cleaned_data['latitude']
+        return latitude.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+
+    def clean_longitude(self):
+        longitude = self.cleaned_data['longitude']
+        return longitude.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
 
     def clean(self):
         cleaned = super().clean()

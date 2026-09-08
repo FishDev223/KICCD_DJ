@@ -15,178 +15,21 @@
 {% endblock extra_css %}
 
 {% block page_content %}
- 
-<div class="row container-fluid mx-auto py-2">
-    <div class="card col-md-10 offset-md-1">
-        <div class="card-header border-bottom border-dashed d-flex">
-            <div class="row g-2 mb-0 w-100">
-                <h5 class="d-none d-md-block text-muted mb-0">Add a new ICHP fishing site by providing the information below...</h5>
-                <h4 class="d-block d-md-none mb-0 text-center">Add a New ICHP Fishing Site</h4>
+<div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+    {% if messages %}<div class="col-12 px-0 mb-2">{% for message in messages %}<div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>{% endfor %}</div>{% endif %}
+    <form method="post" novalidate>
+        <div class="card w-100 flex-grow-1">
+            <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center"><div><h5 class="d-none d-lg-block text-muted mb-0">Add a new ICHP fishing site by providing the information below...</h5><h4 class="d-block d-lg-none mb-0">New ICHP Fishing Site</h4></div></div>
+            <div class="card-body flex-grow-1">{% csrf_token %}
+                <div class="row g-0 mb-1"><div class="col-12 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="form-floating">{{ form.name }}<label for="id_name" class="form-label">SITE NAME</label></div>{% if form.name.errors %}<div class="text-danger small">{{ form.name.errors|striptags }}</div>{% endif %}</div></div>
+                <div class="row g-0"><div class="col-12 col-lg-3 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="form-floating">{{ form.type }}<label for="id_type" class="form-label">SITE TYPE</label></div>{% if form.type.errors %}<div class="text-danger small">{{ form.type.errors|striptags }}</div>{% endif %}</div><div class="col-12 col-lg-9 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="d-flex gap-2 align-items-center"><button id="myLocationBtn" type="button" class="btn btn-outline-secondary px-2 py-2" style="height:36px;min-width:25px;font-size:1.00rem;" title="Use my current location"><i class="ri ri-gps-fill"></i></button><div class="form-floating flex-grow-1">{{ form.latitude }}<label for="id_latitude" class="form-label">LATITUDE</label></div><div class="form-floating flex-grow-1">{{ form.longitude }}<label for="id_longitude" class="form-label">LONGITUDE</label></div></div>{% if form.latitude.errors %}<div class="text-danger small">{{ form.latitude.errors|striptags }}</div>{% endif %}{% if form.longitude.errors %}<div class="text-danger small">{{ form.longitude.errors|striptags }}</div>{% endif %}</div></div>
+                <div class="row g-0"><div class="col-12 col-lg-3 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="form-floating">{{ form.river_mi }}<label for="id_river_mi" class="form-label">RIVER MI</label></div>{% if form.river_mi.errors %}<div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>{% endif %}</div><div class="col-12 col-lg-9 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="d-flex gap-2 align-items-center"><div class="form-floating flex-grow-1">{{ form.state }}<label for="id_state" class="form-label">STATE</label></div><div class="form-floating flex-grow-1">{{ form.county }}<label for="id_county" class="form-label">COUNTY</label></div></div>{% if form.state.errors %}<div class="text-danger small">{{ form.state.errors|striptags }}</div>{% endif %}{% if form.county.errors %}<div class="text-danger small">{{ form.county.errors|striptags }}</div>{% endif %}</div></div>
+                <div class="row g-0"><div class="col-12 col-lg-9 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="d-flex gap-2 align-items-center"><div class="form-floating flex-grow-1">{{ form.pool }}<label for="id_pool" class="form-label">POOL</label></div><div class="form-floating flex-grow-1">{{ form.basin }}<label for="id_basin" class="form-label">BASIN</label></div></div>{% if form.pool.errors %}<div class="text-danger small">{{ form.pool.errors|striptags }}</div>{% endif %}{% if form.basin.errors %}<div class="text-danger small">{{ form.basin.errors|striptags }}</div>{% endif %}</div><div class="col-12 col-lg-3 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="form-floating">{{ form.trib }}<label for="id_trib" class="form-label">TRIBUTARY</label></div>{% if form.trib.errors %}<div class="text-danger small">{{ form.trib.errors|striptags }}</div>{% endif %}</div></div>
+                <div class="row g-0 mt-1 p-2 p-lg-1 bg-dark bg-opacity-10"><div class="accordion accordion-flush mb-1" id="coordPickerAccordion"><div class="accordion-item"><h2 class="accordion-header" id="headingCoordPicker"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCoordPicker" aria-expanded="false" aria-controls="collapseCoordPicker"><em>Use A Map...</em></button></h2><div id="collapseCoordPicker" class="accordion-collapse collapse" aria-labelledby="headingCoordPicker"><div class="accordion-body p-1"><div class="d-flex align-items-center gap-2 mb-2"><span class="text-muted small">Click anywhere on the map. Drag the marker to adjust.</span><button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="coordPickerLocBtn">&#128205; My Location</button></div><div id="coord-picker-map"></div><div id="coordPickerDisplay" class="mt-2 small text-center text-muted d-none">Selected &mdash; Lat: <strong id="coordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="coordPickerLng"></strong></div></div></div></div></div></div>
+                <div class="mt-3 d-flex justify-content-center"><div class="btn-group" role="group"><button type="submit" class="btn btn-success" id="fishingSiteHpSubmitBtn"><span id="fishingSiteHpSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>SUBMIT</button><button type="button" class="btn btn-secondary ms-1 me-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Reset Form" onclick="if(confirm('Resetting the Entire form? Click OK to proceed.')) this.form.reset();"><i class="ti ti-refresh"></i></button><button type="button" class="btn btn-info" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Cancel & Return Home" onclick="if(confirm('Cancelling this Entry? Click OK to proceed.')) window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button></div></div>
             </div>
         </div>
-        <div class="card-body">
-
-            {% if messages %}
-                <div>
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <form method="post" novalidate>
-                    {% csrf_token %}
-                <div class="row g-1 mb-md-0 mb-2">
-                    <div class="col-md-7 offset-md-1 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                            {{ form.name }}
-                            <label class="form-label" for="id_name" >NAME</label>
-                        </div>
-                        {% if form.name.errors %}
-                            <div class="text-danger small">{{ form.name.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-3 mb-0 mt-1 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.type }}
-                        <label for="id_type" class="form-label">TYPE</label>
-                        </div>
-                        {% if form.type.errors %}
-                            <div class="text-danger small">{{ form.type.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row g-1 mb-md-0 mb-2">
-                    <div class="col-md-8 offset-md-1 mb-0 mt-0 mt-md-1 p-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="col-md-5 col-6 ps-md-0 ps-0 pb-md-2 pt-0 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                {{ form.latitude }}
-                                <label for="id_latitude" class="form-label">LATITUDE</label>
-                                </div>
-                                {% if form.latitude.errors %}
-                                    <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-5 col-6 ps-md-0 ps-0 pb-md-2 pt-0 pe-md-1 pe-0">
-                                <div class="form-floating flex-grow-1">
-                                {{ form.longitude }}
-                                <label for="id_longitude" class="form-label">LONGITUDE</label>
-                                </div>
-                            </div>
-                            <div class="col-md-2 offset-md-0 col-4 offset-4 d-flex align-items-center ps-md-0 pe-md-1 pb-0 pb-md-2 pt-md-0 pt-1 ps-0 pe-0">
-                                <button id="coordPickerLocBtn" type="button"
-                                        class="btn btn-outline-primary text-nowrap w-sm-100 w-md-50"
-                                        style="height:calc(2.5rem + 2px);"
-                                        title="Use my current location">
-                                    <i class="ri ri-gps-fill"></i>
-                                </button>
-                            </div>
-                        </div>
-                        {% if form.longitude.errors %}
-                            <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-2 mb-0 mt-1 mt-md-1 ps-md-2 pt-md-2 pb-md-2 pe-md-4 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.river_mi }}
-                        <label for="id_river_mi" class="form-label">RIVER MI</label>
-                        </div>
-                        {% if form.river_mi.errors %}
-                            <div class="text-danger small">{{ form.river_mi.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row g-1 mb-md-0 mb-2">
-                    <div class="col-md-6 offset-md-1 mb-0 mt-0 mt-md-1 p-md-0 p-2 ps-md-2 bg-dark bg-opacity-10">
-                        <div class="row g-0 ms-0 me-0">
-                            <div class="col-md-4 col-3 ps-md-0 ps-0 pb-md-2 pb-1 pt-0 pe-md-1 pe-1">
-                                <div class="form-floating">
-                                {{ form.state }}
-                                <label for="id_state" class="form-label">STATE</label>
-                                </div>
-                                {% if form.state.errors %}
-                                    <div class="text-danger small">{{ form.state.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-8 col-9 ps-md-0 ps-0 pb-md-2 pb-1 pt-0 pt-md-0 pe-md-4 pe-1">
-                                <div class="form-floating">
-                                {{ form.county }}
-                                <label for="id_county" class="form-label">COUNTY</label>
-                                </div>
-                                {% if form.county.errors %}
-                                    <div class="text-danger small">{{ form.county.errors|striptags }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-0 mt-1 mt-md-1 ps-md-4 pt-md-0 pb-md-2 pe-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.basin }}
-                        <label for="id_basin" class="form-label">BASIN</label>
-                        </div>
-                        {% if form.basin.errors %}
-                            <div class="text-danger small">{{ form.basin.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row g-1 mb-md-0 mb-2">
-                    <div class="col-md-4 offset-md-1 mb-0 mt-0 mt-md-1 ps-md-2 pt-md-2 pb-md-2 pe-md-4 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.pool }}
-                        <label for="id_pool" class="form-label">POOL</label>
-                        </div>
-                        {% if form.pool.errors %}
-                            <div class="text-danger small">{{ form.pool.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6 mb-0 mt-1 mt-md-1 ps-md-5 pt-md-2 pb-md-2 pe-md-2 p-2 bg-dark bg-opacity-10">
-                        <div class="form-floating">
-                        {{ form.trib }}
-                        <label for="id_trib" class="form-label">TRIBUTARY</label>
-                        </div>
-                        {% if form.trib.errors %}
-                            <div class="text-danger small">{{ form.trib.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="row g-1">
-                    <div class="col-md-10 offset-md-1 p-md-2 ps-2 pt-2 pe-2 pb-0 bg-dark bg-opacity-10">
-                        <div class="accordion accordion-flush mb-2 mb-md-1" id="coordPickerAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingCoordPicker">
-                                    <button class="accordion-button collapsed text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCoordPicker" aria-expanded="false" aria-controls="collapseCoordPicker">
-                                        <em>Or...  MAP IT!</em>
-                                    </button>
-                                </h2>
-                                <div id="collapseCoordPicker" class="accordion-collapse collapse" aria-labelledby="headingCoordPicker">
-                                    <div class="accordion-body p-1 bg-dark bg-opacity-10">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <span class="text-muted small">Click anywhere on the map to set coordinates. Drag the marker to adjust.</span>
-                                        </div>
-                                        <div id="coord-picker-map"></div>
-                                        <div id="coordPickerDisplay" class="mt-2 small text-center text-muted d-none">
-                                            Selected &mdash; Lat: <strong id="coordPickerLat"></strong>&nbsp;&nbsp;Lon: <strong id="coordPickerLng"></strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3 col-md-10 offset-md-1 d-flex justify-content-between align-items-center">
-                        <button type="submit" class="btn btn-success" id="fishingSiteHpSubmitBtn">
-                            <span id="fishingSiteHpSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                            ADD SITE
-                        </button>
-                    <div>
-                        <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
-                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>  
+    </form>
 </div>
 
 <script>
@@ -691,6 +534,43 @@ document.addEventListener('DOMContentLoaded', function(){
                 function () {
                     alert('Unable to retrieve your location.');
                     locBtn.disabled    = false;
+                }
+            );
+        });
+    }
+
+    const myLocationBtn = document.getElementById('myLocationBtn');
+    if (myLocationBtn) {
+        myLocationBtn.addEventListener('click', function () {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+            myLocationBtn.disabled = true;
+            const originalContent = myLocationBtn.innerHTML;
+            myLocationBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Locating&hellip;';
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    if (pickerMap) {
+                        placeMarker(lng, lat);
+                        pickerMap.flyTo({ center: [lng, lat], zoom: 13, speed: 1.6 });
+                    } else {
+                        latInput.value = lat.toFixed(6);
+                        lngInput.value = lng.toFixed(6);
+                        reverseGeocodeAndFill(lng, lat);
+                        if (window._runCoordinateAutoFill) {
+                            window._runCoordinateAutoFill(lat, lng);
+                        }
+                    }
+                    myLocationBtn.disabled = false;
+                    myLocationBtn.innerHTML = originalContent;
+                },
+                function () {
+                    alert('Unable to retrieve your location.');
+                    myLocationBtn.disabled = false;
+                    myLocationBtn.innerHTML = originalContent;
                 }
             );
         });
