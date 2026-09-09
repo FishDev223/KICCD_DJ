@@ -749,6 +749,9 @@ class IcEventForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.fields['crew_lead'].queryset = Crew.objects.none()
+        if not self.is_bound and not self.instance.pk:
+            self.initial.setdefault('ef_duty_cycle', 40)
+            self.initial.setdefault('dipper_cnt', 1)
         for name, field in self.fields.items():
             if isinstance(field.widget, forms.CheckboxInput):
                 continue
