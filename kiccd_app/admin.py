@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core import paginator
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 import csv
@@ -364,6 +365,7 @@ class SampleSiteAdmin(admin.ModelAdmin):
                     'basin', )
     search_fields = ('site_code', 'name', 'trib__name',)
     list_filter = ('type', 'pool', 'trib', 'basin', 'state',)
+    list_editable = ['name','river_mi', 'latitude', 'longitude', ]
     ordering = ('pool', 'river_mi',)
     readonly_fields = ('site_id', 'added_on',)
     fieldsets = (
@@ -653,7 +655,7 @@ class RaCatchAdmin(admin.ModelAdmin):
 
 class IcEventAdmin(admin.ModelAdmin):
     list_display = ('edate', 'project', 'agency__abbrev', 'crew_lead', 'site__name', 'gear', 'effort_num', 'effort_min', 'carp_sighted', 'net_length_ft', )
-    list_editable = ('effort_num', 'effort_min', 'carp_sighted', )
+    list_editable = ('effort_num', 'effort_min', 'carp_sighted', 'crew_lead', )
     search_fields = ('project__name', 'site__name', 'event_date' )
     ordering = ('-event_date', 'effort_num', )
     list_filter = ('project', 'agency', 'gear', 'site__pool', 'datez__cal_year', 'datez__ic_month2', 'datez__ic_season', )

@@ -261,7 +261,7 @@ class SampleSiteForm(forms.ModelForm):
 
     def clean_name(self):
         val = self.cleaned_data.get('name', '')
-        return val.strip().title()
+        return val.strip()
 
     def clean_site_code(self):
         val = self.cleaned_data.get('site_code', '')

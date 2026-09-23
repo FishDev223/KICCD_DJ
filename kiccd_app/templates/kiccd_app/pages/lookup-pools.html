@@ -18,57 +18,55 @@
 
 {% block page_content %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <p class="text-muted">
-					Detailed information for all pools of the Ohio River.
-                </p>
+<div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
+    <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+        <div class="card-header d-block d-md-none border-bottom border-dashed mb-0">
+            {% comment %} <h5 class="d-none d-md-block text-muted mb-0">Detailed information for all pools of the Ohio River.</h5> {% endcomment %}
+            <h3 class="d-block d-md-none mb-0 align-items-center text-center">Ohio River Pools</h3>
+        </div>
+        <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
+            <table id="basic-datatable" class="table table-striped nowrap table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Abbrev</th>
+                        <th>Length (mi)</th>
+                        <th>Mid-Point RM</th>
+                        <th>Mid-Point LAT</th>
+                        <th>Mid-Point LON</th>
+                        <th>Dam RM</th>
+                        <th>Dam LAT</th>
+                        <th>Dam LON</th>							
+                    </tr>
+                </thead>
 
-                <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Abbrev</th>
-                            <th>Length (mi)</th>
-                            <th>Mid-Point RM</th>
-                            <th>Mid-Point LAT</th>
-                            <th>Mid-Point LON</th>
-                            <th>Dam RM</th>
-                            <th>Dam LAT</th>
-                            <th>Dam LON</th>							
-                        </tr>
-                    </thead>
+                <tbody>
+                {% for pool in pools %}
+                    <tr>
+                        <td>{{ pool.pool_id }}</td>
+                        <td>{{ pool.name }}</td>
+                        <td>{{ pool.abbrev }}</td>
+                        <td>{{ pool.length_mi }}</td>
+                        <td>{{ pool.midpoint_rm }}</td>
+                        <td>{{ pool.lat }}</td>
+                        <td>{{ pool.lon }}</td>
+                        <td>{{ pool.dam_rm }}</td>
+                        <td>{{ pool.dam_lat }}</td>
+                        <td>{{ pool.dam_lon }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10">No pools found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                
+            </table>
 
-                    <tbody>
-                    {% for pool in pools %}
-                        <tr>
-                            <td>{{ pool.pool_id }}</td>
-                            <td>{{ pool.name }}</td>
-                            <td>{{ pool.abbrev }}</td>
-                            <td>{{ pool.length_mi }}</td>
-                            <td>{{ pool.midpoint_rm }}</td>
-                            <td>{{ pool.lat }}</td>
-                            <td>{{ pool.lon }}</td>
-                            <td>{{ pool.dam_rm }}</td>
-                            <td>{{ pool.dam_lat }}</td>
-                            <td>{{ pool.dam_lon }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="10">No pools found.</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-					
-                </table>
-
-            </div> <!-- end card body-->
-        </div> <!-- end card -->
-    </div><!-- end col-->
-</div> <!-- end row-->
+        </div> <!-- end card body-->
+    </div> <!-- end card -->
+</div> <!-- end col-->
 
 
 {% endblock page_content %}
@@ -78,16 +76,55 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js" integrity="sha384-VQb2IR8f6y3bNbMe6kK6H+edzCXdt7Z/3GtWA7zYzXcvfwYRR5rHGl46q28FbtsY" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/2.3.5/js/dataTables.bootstrap5.min.js" integrity="sha384-3BApNGXgbm9rg2kjIbaEVprAGb2B0n9QyLjBrH090WdkzZ3IiUv8RZoTh5uP8oWH" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js" integrity="sha384-nShWTydNlLNjbeTudrIIbT/2GtisYB0Hdmc1BMuBNdWRkXb5+pqyKRuZzrwmmDpa" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.bootstrap5.min.js" integrity="sha384-gUHKtNwDWTZzNL3AtaUES875ooIVf1iMuwWhklVW7Cdv9gAVUijYefPr+HPH7wjT" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.html5.min.js" integrity="sha384-XT65ZByvRGLJG18n96xtO3veM0VfqLVC8Meh+QKwvKGlX483Ei/l2ocUgQYvPR/0" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.print.min.js" integrity="sha384-SbNRDguI7TGChBvvLf/a66MngtndT7TOurCIAwfkiKkzbM/hAsUwaL4MBBOgYWnH" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/fixedheader/4.0.5/js/dataTables.fixedHeader.min.js" integrity="sha384-JxStvM0Ok+ArQDY+V0vVrAfklIxU02MThxg/bD2B9O+oCUvX+V81pERBBXASWUDR" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/keytable/2.12.2/js/dataTables.keyTable.min.js" integrity="sha384-G+rv7bKd5bT5j04gGhAjehDV9gQy4C4kavlQnvrn+kDmNyEirE+WzSDCMOEZf9i/" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js" integrity="sha384-0o8p0hBO3h/Z1wlhV3vP9DEFA1nf3vlr2N6yAtAfy0eDJJBgBPhIOG0GRO0FzOX5" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.bootstrap5.js" integrity="sha384-hyp/YDWGBMFqg7pJuS+y+2VWJkwnOyX+oMN9fWcxINo2flqjC/SdNaHj8LIV4zKJ" crossorigin="anonymous"></script>
-<script src="{% static 'js/lookup-pool.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
 
+<script>
+$(document).ready(function () {
+    "use strict";
+
+    // Pools Datatable
+    $('#basic-datatable').DataTable({
+        keys: true,
+        scrollY: '525px',
+        scrollCollapse: true,
+        // fixedHeader: true,
+        scrollX: true,
+        pageLength: 25,
+		lengthChange: false,
+		paging: false,
+		ordering: true,
+         layout: {
+        topStart: false,
+        topEnd: 'search',
+        bottomStart: 'info',
+        bottomEnd: {buttons: ['copy', 'csv']}
+        },      
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            },
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "Pools _START_ to _END_ (n = _TOTAL_)",
+            "zeroRecords": "No matching pools...",
+            "emptyTable": "No pools available",
+            "loadingRecords": "Loading pools...",
+            "infoFiltered": "(filtered from _MAX_ pools)",
+            "infoEmpty": "0 Pools",
+            "processing": "Processing pool records..."
+        },
+    
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    $('#basic-datatable').DataTable().buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $(".dataTables_length select").addClass('form-select form-select-sm');
+    $(".dataTables_length label").addClass('form-label');
+});
+</script>
 {% endblock extra_javascript %}
