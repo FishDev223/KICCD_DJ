@@ -15,17 +15,13 @@
 
 {% block page_content %}
 
-<div class="row container-fluid mx-auto py-2">
-    <div class="card col-md-8 offset-md-2">
-        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
-            <h5 class="d-none d-md-block text-muted mb-0">Fishers participating in the Contract Fishing and/or IC Harvest Programs.</h5>
-            <h4 class="d-block d-md-none mb-0 text-center">ICHP & Contract Fishers</h4>
-            <div class="d-flex gap-2">
-                <a href="{% url 'kiccd_app:fisher_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Fisher</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> FISHER</a>
-            </div>
+<div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+    <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+        <div class="card-header d-block d-md-none border-bottom border-dashed mb-0">
+            <h3 class="align-middle mb-0 text-center">ICHP & Contract Fishers</h3>
         </div>    
-        <div class="card-body">
-            <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
+        <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
+            <table id="basic-datatable" class="table table-striped nowrap table-striped w-100">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -54,7 +50,7 @@
             </table>
         </div> <!-- end card body-->
     </div> <!-- end card -->
-</div> <!-- end row-->
+</div> <!-- end column-->
 
 
 {% endblock page_content %}
@@ -71,31 +67,56 @@
 $(document).ready(function () {
     "use strict";
 
-    // Default Datatable
+    // Fishers Datatable
     $('#basic-datatable').DataTable({
-        order: [],
         keys: true,
-        fixedHeader: true,
-        pageLength: 50,
+        scrollY: '520px',
+        scrollCollapse: true,
+        // fixedHeader: true,
+        scrollX: true,
+        pageLength: 200,
 		lengthChange: false,
 		paging: false,
 		ordering: true,
-        layout: {
-		topStart: {search: {placeholder: 'Search'}},
-        topEnd: {buttons: ['copy', 'csv', 'pdf']},
-        bottomStart: 'info'
-        },    
+         layout: {
+        topStart: 'search',
+        topEnd: function () {
+            return $('<a>', {
+                href: "{% url 'kiccd_app:fisher_create' %}",
+                class: 'btn btn-sm btn-success',
+                'data-bs-toggle': 'tooltip',
+                'data-bs-placement': 'top',
+                'data-bs-html': 'true',
+                'data-bs-title': '<em>Add a New Fisher</em>'
+            }).append('<i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW')[0];
+        },
+        bottomStart: 'info',
+        bottomEnd: {buttons: ['copy', 'csv']}
+        },      
         "language": {
             "paginate": {
                 "previous": "<i class='ti ti-chevron-left'>",
                 "next": "<i class='ti ti-chevron-right'>"
-            }
+            },
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "_END_ Fishers",
+            "zeroRecords": "No matching fishers...",
+            "emptyTable": "No fishers available",
+            "loadingRecords": "Loading fishers...",
+            "infoFiltered": "(filtered from _MAX_)",
+            "infoEmpty": "0 Fishers",
+            "processing": "Processing fisher records..."
         },
     
         "drawCallback": function () {
             $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
         }
     });
+    
+    $('#basic-datatable').DataTable().buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $(".dataTables_length select").addClass('form-select form-select-sm');
+    $(".dataTables_length label").addClass('form-label');
 });
 </script>
 

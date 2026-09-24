@@ -19,12 +19,13 @@
 {% block page_content %}
 
 <div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title">Basin Partners</h4>
-                <p class="text-muted"> Agencies & institutions participating in Invasive Carp Research. </p>
-                <table id="basic-datatable3" class="table table-striped dt-responsive nowrap table-striped w-100">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+        <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+                <div class="card-header border-bottom border-dashed mb-0">
+                    <h4 class="mb-0 text-center align-middle">Basin Partners</h4>
+                </div>
+            <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
+                <table id="partner-datatable" class="table table-striped nowrap table-striped w-100">
                         <thead>
                             <tr><th>ID</th><th>Code</th><th>Name</th><th>Type</th><th>Level</th></tr>
                         </thead>
@@ -41,7 +42,6 @@
                             <tr><td colspan="5">No partners found.</td></tr>
                         {% endfor %}
                         </tbody>
-                    </table>
                 </table>
             </div> <!-- end card body-->
         </div> <!-- end card -->
@@ -49,13 +49,15 @@
 </div> <!-- end row-->
 
 
-<div class="row mb-4">
-    <div class="col-6">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title">Site Types</h4>
-                <p class="text-muted"> Main habitat types for sampling sites. </p>
-                <table id="basic-datatable4" class="table table-striped dt-responsive nowrap table-striped w-100">
+<div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-6 offset-lg-0 col-xl-6 offset-xl-0">
+        <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+            <div class="card-header border-bottom border-dashed mb-0">
+                <h4 class="mb-0 text-center align-middle">Site Habitat Types</h4>
+            </div>
+            <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
+
+                <table id="type-datatable" class="table table-striped nowrap table-striped w-100">
                         <thead>
                             <tr><th>ID</th><th>Name</th><th>Abbrev</th></tr>
                         </thead>
@@ -70,18 +72,19 @@
                             <tr><td colspan="3">No site types found.</td></tr>
                         {% endfor %}
                         </tbody>
-                    </table>
                 </table>
             </div> <!-- end card body-->
         </div> <!-- end card -->
     </div><!-- end col-->
-    <!-- <div class="col-1"></div> -->
-    <div class="col-6">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title">States</h4>
-                <p class="text-muted"> States associated with the Ohio River Basin. </p>
-                <table id="basic-datatable2" class="table table-striped dt-responsive nowrap table-striped w-100">
+
+    <div class="col-12 col-sm-12 col-md-12 col-lg-6 offset-lg-0 col-xl-6 offset-xl-0">
+        <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+            <div class="card-header border-bottom border-dashed mb-0">
+                <h4 class="mb-0 text-center align-middle">ORB States</h4>
+            </div>
+            <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
+
+                <table id="state-datatable" class="table table-striped nowrap table-striped w-100">
                         <thead>
                             <tr><th>ID</th><th>Name</th><th>Abbrev</th></tr>
                         </thead>
@@ -104,16 +107,14 @@
 
 
 <div class="row">
-	<div class="col-2"></div>
-    <div class="col-8">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title">County List</h4>
-                <p class="text-muted">
-					Counties associated with IC project river basins.
-                </p>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+        <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
+                <div class="card-header border-bottom border-dashed mb-0">
+                    <h4 class="mb-0 text-center align-middle">ORB Counties</h4>
+                </div>
+            <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
 
-                <table id="basic-datatable5" class="table table-striped dt-responsive nowrap table-striped w-100">
+                <table id="county-datatable" class="table table-striped nowrap table-striped w-100">
                     <thead>
                         <tr><th>ID</th><th>Name</th><th>State</th></tr>
                     </thead>
@@ -134,29 +135,171 @@
     </div><!-- end col-->
 </div> <!-- end row-->
 
-<div class="row">
-
-</div> <!-- end row-->
-
-
 {% endblock page_content %}
 
 
 {% block extra_javascript %}
 
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js" integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js" integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js" integrity="sha384-VQb2IR8f6y3bNbMe6kK6H+edzCXdt7Z/3GtWA7zYzXcvfwYRR5rHGl46q28FbtsY" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/2.3.5/js/dataTables.bootstrap5.min.js" integrity="sha384-3BApNGXgbm9rg2kjIbaEVprAGb2B0n9QyLjBrH090WdkzZ3IiUv8RZoTh5uP8oWH" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/dataTables.buttons.min.js" integrity="sha384-nShWTydNlLNjbeTudrIIbT/2GtisYB0Hdmc1BMuBNdWRkXb5+pqyKRuZzrwmmDpa" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.bootstrap5.min.js" integrity="sha384-gUHKtNwDWTZzNL3AtaUES875ooIVf1iMuwWhklVW7Cdv9gAVUijYefPr+HPH7wjT" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.html5.min.js" integrity="sha384-XT65ZByvRGLJG18n96xtO3veM0VfqLVC8Meh+QKwvKGlX483Ei/l2ocUgQYvPR/0" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/buttons/3.2.5/js/buttons.print.min.js" integrity="sha384-SbNRDguI7TGChBvvLf/a66MngtndT7TOurCIAwfkiKkzbM/hAsUwaL4MBBOgYWnH" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/fixedheader/4.0.5/js/dataTables.fixedHeader.min.js" integrity="sha384-JxStvM0Ok+ArQDY+V0vVrAfklIxU02MThxg/bD2B9O+oCUvX+V81pERBBXASWUDR" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/keytable/2.12.2/js/dataTables.keyTable.min.js" integrity="sha384-G+rv7bKd5bT5j04gGhAjehDV9gQy4C4kavlQnvrn+kDmNyEirE+WzSDCMOEZf9i/" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/responsive/3.0.7/js/dataTables.responsive.min.js" integrity="sha384-0o8p0hBO3h/Z1wlhV3vP9DEFA1nf3vlr2N6yAtAfy0eDJJBgBPhIOG0GRO0FzOX5" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/responsive/3.0.7/js/responsive.bootstrap5.js" integrity="sha384-hyp/YDWGBMFqg7pJuS+y+2VWJkwnOyX+oMN9fWcxINo2flqjC/SdNaHj8LIV4zKJ" crossorigin="anonymous"></script>
-<script src="{% static 'js/lookup_short.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    "use strict";
+    
+    // Partners Datatable
+    $('#partner-datatable').DataTable({
+        keys: true,
+        scrollY: '500px',
+        scrollCollapse: true,
+        scrollX: true,
+        pageLength: 100,
+        lengthChange: false,
+        paging: false,
+        ordering: true,
+        layout: {
+            topStart: false,
+            topEnd: 'search',
+            bottomStart: 'info',
+            bottomEnd: {buttons: ['copy', 'csv']}  
+        },
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            },
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "_END_ Partners",
+            "zeroRecords": "No matching partners...",
+            "emptyTable": "No partners available",
+            "loadingRecords": "Loading partners...",
+            "infoFiltered": "(filtered from _MAX_)",
+            "infoEmpty": "0 Partners",
+            "processing": "Processing partner records..."
+        },
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    // Type Datatable
+    $('#type-datatable').DataTable({
+        keys: true,
+        scrollY: '500px',
+        scrollCollapse: true,
+        scrollX: true,
+        pageLength: 100,
+        lengthChange: false,
+        paging: false,
+        ordering: true,
+        layout: {
+            topStart: false,
+            topEnd: false,
+            bottomStart: 'info',
+            bottomEnd: {buttons: ['copy', 'csv']}  
+        },
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            },
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "_END_ Types",
+            "zeroRecords": "No matching types...",
+            "emptyTable": "No types available",
+            "loadingRecords": "Loading types...",
+            "infoFiltered": "(filtered from _MAX_)",
+            "infoEmpty": "0 Types",
+            "processing": "Processing type records..."
+        },
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    // State Datatable
+    $('#state-datatable').DataTable({
+        keys: true,
+        scrollY: '500px',
+        scrollCollapse: true,
+        scrollX: true,
+        pageLength: 100,
+        lengthChange: false,
+        paging: false,
+        ordering: true,
+        layout: {
+            topStart: false,
+            topEnd: false,
+            bottomStart: 'info',
+            bottomEnd: {buttons: ['copy', 'csv']}  
+        },
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            },
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "_END_ States",
+            "zeroRecords": "No matching states...",
+            "emptyTable": "No states available",
+            "loadingRecords": "Loading states...",
+            "infoFiltered": "(filtered from _MAX_)",
+            "infoEmpty": "0 States",
+            "processing": "Processing state records..."
+        },
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+        
+    // County Datatable
+    $('#county-datatable').DataTable({
+        keys: true,
+        scrollY: '500px',
+        scrollCollapse: true,
+        scrollX: true,
+        pageLength: 1000,
+        lengthChange: false,
+        paging: false,
+        ordering: true,
+        layout: {
+            topStart: false,
+            topEnd: 'search',
+            bottomStart: 'info',
+            bottomEnd: {buttons: ['copy', 'csv']}  
+        },
+        "language": {
+            "paginate": {
+                "previous": "<i class='ti ti-chevron-left'>",
+                "next": "<i class='ti ti-chevron-right'>"
+            },
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "_END_ Counties",
+            "zeroRecords": "No matching counties...",
+            "emptyTable": "No counties available",
+            "loadingRecords": "Loading counties...",
+            "infoFiltered": "(filtered from _MAX_)",
+            "infoEmpty": "0 Counties",
+            "processing": "Processing county records..."
+        },
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    
+    table.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $(".dataTables_length select").addClass('form-select form-select-sm');
+    $(".dataTables_length label").addClass('form-label');
+});
+</script>
 
 {% endblock extra_javascript %}

@@ -23,14 +23,10 @@
 
 <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
     <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
-        <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center mb-0">
-            <h5 class="d-none d-lg-block text-muted mb-0">Primary tributaries & embayments of the Ohio, Cumberland, and Tennessee River basins.</h5>
-            <h4 class="d-block d-lg-none mb-0 text-center">Tributaries & Embayments</h4>
-            <div class="d-flex gap-2">
-                <a href="{% url 'kiccd_app:trib_create' %}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a Tributary</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i>NEW</a>
-            </div>
+        <div class="card-header d-block d-md-none border-bottom border-dashed mb-0">
+            <h3 class="mb-0 text-center align-middle">Tributaries & Embayments</h3>
         </div>    
-        <div class="card-body flex-grow-1">
+        <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
             <table id="basic-datatable" class="table table-striped nowrap table-striped w-100">
                 <thead>
                     <tr>
@@ -109,34 +105,44 @@
 <script>
 $(document).ready(function () {
     "use strict";
-    // Default Datatable
+    // Tributary Datatable
     $('#basic-datatable').DataTable({
         keys: true,
-        scrollY: '500px',
+        scrollY: '530px',
         scrollCollapse: true,
         // fixedHeader: true,
         scrollX: true,
-        pageLength: 25,
-         layout: {
+        pageLength: 1000,
+		lengthChange: false,
+		paging: false,
+        ordering: true,
+        layout: {
         topStart: 'search',
-        topEnd: {pageLength: {menu: [10, 25, 50, {label: 'All', value: -1}]}},
+        topEnd: function () {
+            return $('<a>', {
+                href: "{% url 'kiccd_app:trib_create' %}",
+                class: 'btn btn-sm btn-success',
+                'data-bs-toggle': 'tooltip',
+                'data-bs-placement': 'top',
+                'data-bs-html': 'true',
+                'data-bs-title': '<em>Add a New Tributary</em>'
+            }).append('<i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW')[0];
+        },
         bottomStart: 'info',
-        bottomEnd: 'paging',
-        bottom: {buttons: ['copy', 'csv', 'pdf']}  
-        },      
+        bottomEnd: {buttons: ['copy', 'csv']}  
+        },
         "language": {
             "paginate": {
                 "previous": "<i class='ti ti-chevron-left'>",
                 "next": "<i class='ti ti-chevron-right'>"
             },
-            "lengthMenu": "_MENU_ records",
             "search": "",
             "searchPlaceholder": "Filter...",
-            "info": "Tribs/Bays _START_ to _END_ (n = _TOTAL_)",
+            "info": "_END_ Tribs/Bays",
             "zeroRecords": "No matching tribs...",
             "emptyTable": "No tribs/bays available",
             "loadingRecords": "Loading Tribs & Bays...",
-            "infoFiltered": "(filtered from _MAX_ waterbodies)",
+            "infoFiltered": "(filtered from _MAX_)",
             "infoEmpty": "0 Tribs/Bays",
             "processing": "Processing trib/bay records..."
         },
@@ -145,7 +151,7 @@ $(document).ready(function () {
             $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
         }
     });
-    table.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    $('#basic-datatable').DataTable().buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
     $(".dataTables_length select").addClass('form-select form-select-sm');
     $(".dataTables_length label").addClass('form-label');
 });
