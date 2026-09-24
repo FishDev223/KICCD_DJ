@@ -240,36 +240,115 @@
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="v-pills-ra" role="tabpanel" aria-labelledby="v-pills-ra-tab">
-                                <p class="mb-2 mt-3 mt-sm-0"><span
-                                        class="px-1 rounded me-1 fw-semibold d-inline-block bg-secondary-subtle text-secondary float-start">RA</span>
-                                    Field efforts completed by AIS-Murray that involve riding along with commercial fishers that regularly participate in the 
-                                    Invasive Carp Harvest Program (ICHP).  Staff members serve as observers to ICHP participants as they collect information on their fishing 
-                                    efforts, by-catch of non-target species and actual harvest of Invasive Carp.</p>
+                                <p class="mb-2 mt-3 mt-sm-0 fw-semibold d-none d-md-block"> Select & view Invasive Carp Project Results, Tables & Charts...<br>
+                                <h4 class="mb-2 mt-3 mt-sm-0 text-center d-block d-md-none"> View Results/Tables/Charts by Project...</h4>
+                                </p> 
                                 <div class="row container-fluid">
-
-                                    <div class="card col-md-5 ms-md-3 mb-1 mb-md-0 p-0">
-                                        <div class="card-body shadow-sm rounded">            
-                                            <p class="text-body-secondary">VIEW...</p>
+                                    <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <!-- New Agency Data Section (Desktop) -->
+                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">AGENCY WORK</span> <em>Field sampling conducted for Invasive Carp projects</em></p>
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:recent_ra_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent Efforts</a>
-                                                <a href="{% url 'kiccd_app:ra_report_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filtered Data</a>
-                                                <a href="{% url 'kiccd_app:ra_catch_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Harvest Results</a>
+                                                <p class="text-body-secondary"><em>Under Development</em></p>
+                                                {% comment %} 
+                                                <a href="{% url 'kiccd_app:ic_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Agency Sampling Data</a>
+                                                <a href="{% url 'kiccd_app:recent_ic_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View Last 200 Sampling Efforts</a>
+                                                <a href="{% url 'kiccd_app:recent_ic_catch' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View Most Recent Catch Data (n=1000)</a>
+                                                <a href="{% url 'kiccd_app:ic_catch_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View ALL Sampling Data <em>...Slow loading table!</em></a>
+                                                <a href="{% url 'kiccd_app:ic_age_growth_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View Age & Growth Data</a>
+                                                <a href="{% url 'kiccd_app:sample_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View Agency Sample Sites</a>
+                                                 {% endcomment %}
+                                            </div>
+                                        </div>
+                                        <!-- New Agency Data Section (Mobile) -->
+                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">AGENCY WORK</span> <em>Invasive Carp Sampling</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <p class="text-body-secondary"><em>Under Development</em></p>
+                                                {% comment %} 
+                                                <a href="{% url 'kiccd_app:ic_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Data</a>
+                                                <a href="{% url 'kiccd_app:recent_ic_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent Efforts (200)</a>
+                                                <a href="{% url 'kiccd_app:recent_ic_catch' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Latest Catch Data (1000)</a>
+                                                <a href="{% url 'kiccd_app:ic_catch_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>ALL Agency Data <em>(big table)</em></a>
+                                                <a href="{% url 'kiccd_app:ic_age_growth_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>A&G Data</a>
+                                                <a href="{% url 'kiccd_app:sample_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Sample Site List</a>
+                                                {% endcomment %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <!-- New Contract Fishing Data Section (Desktop) -->
+                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">CONTRACT FISHING</span> <em>Agency-directed commercial fishing for Invasive Carp</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <p class="text-body-secondary"><em>Under Development</em></p>
+                                                {% comment %} 
+                                                <a href="{% url 'kiccd_app:cf_report_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Contract Fishing Data</a>
+                                                <a href="{% url 'kiccd_app:recent_cf_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View Last 200 Contract Fishing Efforts</a>
+                                                <a href="{% url 'kiccd_app:cf_catch_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View ALL Contract Fishing Data <em>...Slow loading table!</em></a>
+                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>View Contract Fishing Sites</a>
+                                                {% endcomment %}
+                                            </div>
+                                        </div>
+                                        <!-- New Contract Fishing Data Section (Mobile) -->
+                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">CONTRACT FISHING (CF)</span> <em>Directed commercial fishing</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <p class="text-body-secondary"><em>Under Development</em></p>
+                                                {% comment %} 
+                                                <a href="{% url 'kiccd_app:cf_report_filtered' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable CF Data</a>
+                                                <a href="{% url 'kiccd_app:recent_cf_events' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Recent CF Efforts (200)</a>
+                                                <a href="{% url 'kiccd_app:cf_catch_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>ALL CF Data <em>(Big table!)</em></a>
+                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>CF Site List</a>
+                                                {% endcomment %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
+                                        <!-- New IC Harvest Program Data Section (Desktop) -->
+                                        <div class="card-body shadow-sm rounded d-none d-md-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">IC HARVEST PROGRAM (ICHP)</span> <em>Incentivized commercial fishing efforts for Invasive Carp</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <p class="text-body-secondary"><em>Under Development</em></p>
+                                                {% comment %} 
+                                                <a href="{% url 'kiccd_app:ra_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add a New Ride-Along Set (1+ nets)</a>
+                                                <a href="{% url 'kiccd_app:ra_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add Ride-Along Catch Data (Saved net set)</a>
+                                                <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add a Ride-Along Subsample</a>
+                                                <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add a Combined ICHP Catch & Effort (1 net)</a>
+                                                <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add ICHP Fishing Effort Only (multiple nets)</a>
+                                                <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add ICHP Reported Harvest (Existing Effort)</a>
+                                                <a href="{% url 'kiccd_app:hp_site_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Add New IC Harvest Site</a>
+                                                {% endcomment %}
+                                            </div>
+                                        </div>
+                                        <!-- New IC Harvest Program Data Section (Mobile) -->
+                                        <div class="card-body shadow-sm rounded d-md-none d-block">
+                                            <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">HARVEST PROGRAM (ICHP)</span> <em>Incentivized Fishing</em></p>
+                                            <div class="list-group mt-md-0">
+                                                <p class="text-body-secondary"><em>Under Development</em></p>
+                                                {% comment %} 
+                                                <a href="{% url 'kiccd_app:ra_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>RA Effort Only</a>
+                                                <a href="{% url 'kiccd_app:ra_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>RA Catch Data</a>
+                                                <a href="{% url 'kiccd_app:subsample_bulk_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>RA Subsample</a>
+                                                <a href="{% url 'kiccd_app:ichp_event_and_catch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>Combined ICHP Entry</a>
+                                                <a href="{% url 'kiccd_app:ichp_event_set_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>ICHP Effort Only</a>
+                                                <a href="{% url 'kiccd_app:ichp_catch_batch_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>ICHP Harvest (Saved Effort)</a>
+                                                <a href="{% url 'kiccd_app:hp_site_create' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-add-circle-line align-middle me-1 fs-14"></i>New ICHP Site</a>
+                                                {% endcomment %}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="v-pills-site" role="tabpanel" aria-labelledby="v-pills-site-tab">
-                                {% comment %} <p class="mb-2 mt-3 mt-sm-0 fw-semibold d-none d-md-block"> Select/View a KICCD lookup table...<br>
-                                <h4 class="mb-2 mt-3 mt-sm-0 text-center d-block d-md-none"> Select/View a KICCD lookup table...</h4>
-                                </p>  {% endcomment %}
+
                                 <div class="row container-fluid">
                                     <div class="card col-md-11 ms-md-3 me-md-3 mb-2 mb-md-2 p-0">
                                         <!-- Site Maps (Desktop) -->
                                         <div class="card-body shadow-sm rounded d-none d-md-block">
                                             <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">TOOLS</span> <em>Select the tool you want to use...</em></p> 
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:site_map' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Site Map</a>
+                                                <a href="{% url 'kiccd_app:site_map' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Site Map <em>(filter by project & location)</em></a>
                                                 <a href="{% url 'kiccd_app:site_check' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>LAT/LON Lookup</a>
                                             </div>
                                         </div>
@@ -286,7 +365,7 @@
                                         <div class="card-body shadow-sm rounded d-md-none d-block">
                                             <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">TOOLS</span> <em>Select the tool you want to use...</em></p> 
                                             <div class="list-group mt-md-0">
-                                                <a href="{% url 'kiccd_app:site_map' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Filterable Site Map</a>
+                                                <a href="{% url 'kiccd_app:site_map' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Site Map</a>
                                                 <a href="{% url 'kiccd_app:site_check' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>LAT/LON Lookup</a>
                                             </div>
                                         </div>
@@ -295,9 +374,9 @@
                                             <p class="text-body-secondary"><span class="px-1 rounded me-1 fw-semibold d-inline-block bg-info-subtle text-secondary float-start">SITE TABLES</span> <em>Select the table you want to view...</em></p> 
                                             <div class="list-group mt-md-0">
                                                 <a href="{% url 'kiccd_app:sample_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Sampling Sites</a>
-                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>CF Sites</a>
-                                                <a href="{% url 'kiccd_app:hp_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>ICHP Sites</a>
-                                                <a href="{% url 'kiccd_app:trib_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>IC Tributaries</a>
+                                                <a href="{% url 'kiccd_app:cf_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Contract Fishing Sites</a>
+                                                <a href="{% url 'kiccd_app:hp_sites' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>IC Harvest Program Sites</a>
+                                                <a href="{% url 'kiccd_app:trib_list' %}" class="list-group-item list-group-item-action list-group-item-dark"><i class="ri ri-eye-line align-middle me-1 fs-14"></i>Tribs & Embayments</a>
                                             </div>
                                         </div>
                                     </div>
