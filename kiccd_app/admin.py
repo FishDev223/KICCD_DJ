@@ -654,7 +654,7 @@ class RaCatchAdmin(admin.ModelAdmin):
         obj.save(user=request.user)
 
 class IcEventAdmin(admin.ModelAdmin):
-    list_display = ('edate', 'project', 'agency__abbrev', 'crew_lead', 'site__name', 'gear', 'effort_num', 'effort_min', 'carp_sighted', 'net_length_ft', )
+    list_display = ('edate', 'project', 'agency__abbrev', 'crew_lead', 'site__name', 'coordinates', 'gear', 'effort_num', 'effort_min', 'carp_sighted', 'net_length_ft', )
     list_editable = ('effort_num', 'effort_min', 'carp_sighted', )
     search_fields = ('project__name', 'site__name', 'event_date' )
     ordering = ('-event_date', 'effort_num', )
@@ -693,6 +693,12 @@ class IcEventAdmin(admin.ModelAdmin):
         return obj.event_date.strftime('%Y-%m-%d')
     edate.admin_order_field = 'event_date'
     edate.short_description = 'Date'
+
+    @admin.display(description='Coordinates')
+    def coordinates(self, obj):
+        if obj.latitude is None or obj.longitude is None:
+            return '-'
+        return f'{obj.latitude}, {obj.longitude}'
 
     def save_model(self, request, obj, form, change):
         obj.save(user=request.user)

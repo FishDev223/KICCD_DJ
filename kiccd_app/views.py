@@ -270,8 +270,9 @@ def lookup_collections(request):
 
 @login_required
 def fisher_create(request):
-    """Create a new Fisher record. Requires add_fisher permission."""
-    if not request.user.has_perm('kiccd_app.add_fisher'):
+    """Render the Fisher form; only users with add_fisher may submit it."""
+    can_add_fisher = request.user.has_perm('kiccd_app.add_fisher')
+    if request.method == 'POST' and not can_add_fisher:
         return render(request, 'kiccd_app/403.html', status=403)
 
     if request.method == 'POST':
@@ -285,7 +286,10 @@ def fisher_create(request):
     else:
         form = FisherForm()
 
-    return render(request, 'kiccd_app/pages/fisher_form.html', {'form': form})
+    return render(request, 'kiccd_app/pages/fisher_form.html', {
+        'form': form,
+        'can_add_fisher': can_add_fisher,
+    })
 
 
 @login_required
