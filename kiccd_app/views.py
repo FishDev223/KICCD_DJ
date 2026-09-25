@@ -49,15 +49,15 @@ def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return render(request, 'kiccd_app/home.html')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'kiccd_app/login.html', {'form': form})
+            login(request, form.get_user())
+            return render(request, 'kiccd_app/home.html')
+        return render(
+            request,
+            'kiccd_app/index.html',
+            {'login_form': form, 'login_modal_open': True},
+            status=400,
+        )
+    return redirect('kiccd_app:root_page')
 
 
 @login_required

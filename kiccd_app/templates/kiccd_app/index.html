@@ -37,14 +37,25 @@
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                          {% if login_form.non_field_errors %}
+                            <div id="login-error" class="alert alert-danger" role="alert">
+                              {% for error in login_form.non_field_errors %}{{ error }}{% endfor %}
+                            </div>
+                          {% endif %}
                           <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control{% if login_form.username.errors or login_form.non_field_errors %} is-invalid{% endif %}" id="username" name="username" value="{{ login_form.username.value|default_if_none:'' }}" autocomplete="username" aria-describedby="login-error" {% if login_form.username.errors or login_form.non_field_errors %}aria-invalid="true"{% endif %} required autofocus>
                           </div>
                           <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control{% if login_form.password.errors or login_form.non_field_errors %} is-invalid{% endif %}" id="password" name="password" autocomplete="current-password" aria-describedby="login-error" {% if login_form.password.errors or login_form.non_field_errors %}aria-invalid="true"{% endif %} required>
                           </div>
+                          {% if login_form.username.errors or login_form.password.errors %}
+                            <div id="login-error" class="invalid-feedback d-block" role="alert">
+                              {% for error in login_form.username.errors %}{{ error }}{% endfor %}
+                              {% for error in login_form.password.errors %}{{ error }}{% endfor %}
+                            </div>
+                          {% endif %}
                         </div>
                         <div class="modal-footer">
                           <button type="submit" class="btn btn-primary">Login</button>
@@ -67,4 +78,11 @@
 {% endblock content %}
 {% block extra_scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js" integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% if login_modal_open %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  new bootstrap.Modal(document.getElementById('loginModal')).show();
+});
+</script>
+{% endif %}
 {% endblock extra_scripts %}
