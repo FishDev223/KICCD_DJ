@@ -270,14 +270,16 @@
                 </div>
                 {{ form.net_num }}
             {% endfor %}
-            <div class="mt-3 d-flex justify-content-between align-items-center">
-                    <button type="submit" class="btn btn-success" id="raEventBatchSubmitBtn">
-                        <span id="raEventBatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                        SUBMIT
-                    </button>
-                <div>
-                    <button type="button" class="btn btn-secondary me-2" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();">RESET</button>
-                    <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                <div class="mt-3 d-flex justify-content-center">
+                    <div class="btn-group" role="group">
+                        {% if can_add_raevent %}
+                        <button type="submit" class="btn btn-success" id="raEventBatchSubmitBtn"><span id="raEventBatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>SUBMIT</button>
+                        {% endif %}
+                        {% if can_add_raevent %}
+                        <button type="button" class="btn btn-secondary ms-1 me-1 d-block d-md-block d-lg-block" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Reset Form" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();"><i class="ti ti-refresh"></i></button>
+                        {% endif %}
+                        <button type="button" class="btn btn-info" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Cancel & Return Home" onclick="if(confirm('Cancelling this Entry? Click OK to proceed.')) window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -16,173 +16,183 @@
 {% endblock page_title %}
 
 {% block page_content %}
-<div class="row">
-    <div class="col-12">
-        <div class="card">
+<div class="col-12 col-sm-12 col-md-12 col-lg-12 offset-lg-0 col-xl-12 offset-xl-0">
+    {% if messages %}
+    <div class="col-12 col-sm-12 col-md-12 px-0 mb-2">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    {% if not can_add_raevent %}
+    <div id="raevent-permission-message" class="alert alert-warning" role="alert">
+        You do not have permission to add ride-along events. This form is view-only.
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        <div class="card w-100 w-sm-100 w-md-100 flex-grow-1">
             <div class="card-header border-bottom border-dashed d-flex align-items-center">
-                <p class="text-muted fs-14 mb-0">Use these inputs to add a recent ICHP ride-along effort.</p>
+                <p class="d-none d-lg-block text-muted fs-14 mb-0">Use these inputs to add a recent ICHP ride-along effort.</p>
+                <h4 class="d-block d-lg-none mb-0">New RA Event</h4>
             </div>
-            <div class="card-body">
-                {% if messages %}
-                <div>
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
-                    {% endfor %}
-                </div>
-                {% endif %}
 
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
+            <div class="card-body flex-grow-1">
+                {% csrf_token %}
+
+                <div class="row g-2">
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label mb-0 fs-12" for="id_ra_date">Date of Ride-Along</label>
+                        {{ form.ra_date }}
+                        {% if form.ra_date.errors %}
+                            <div class="text-danger small">{{ form.ra_date.errors|striptags }}</div>
+                        {% endif %}
                     </div>
-                {% endif %}
-
-                <form method="post" novalidate>
-                    {% csrf_token %}
-
-                    <div class="row g-2">
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label mb-0 fs-12" for="id_ra_date">Date of Ride-Along</label>
-                            {{ form.ra_date }}
-                            {% if form.ra_date.errors %}
-                                <div class="text-danger small">{{ form.ra_date.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label mb-0 fs-12" for="id_fisher">Fisher</label>
-                            <div class="d-flex gap-1 align-items-center">
-                                {{ form.fisher }}
-                                {% if perms.kiccd_app.add_fisher %}
-                                <button type="button" class="btn btn-outline-success btn-sm p-0" id="addFisherBtn"
-                                        data-bs-toggle="modal" data-bs-target="#addFisherModal"
-                                        title="Add a New Fisher" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
-                                    <i class="ti ti-plus"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                            {% if form.fisher.errors %}
-                                <div class="text-danger small">{{ form.fisher.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label mb-0 fs-12" for="id_observer">Observer</label>
-                            <div class="d-flex gap-1 align-items-center">
-                                {{ form.observer }}
-                                {% if perms.kiccd_app.add_observer %}
-                                <button type="button" class="btn btn-outline-success btn-sm p-0" id="addObserverBtn"
-                                        data-bs-toggle="modal" data-bs-target="#addObserverModal"
-                                        title="Add a New Observer" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
-                                    <i class="ti ti-plus"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                            {% if form.observer.errors %}
-                                <div class="text-danger small">{{ form.observer.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label mb-0 fs-12" for="id_site">Fishing Site</label>
-                            <div class="d-flex gap-1 align-items-center">
-                                {{ form.site }}
-                                {% if perms.kiccd_app.add_fishingsite_hp %}
-                                <button type="button" class="btn btn-outline-success btn-sm p-0" id="addSiteBtn"
-                                        data-bs-toggle="modal" data-bs-target="#addSiteModal"
-                                        title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
-                                    <i class="ti ti-plus"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                            {% if form.site.errors %}
-                                <div class="text-danger small">{{ form.site.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_gear">Gear Type</label>
-                            {{ form.gear }}
-                            {% if form.gear.errors %}
-                                <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-2">
-                            <label class="form-label mb-0 fs-12" for="id_set_num">Net #</label>
-                            {{ form.set_num }}
-                            {% if form.set_num.errors %}
-                                <div class="text-danger small">{{ form.set_num.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_start_time">Set Time</label>
-                            {{ form.start_time }}
-                            {% if form.start_time.errors %}
-                                <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_end_time">Pull Time</label>
-                            {{ form.end_time }}
-                            {% if form.end_time.errors %}
-                                <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_latitude">Latitude</label>
-                            {{ form.latitude }}
-                            {% if form.latitude.errors %}
-                                <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_longitude">Longitude</label>
-                            {{ form.longitude }}
-                            {% if form.longitude.errors %}
-                                <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_gear_length">Length (ft)</label>
-                            {{ form.gear_length }}
-                            {% if form.gear_length.errors %}
-                                <div class="text-danger small">{{ form.gear_length.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_gear_depth">Height (ft)</label>
-                            {{ form.gear_depth }}
-                            {% if form.gear_depth.errors %}
-                                <div class="text-danger small">{{ form.gear_depth.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 col-md-3">
-                            <label class="form-label mb-0 fs-12" for="id_mesh_size">Mesh (in)</label>
-                            {{ form.mesh_size }}
-                            {% if form.mesh_size.errors %}
-                                <div class="text-danger small">{{ form.mesh_size.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="mt-3 d-flex center justify-content-between">
-                            <button type="submit" class="btn btn-primary" id="raEventSubmitBtn">
-                                <span id="raEventSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                                SUBMIT
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label mb-0 fs-12" for="id_fisher">Fisher</label>
+                        <div class="d-flex gap-1 align-items-center">
+                            {{ form.fisher }}
+                            {% if perms.kiccd_app.add_fisher %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addFisherBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addFisherModal"
+                                    title="Add a New Fisher" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
                             </button>
-                            <a class="btn btn-secondary" href="{% url 'kiccd_app:home' %}">CANCEL</a>
+                            {% endif %}
+                        </div>
+                        {% if form.fisher.errors %}
+                            <div class="text-danger small">{{ form.fisher.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label mb-0 fs-12" for="id_observer">Observer</label>
+                        <div class="d-flex gap-1 align-items-center">
+                            {{ form.observer }}
+                            {% if perms.kiccd_app.add_observer %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addObserverBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addObserverModal"
+                                    title="Add a New Observer" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if form.observer.errors %}
+                            <div class="text-danger small">{{ form.observer.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label mb-0 fs-12" for="id_site">Fishing Site</label>
+                        <div class="d-flex gap-1 align-items-center">
+                            {{ form.site }}
+                            {% if perms.kiccd_app.add_fishingsite_hp %}
+                            <button type="button" class="btn btn-outline-success btn-sm p-0" id="addSiteBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addSiteModal"
+                                    title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.65rem;">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% if form.site.errors %}
+                            <div class="text-danger small">{{ form.site.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_gear">Gear Type</label>
+                        {{ form.gear }}
+                        {% if form.gear.errors %}
+                            <div class="text-danger small">{{ form.gear.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-2">
+                        <label class="form-label mb-0 fs-12" for="id_net_set">Net #</label>
+                        {{ form.net_set }}
+                        {% if form.net_set.errors %}
+                            <div class="text-danger small">{{ form.net_set.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_start_time">Set Time</label>
+                        {{ form.start_time }}
+                        {% if form.start_time.errors %}
+                            <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_end_time">Pull Time</label>
+                        {{ form.end_time }}
+                        {% if form.end_time.errors %}
+                            <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_latitude">Latitude</label>
+                        {{ form.latitude }}
+                        {% if form.latitude.errors %}
+                            <div class="text-danger small">{{ form.latitude.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_longitude">Longitude</label>
+                        {{ form.longitude }}
+                        {% if form.longitude.errors %}
+                            <div class="text-danger small">{{ form.longitude.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_gear_length">Length (ft)</label>
+                        {{ form.gear_length }}
+                        {% if form.gear_length.errors %}
+                            <div class="text-danger small">{{ form.gear_length.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_gear_depth">Height (ft)</label>
+                        {{ form.gear_depth }}
+                        {% if form.gear_depth.errors %}
+                            <div class="text-danger small">{{ form.gear_depth.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <label class="form-label mb-0 fs-12" for="id_mesh_size">Mesh (in)</label>
+                        {{ form.mesh_size }}
+                        {% if form.mesh_size.errors %}
+                            <div class="text-danger small">{{ form.mesh_size.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="mt-3 d-flex justify-content-center">
+                        <div class="btn-group" role="group">
+                        {% if can_add_raevent %}
+                            <button type="submit" class="btn btn-primary" id="raEventSubmitBtn"><span id="raEventSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>SUBMIT</button>
+                        {% endif %}
+                        {% if can_add_raevent %}
+                            <button type="button" class="btn btn-secondary ms-1 me-1 d-block d-md-block d-lg-block" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Reset Form" onclick="if(confirm('Resetting the Entire form?  Click OK to proceed.')) this.form.reset();"><i class="ti ti-refresh"></i></button>
+                        {% endif %}
+                            <button type="button" class="btn btn-info" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Cancel & Return Home" onclick="if(confirm('Cancelling this Entry? Click OK to proceed.')) window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <script>

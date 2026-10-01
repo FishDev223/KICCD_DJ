@@ -308,8 +308,9 @@ def fisher_create_ajax(request):
 
 @login_required
 def ra_event_create(request):
-    """Create a new RaEvent record. Requires add_raevent permission."""
-    if not request.user.has_perm('kiccd_app.add_raevent'):
+    """Render the RA Event form; only users with add_raevent permission may submit it."""
+    can_add_raevent = request.user.has_perm('kiccd_app.add_raevent')
+    if request.method == 'POST' and not can_add_raevent:
         return render(request, 'kiccd_app/403.html', status=403)
 
     if request.method == 'POST':
@@ -326,6 +327,7 @@ def ra_event_create(request):
 
     return render(request, 'kiccd_app/pages/ra-event-form.html', {
         'form': form,
+        'can_add_raevent': can_add_raevent,
         'site_types': SiteType.objects.order_by('name'),
         'pools': Pool.objects.order_by('pool_id'),
         'states': State.objects.order_by('name'),
@@ -339,8 +341,11 @@ def ra_event_create(request):
 @login_required
 def ra_event_set_create(request):
     """Batch-add RaEvent rows that share the same date/fisher/observer/site/gear."""
-    if not request.user.has_perm('kiccd_app.add_raevent'):
+    can_add_raevent = request.user.has_perm('kiccd_app.add_raevent')
+
+    if request.method == 'POST' and not can_add_raevent:
         return render(request, 'kiccd_app/403.html', status=403)
+
 
     RaEventFormSet = modelformset_factory(RaEvent, form=RaEventRowForm, extra=20, can_delete=False)
     shared_form = RaEventBatchInfoForm(request.POST or None)
@@ -400,6 +405,7 @@ def ra_event_set_create(request):
     return render(request, 'kiccd_app/pages/ra-event-batch-form.html', {
         'shared_form': shared_form,
         'formset': formset,
+        'can_add_raevent': can_add_raevent,
         'site_types': SiteType.objects.order_by('name'),
         'pools': Pool.objects.order_by('pool_id'),
         'states': State.objects.order_by('name'),
