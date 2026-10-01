@@ -654,11 +654,11 @@ class RaCatchAdmin(admin.ModelAdmin):
         obj.save(user=request.user)
 
 class IcEventAdmin(admin.ModelAdmin):
-    list_display = ('edate', 'project', 'agency__abbrev', 'crew_lead', 'site__name', 'coordinates', 'gear', 'effort_num', 'effort_min', 'carp_sighted', 'net_length_ft', )
+    list_display = ('edate', 'project', 'agency__abbrev', 'crew_lead', 'site__name', 'coordinates', 'gear__name', 'effort_num', 'effort_min', 'carp_sighted', 'net_length_ft', )
     list_editable = ('effort_num', 'effort_min', 'carp_sighted', )
-    search_fields = ('project__name', 'site__name', 'event_date', 'gear', 'agency', )
+    search_fields = ('site__name', 'event_date', 'gear__name', 'agency__abbrev', )
     ordering = ('-event_date', 'effort_num', )
-    list_filter = ('project', 'datez__cal_year', 'site__pool', 'datez__ic_month2', 'datez__ic_season', )
+    list_filter = ('project', 'datez__cal_year', 'site__pool__name', 'datez__ic_month2', 'datez__ic_season', )
     readonly_fields = ('event_id', 'added_on', 'added_by', )
     fieldsets = (
         (None, {

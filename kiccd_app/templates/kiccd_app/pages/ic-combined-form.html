@@ -1711,6 +1711,51 @@ document.addEventListener('DOMContentLoaded', function () {
         timeInput.value = String(hour).padStart(2, '0') + ':' + minute;
     }
 
+    function timeToMinutes(value) {
+        var time = String(value || '').trim();
+        var twelveHourMatch = time.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
+        if (twelveHourMatch) {
+            var twelveHour = parseInt(twelveHourMatch[1], 10);
+            var twelveMinute = parseInt(twelveHourMatch[2], 10);
+            if (twelveHour < 1 || twelveHour > 12 || twelveMinute > 59) return null;
+            if (twelveHourMatch[3].toUpperCase() === 'AM') {
+                if (twelveHour === 12) twelveHour = 0;
+            } else if (twelveHour !== 12) {
+                twelveHour += 12;
+            }
+            return (twelveHour * 60) + twelveMinute;
+        }
+
+        var twentyFourHourMatch = time.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+        if (!twentyFourHourMatch) return null;
+        var hour = parseInt(twentyFourHourMatch[1], 10);
+        var minute = parseInt(twentyFourHourMatch[2], 10);
+        if (hour > 23 || minute > 59) return null;
+        return (hour * 60) + minute;
+    }
+
+    function calculateEffortMinutes() {
+        var startTimeInput = document.getElementById('id_start_time');
+        var endTimeInput = document.getElementById('id_end_time');
+        var effortMinutesInput = document.getElementById('id_effort_min');
+        if (!startTimeInput || !endTimeInput || !effortMinutesInput || effortMinutesInput.value.trim()) return;
+
+        var startMinutes = timeToMinutes(startTimeInput.value);
+        var endMinutes = timeToMinutes(endTimeInput.value);
+        if (startMinutes === null || endMinutes === null) return;
+
+        var durationMinutes = endMinutes - startMinutes;
+        if (durationMinutes < 0) durationMinutes += 24 * 60;
+        effortMinutesInput.value = durationMinutes.toFixed(2);
+        effortMinutesInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    var endTimeInput = document.getElementById('id_end_time');
+    if (endTimeInput) {
+        endTimeInput.addEventListener('change', calculateEffortMinutes);
+        endTimeInput.addEventListener('blur', calculateEffortMinutes);
+    }
+
     if (catchForm) {
         catchForm.addEventListener('submit', function () {
             normalizeTimeTo24Hour(document.getElementById('id_start_time'));

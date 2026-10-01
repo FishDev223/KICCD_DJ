@@ -969,7 +969,7 @@ class IcEvent(models.Model):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False, db_comment='ID of the project that the sampling effort was conducted for.')
     agency = models.ForeignKey(Partner, on_delete=models.PROTECT, blank=False, null=False, db_comment='ID of agency or partner that conducted the sampling effort.')
     crew_lead = models.ForeignKey(Crew, on_delete=models.PROTECT, blank=False, null=False, db_comment='ID of field crew that conducted the sampling effort.')
-    gear = models.ForeignKey(Gear, on_delete=models.PROTECT, blank=True, null=True, db_comment='ID of gear type used during the sampling effort.')
+    gear = models.ForeignKey(Gear, on_delete=models.PROTECT, blank=False, null=False, db_comment='ID of gear type used during the sampling effort.')
     effort_num = models.SmallIntegerField("Transect/Net No.", blank=False, null=False, db_comment='Daily transect or net number associated with the sampling effort.')
     latitude = models.DecimalField("Sample LAT", max_digits=8, decimal_places=5, blank=True, null=True, db_comment='Latitude of specific location where sampling effort was conducted.')
     longitude = models.DecimalField("Sample LON", max_digits=8, decimal_places=5, blank=True, null=True, db_comment='Longitude of specific location where sampling effort was conducted.')
@@ -1022,6 +1022,13 @@ class IcEvent(models.Model):
             self.latitude = self.site.latitude
         if not self.longitude and self.site:
             self.longitude = self.site.longitude
+        if not self.effort_min:
+            if self.start_time and self.end_time:
+                # Calculate the effort in minutes (to 2 decimal places) by subtracting start_time from end_time
+                self.effort_min = round(Decimal((self.end_time - self.start_time).total_seconds() / 60), 2)
+            else:
+                self.effort_min = 0
+
         try:
             date_record = Dates.objects.get(ic_date=self.event_date)
             self.datez = date_record
