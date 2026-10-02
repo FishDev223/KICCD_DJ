@@ -364,8 +364,8 @@ class SampleSiteAdmin(admin.ModelAdmin):
                     'type', 
                     'basin', )
     search_fields = ('site_code', 'name', 'trib__name',)
-    list_filter = ('type', 'pool', 'trib', 'basin', 'state',)
-    # list_editable = ['name','river_mi', 'latitude', 'longitude', ]
+    list_filter = ('type', 'projects', 'pool', 'trib', 'basin', 'state',)
+    list_editable = ['name','river_mi', 'latitude', 'longitude',]
     ordering = ('pool', 'river_mi',)
     readonly_fields = ('site_id', 'added_on',)
     fieldsets = (
