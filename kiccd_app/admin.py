@@ -386,6 +386,9 @@ class SampleSiteAdmin(admin.ModelAdmin):
                        'state',),
             'classes': ('collapse',),
         }),
+        ('Associated Projects', {
+            'fields': ('projects',),
+        }),
         ('Other Details', {
             'fields': ('site_code','added_on',),
             'classes': ('collapse',),
@@ -658,7 +661,7 @@ class IcEventAdmin(admin.ModelAdmin):
     list_editable = ('effort_num', 'effort_min', 'carp_sighted', )
     search_fields = ('site__name', 'event_date', 'gear__name', 'agency__abbrev', )
     ordering = ('-event_date', 'effort_num', )
-    list_filter = ('project', 'datez__cal_year', 'site__pool__name', 'datez__ic_month2', 'datez__ic_season', )
+    list_filter = ('project', 'datez__cal_year', 'site__pool', 'datez__ic_month2', 'datez__ic_season', )
     readonly_fields = ('event_id', 'added_on', 'added_by', )
     fieldsets = (
         (None, {

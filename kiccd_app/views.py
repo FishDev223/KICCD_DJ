@@ -963,6 +963,7 @@ def ic_combined_create(request):
         'formset': formset,
         'catch_snapshot': catch_snapshot,
         'restore_snapshot': restore_snapshot,
+        'projects': Project.objects.order_by('project_id'),
         'partners': Partner.objects.order_by('abbrev'),
         'site_types': SiteType.objects.order_by('name'),
         'pools': Pool.objects.order_by('pool_id'),

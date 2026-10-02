@@ -502,6 +502,7 @@ class SampleSite(models.Model):
     basin = models.ForeignKey(Basin, on_delete=models.PROTECT, db_comment='ID of basin where the site is located.')
     added_on = models.DateTimeField(auto_now_add=True, db_comment='Date-time of site creation.')
     trib = models.ForeignKey(Trib, on_delete=models.PROTECT, db_comment='ID of tributary or area where the site is located.')
+    projects = models.ManyToManyField(Project, related_name='sample_sites', blank=True, verbose_name='Projects')
     
     class Meta:
         db_table = 'ic_sites'

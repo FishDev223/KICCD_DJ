@@ -230,7 +230,7 @@ class SampleSiteForm(forms.ModelForm):
         model = SampleSite
         fields = [
             'site_code', 'name', 'latitude', 'longitude', 'river_mi', 'type', 'pool', 'state',
-            'county', 'basin', 'trib', 'woody_debris', 'submersed_av'
+            'county', 'basin', 'trib', 'woody_debris', 'submersed_av', 'projects'
         ]
 
         widgets = {
@@ -247,6 +247,7 @@ class SampleSiteForm(forms.ModelForm):
             'trib': forms.Select(attrs={'class': 'form-control select', 'data-toggle': 'select', 'placeholder': ''}),
             'woody_debris': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'submersed_av': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'projects': forms.SelectMultiple(attrs={'class': 'form-control', 'size': 6}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -291,6 +292,7 @@ class SampleSiteForm(forms.ModelForm):
         instance = super().save(commit=False)
         if commit:
             instance.save()
+            self.save_m2m()
         return instance
 
 class FishingSiteCFForm(forms.ModelForm):
@@ -1450,5 +1452,4 @@ class IchpEventRowForm(forms.ModelForm):
             if isinstance(field.widget, forms.CheckboxInput):
                 continue
             field.widget.attrs.setdefault('class', field.widget.attrs.get('class', 'form-control'))
-
 

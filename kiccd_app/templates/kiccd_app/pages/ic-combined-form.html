@@ -797,6 +797,39 @@
                     </div>
                 </div>
 
+                <!-- Form save/load accordion -->
+                <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-1 mb-md-1" id="FormSaveUI">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="FormSaveHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#FormSaveOne" aria-expanded="false" aria-controls="FormSaveOne">
+                                    Form Saving & Loading 
+                                </button>
+                            </h2>
+                            <div id="FormSaveOne" class="accordion-collapse collapse"
+                                aria-labelledby="FormSaveHeading1" data-bs-parent="#FormSaveUI">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-6">
+                                            <input id="form_file_input" type="file" class="form-control form-control-sm" accept=".json,application/json">
+                                            {% comment %} <div class="form-text">JSON files capture the event/catch information and stay on your device.</div> {% endcomment %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" id="save_form_file_btn" class="btn btn-sm btn-success w-100">SAVE FORM</button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" id="load_form_file_btn" class="btn btn-sm btn-primary w-100">LOAD FORM</button>
+                                        </div>
+                                        <div class="col-12">
+                                            <div id="form_file_status" class="small text-muted" role="status" aria-live="polite"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- CSV loading accordion -->
                 <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
                     <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
@@ -804,7 +837,7 @@
                             <h2 class="accordion-header" id="AddCsvHeading1">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddCsvOne">
-                                    Additional Data Loading Options
+                                    CSV Data Loading
                                 </button>
                             </h2>
                             <div id="AddCsvOne" class="accordion-collapse collapse"
@@ -816,7 +849,7 @@
                                             <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
                                         </div>
                                         <div class="col-md-2">
-                                            <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                            <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3 w-100">LOAD CSV</button>
                                         </div>
                                         <div class="col-md-2">
                                             <div id="csv_status" class="text-muted"></div>
@@ -1053,6 +1086,26 @@
                         <div class="text-danger small d-none" id="site_err_trib"></div>
                     </div>
                 </div>
+                <div class="accordion accordion-flush mb-1" id="siteModalProjects">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="siteModalProjectsHeading">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#siteModalProjectsCollapse" aria-expanded="false" aria-controls="siteModalProjectsCollapse">
+                                <small><strong><u>Associated Projects...</u></strong></small>
+                            </button>
+                        </h2>
+                        <div id="siteModalProjectsCollapse" class="accordion-collapse collapse" aria-labelledby="siteModalProjectsHeading" data-bs-parent="#siteModalProjects">
+                            <div class="accordion-body p-2">
+                                <div class="form-text">Select projects associated with this site. This may be left blank.</div>
+                                <select class="form-control" id="site_projects" multiple size="6">
+                                    {% for project in projects %}
+                                    <option value="{{ project.pk }}">{{ project.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="text-danger small d-none" id="site_err_projects"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="accordion accordion-flush mb-1" id="siteModalOptional">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
@@ -1198,11 +1251,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const csvStatus = document.getElementById('csv_status');
     const csvColumnMap = document.getElementById('csv_column_map');
     const csvClearExisting = document.getElementById('csv_clear_existing');
+    const formFileInput = document.getElementById('form_file_input');
+    const saveFormFileButton = document.getElementById('save_form_file_btn');
+    const loadFormFileButton = document.getElementById('load_form_file_btn');
+    const formFileStatus = document.getElementById('form_file_status');
     const catchSnapshotInput = document.getElementById('catch_snapshot');
     const submitButton = document.getElementById('icCombinedSubmitBtn');
     const resetFormButton = document.getElementById('reset_form_btn');
     const catchSnapshotData = JSON.parse(document.getElementById('catchSnapshotData').textContent || '[]');
     const restoreSnapshot = {{ restore_snapshot|yesno:"true,false" }};
+    const formFileFormat = 'kiccd-dj.ic-combined-form';
+    const maxFormFileBytes = 5 * 1024 * 1024;
+    const maxSavedRows = 250;
+    const visibleRowOptions = [25, 50, 75, 100, 200, 250];
 
     // ---- Unit state ----
     let lengthUnit = 'mm';  // 'mm' | 'in'
@@ -1493,6 +1554,205 @@ document.addEventListener('DOMContentLoaded', function () {
         updateRowNumbers();
     }
 
+    function setFormFileStatus(message, isError) {
+        if (!formFileStatus) return;
+        formFileStatus.textContent = message;
+        formFileStatus.classList.toggle('text-danger', Boolean(isError));
+        formFileStatus.classList.toggle('text-muted', !isError);
+        formFileStatus.classList.toggle('text-success', !isError && Boolean(message));
+    }
+
+    function isFormFileExcludedFieldName(name) {
+        return name === 'csrfmiddlewaretoken' ||
+            name === 'catch_snapshot' ||
+            /^form-(TOTAL_FORMS|INITIAL_FORMS|MIN_NUM_FORMS|MAX_NUM_FORMS)$/.test(name);
+    }
+
+    function getFormFileFields() {
+        if (!catchForm) return [];
+        return Array.from(catchForm.elements).filter(function (field) {
+            return field.name &&
+                !isFormFileExcludedFieldName(field.name) &&
+                field.type !== 'file';
+        }).map(function (field) {
+            const savedField = { name: field.name, type: field.type };
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                savedField.value = field.value;
+                savedField.checked = field.checked;
+            } else if (field instanceof HTMLSelectElement && field.multiple) {
+                savedField.value = Array.from(field.selectedOptions).map(function (option) { return option.value; });
+            } else {
+                savedField.value = field.value;
+            }
+            return savedField;
+        });
+    }
+
+    function saveFormToFile() {
+        if (!catchForm || !totalFormsInput) return;
+        const totalForms = parseInt(totalFormsInput.value, 10);
+        if (Number.isNaN(totalForms) || totalForms < 1 || totalForms > maxSavedRows) {
+            setFormFileStatus('The form has an unsupported number of catch rows.', true);
+            return;
+        }
+
+        const snapshot = {
+            format: formFileFormat,
+            version: 1,
+            savedAt: new Date().toISOString(),
+            totalForms: totalForms,
+            visibleRows: visibleRowsSelect ? parseInt(visibleRowsSelect.value, 10) : 25,
+            lengthUnit: lengthUnit,
+            weightUnit: weightUnit,
+            fields: getFormFileFields()
+        };
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const eventDate = document.getElementById('id_event_date').value || 'no-date';
+        const siteSelect = document.getElementById('id_site');
+        const selectedSite = siteSelect && siteSelect.value && siteSelect.selectedOptions.length
+            ? siteSelect.selectedOptions[0].textContent.trim()
+            : '';
+        const effortNum = document.getElementById('id_effort_num').value || 'no-effort';
+        const filenamePart = function (value) {
+            return String(value).trim()
+                .replace(/[<>:"\/\\|?*\u0000-\u001f]/g, '-')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^[-.]+|[-.]+$/g, '') || 'unknown';
+        };
+        link.download = 'Sample-form_' +
+            [eventDate, selectedSite || 'no-site', effortNum].map(filenamePart).join('_') + '.json';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+        setFormFileStatus('Form saved to a JSON file.', false);
+    }
+
+    function validateFormFileSnapshot(snapshot) {
+        if (!snapshot || snapshot.format !== formFileFormat || snapshot.version !== 1) {
+            throw new Error('This is not a supported sampling form file.');
+        }
+        if (!Number.isInteger(snapshot.totalForms) || snapshot.totalForms < 1 || snapshot.totalForms > maxSavedRows) {
+            throw new Error('The file contains an unsupported number of catch rows.');
+        }
+        if (!visibleRowOptions.includes(snapshot.visibleRows)) {
+            throw new Error('The file contains an invalid visible-row setting.');
+        }
+        if (!['mm', 'in'].includes(snapshot.lengthUnit) || !['g', 'kg', 'lb'].includes(snapshot.weightUnit)) {
+            throw new Error('The file contains invalid measurement units.');
+        }
+        if (!Array.isArray(snapshot.fields) || snapshot.fields.length > 5000) {
+            throw new Error('The file contains invalid form data.');
+        }
+        snapshot.fields.forEach(function (field) {
+            if (!field || typeof field.name !== 'string' || !field.name || typeof field.type !== 'string') {
+                throw new Error('The file contains invalid form field data.');
+            }
+            const validValue = typeof field.value === 'string' ||
+                (Array.isArray(field.value) && field.value.every(function (value) { return typeof value === 'string'; }));
+            if (!validValue ||
+                ((field.type === 'checkbox' || field.type === 'radio') && typeof field.checked !== 'boolean')) {
+                throw new Error('The file contains invalid form field data.');
+            }
+        });
+        return snapshot;
+    }
+
+    function restoreFormField(field, savedField) {
+        if (field.type === 'checkbox' || field.type === 'radio') {
+            field.checked = savedField.checked;
+        } else if (field instanceof HTMLSelectElement && field.multiple) {
+            const selectedValues = new Set(Array.isArray(savedField.value) ? savedField.value : []);
+            Array.from(field.options).forEach(function (option) {
+                option.selected = selectedValues.has(option.value);
+            });
+        } else {
+            field.value = typeof savedField.value === 'string' ? savedField.value : '';
+        }
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    async function restoreFormFromFile(snapshot) {
+        if (!catchForm || !totalFormsInput) throw new Error('The sampling form is unavailable.');
+
+        catchForm.reset();
+        fullResetForm();
+        trimRowsToCount(snapshot.totalForms);
+        ensureRowCount(snapshot.totalForms);
+        totalFormsInput.value = String(snapshot.totalForms);
+
+        const controlsByName = new Map();
+        Array.from(catchForm.elements).forEach(function (field) {
+            if (!field.name) return;
+            if (!controlsByName.has(field.name)) controlsByName.set(field.name, []);
+            controlsByName.get(field.name).push(field);
+        });
+        const occurrenceByName = new Map();
+        const deferredFields = new Map();
+        const unavailableSelections = [];
+        snapshot.fields.forEach(function (savedField) {
+            if (isFormFileExcludedFieldName(savedField.name)) return;
+            const fields = controlsByName.get(savedField.name) || [];
+            const occurrence = occurrenceByName.get(savedField.name) || 0;
+            occurrenceByName.set(savedField.name, occurrence + 1);
+            const field = fields[occurrence];
+            if (!field) return;
+            if (savedField.name === 'agency' || savedField.name === 'crew_lead') {
+                deferredFields.set(savedField.name, savedField);
+                return;
+            }
+            const expectedValues = Array.isArray(savedField.value) ? savedField.value : [savedField.value];
+            if (field instanceof HTMLSelectElement) {
+                expectedValues.forEach(function (value) {
+                    if (value && !Array.from(field.options).some(function (option) { return option.value === value; })) {
+                        unavailableSelections.push(savedField.name);
+                    }
+                });
+            }
+            restoreFormField(field, savedField);
+        });
+
+        const agencySelect = document.getElementById('id_agency');
+        const crewSelect = document.getElementById('id_crew_lead');
+        const savedAgency = deferredFields.get('agency');
+        const savedCrew = deferredFields.get('crew_lead');
+        if (agencySelect) {
+            const agencyValue = savedAgency ? String(savedAgency.value) : '';
+            agencySelect.value = agencyValue;
+            if (agencyValue && agencySelect.value !== agencyValue) unavailableSelections.push('agency');
+            if (typeof window.loadCrewsForAgency === 'function') {
+                await window.loadCrewsForAgency(agencySelect.value);
+            } else if (agencySelect.value) {
+                throw new Error('Crew leaders cannot be restored because the agency lookup is unavailable.');
+            }
+        }
+        if (crewSelect) {
+            const crewValue = savedCrew ? String(savedCrew.value) : '';
+            crewSelect.value = crewValue;
+            if (crewValue && crewSelect.value !== crewValue) unavailableSelections.push('crew_lead');
+            crewSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        const lengthRadio = document.getElementById(snapshot.lengthUnit === 'in' ? 'lengthUnitIn' : 'lengthUnitMm');
+        const weightRadio = document.getElementById('weightUnit' + snapshot.weightUnit.charAt(0).toUpperCase() + snapshot.weightUnit.slice(1));
+        if (lengthRadio) lengthRadio.checked = true;
+        if (weightRadio) weightRadio.checked = true;
+        lengthUnit = snapshot.lengthUnit;
+        weightUnit = snapshot.weightUnit;
+        updateUnitLabels();
+
+        if (visibleRowsSelect) visibleRowsSelect.value = String(snapshot.visibleRows);
+        if (noFishCheckbox && noFishCheckbox.checked) applyVisibleRows(1);
+        else applyVisibleRows(snapshot.visibleRows);
+        if (catchSnapshotInput) catchSnapshotInput.value = '';
+        updateRowNumbers();
+        return Array.from(new Set(unavailableSelections));
+    }
+
     function parseCsv(text) {
         const rows = [];
         let current = '', row = [], inQuotes = false;
@@ -1662,6 +1922,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (saveFormFileButton) saveFormFileButton.addEventListener('click', saveFormToFile);
+
+    if (loadFormFileButton && formFileInput) {
+        loadFormFileButton.addEventListener('click', function () {
+            if (!formFileInput.files || !formFileInput.files.length) {
+                setFormFileStatus('Select a saved JSON form file first.', true);
+                return;
+            }
+            const file = formFileInput.files[0];
+            if (file.size > maxFormFileBytes) {
+                setFormFileStatus('The selected file is too large to load.', true);
+                formFileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function () {
+                try {
+                    const snapshot = validateFormFileSnapshot(JSON.parse(String(reader.result || '')));
+                    if (!window.confirm('Loading this file will replace the current form contents. Continue?')) {
+                        setFormFileStatus('Loading cancelled.', false);
+                        return;
+                    }
+                    const unavailableSelections = await restoreFormFromFile(snapshot);
+                    if (unavailableSelections.length) {
+                        setFormFileStatus(
+                            'Form loaded, but the following input(s) MUST be re-selected: ' + unavailableSelections.join(', ') + '.',
+                            true
+                        );
+                    } else {
+                        setFormFileStatus('Form loaded from file.', false);
+                    }
+                } catch (error) {
+                    setFormFileStatus(error && error.message ? error.message : 'Unable to load the selected form file.', true);
+                } finally {
+                    formFileInput.value = '';
+                }
+            };
+            reader.onerror = function () {
+                setFormFileStatus('Unable to read the selected form file.', true);
+                formFileInput.value = '';
+            };
+            reader.readAsText(file);
+        });
+    }
+
     if (resetFormButton) {
         resetFormButton.addEventListener('click', function () {
             if (window.confirm('Resetting the entire form? Click OK to proceed.')) {
@@ -1810,6 +2116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const baseUrl = "{% url 'kiccd_app:api_crews_by_agency' 0 %}";
     function buildUrl(id) { return baseUrl.replace('/0/', '/' + id + '/'); }
+    let crewRequestId = 0;
 
     function clearOptions() {
         crewSelect.innerHTML = '';
@@ -1819,12 +2126,20 @@ document.addEventListener('DOMContentLoaded', function () {
         crewSelect.disabled = true;
     }
 
-    agencySelect.addEventListener('change', function () {
-        const agencyId = this.value;
-        if (!agencyId) { clearOptions(); return; }
-        fetch(buildUrl(agencyId))
-            .then(r => r.json())
-            .then(data => {
+    window.loadCrewsForAgency = function (agencyId) {
+        const requestId = ++crewRequestId;
+        if (!agencyId) {
+            clearOptions();
+            return Promise.resolve();
+        }
+        clearOptions();
+        return fetch(buildUrl(agencyId))
+            .then(function (response) {
+                if (!response.ok) throw new Error('Unable to load crew leaders for the selected agency.');
+                return response.json();
+            })
+            .then(function (data) {
+                if (requestId !== crewRequestId) return;
                 crewSelect.innerHTML = '';
                 const placeholder = document.createElement('option');
                 placeholder.value = ''; placeholder.text = '...';
@@ -1836,7 +2151,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 crewSelect.disabled = false;
             })
-            .catch(() => clearOptions());
+            .catch(function (error) {
+                if (requestId === crewRequestId) clearOptions();
+                throw error;
+            });
+    };
+
+    agencySelect.addEventListener('change', function () {
+        window.loadCrewsForAgency(this.value).catch(function () {});
     });
 
     if (!agencySelect.value) {
@@ -2207,6 +2529,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function resetSiteModal() {
         clearSiteErrors();
         ['name','latitude','longitude','type','pool','basin','river_mi','site_code'].forEach(function(f){var el=document.getElementById('site_'+f);if(el)el.value='';});
+        Array.from(document.getElementById('site_projects').options).forEach(function(option){option.selected=false;});
         var wdEl=document.getElementById('site_woody_debris'),savEl=document.getElementById('site_submersed_av');
         if (wdEl) wdEl.checked=false;
         if (savEl) savEl.checked=false;
@@ -2249,6 +2572,9 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('trib', document.getElementById('site_trib').value);
         formData.append('state', document.getElementById('site_state').value);
         formData.append('county', document.getElementById('site_county').value);
+        Array.from(document.getElementById('site_projects').selectedOptions).forEach(function(option){
+            formData.append('projects', option.value);
+        });
         var riverMi=document.getElementById('site_river_mi').value.trim();
         var siteCode=document.getElementById('site_site_code').value.trim();
         if (riverMi) formData.append('river_mi', riverMi);
