@@ -1001,6 +1001,7 @@ def ic_event_create(request):
     return render(request, 'kiccd_app/pages/sample-event-form.html', {
         'form': form,
         'partners': Partner.objects.order_by('abbrev'),
+        'projects': Project.objects.order_by('project_id'),
         'site_types': SiteType.objects.order_by('name'),
         'pools': Pool.objects.order_by('pool_id'),
         'states': State.objects.order_by('name'),
@@ -1026,6 +1027,13 @@ def ic_catch_create(request):
     )
     post_data = request.POST or None
     catch_snapshot = []
+    restore_snapshot = False
+    display_length_unit = request.POST.get('display_length_unit', 'mm') if request.method == 'POST' else 'mm'
+    display_weight_unit = request.POST.get('display_weight_unit', 'kg') if request.method == 'POST' else 'kg'
+    if display_length_unit not in ('mm', 'in'):
+        display_length_unit = 'mm'
+    if display_weight_unit not in ('g', 'kg', 'lb'):
+        display_weight_unit = 'kg'
     if request.method == 'POST' and post_data is not None:
         mutable_post = post_data.copy()
         snapshot_raw = mutable_post.get('catch_snapshot')
@@ -1134,11 +1142,15 @@ def ic_catch_create(request):
                 messages.info(request, 'Add at least one catch row before submitting.')
         else:
             messages.error(request, 'Please correct the errors below.')
+            restore_snapshot = True
 
     return render(request, 'kiccd_app/pages/ic-catch-bulk-form.html', {
         'shared_form': shared_form,
         'formset': formset,
         'catch_snapshot': catch_snapshot,
+        'restore_snapshot': restore_snapshot,
+        'display_length_unit': display_length_unit,
+        'display_weight_unit': display_weight_unit,
         'event_has_errors': bool(shared_form.errors.get('event')),
     })
 

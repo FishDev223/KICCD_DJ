@@ -5,7 +5,15 @@
 {% block title %}Add Catch Data{% endblock title %}
 
 {% block extra_css %}
-
+<style>
+    .ic-floating-save-button {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 1030;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+    }
+</style>
 {% endblock extra_css %}
 
 {% block page_title %}
@@ -19,7 +27,7 @@
             <h5 class="d-none d-md-block text-muted mb-0">Choose an existing sampling effort.</h5>
             <h4 class="d-block d-md-none mb-0 text-center">Choose A Sampling Effort</h4>
             <div class="d-flex gap-2">
-                <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Sampling<br>Effort Instead...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW EFFORT</a>
+                <a href="{% url 'kiccd_app:ic_event_create' %}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" data-bs-title="<em>Add a New Sampling<br>Effort Instead...</em>"><i class="ti ti-copy-plus align-middle me-1 fs-18"></i> EFFORT</a>
             </div>
         </div>
         <div class="card-body p-2 p-md-2">
@@ -46,6 +54,8 @@
             <form method="post" novalidate>
                 {% csrf_token %}
                 <input type="hidden" id="catch_snapshot" name="catch_snapshot" value="">
+                <input type="hidden" id="display_length_unit" name="display_length_unit" value="{{ display_length_unit }}">
+                <input type="hidden" id="display_weight_unit" name="display_weight_unit" value="{{ display_weight_unit }}">
 
                 <div class="row p-md-2 p-2 mt-0 mb-md-0 bg-dark bg-opacity-10">
                     <div class="col-md-6 mt-md-0 mt-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>* Efforts derived from:<br>Date (Site - Transect/Net #)</em>">
@@ -72,48 +82,50 @@
                             <div class="text-danger small">{{ shared_form.no_fish.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    <div class="col-md-1 offset-md-1 col-sm-6 offset-sm-3 mt-md-0 mt-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
-                        <p class="mb-1 mt-1 text-muted fs-11">ROWS</p>
-                        <select id="visible_rows" class="form-select form-select-sm">
-                            <option value="25" selected>25</option>
-                            <option value="50">50</option>
-                            <option value="75">75</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                            <option value="250">250</option>
-                        </select>
-                    </div>
                 </div>
         </div>
     </div>
-    <div class="card col-md-12 mt-3">
+    <div class="card w-100 mt-3 flex-grow-1">
         <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
-            <div class="row g-2 mb-0 w-100">
+            <div>
                 <h5 class="d-none d-md-block text-muted mb-0">Size & counts for all sampled fish species.</h5>
                 <h4 class="d-block d-md-none mb-0">Catch Data</h4>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-success p-2" id="unitsModalBtn"
-                    data-bs-toggle="modal" data-bs-target="#catchUnitsModal"
-                    title="Choose Length &amp; Weight units"
-                    style="height:30px;min-width:25px;font-size:1.20rem;">
-                <i class="ri ri-pencil-ruler-line"></i>
-            </button>
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" class="btn btn-sm btn-outline-success p-2" id="unitsModalBtn"
+                        data-bs-toggle="modal" data-bs-target="#catchUnitsModal"
+                        title="Choose Length & Weight units"
+                        style="height:30px;min-width:25px;font-size:1.20rem;">
+                    <i class="ri ri-pencil-ruler-line"></i>
+                </button>
+                <div class="d-flex align-items-center gap-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Set how many rows are visible.">
+                    <span class="text-muted fs-11 text-nowrap">ROWS</span>
+                    <select id="visible_rows" class="form-select form-select-sm" style="width:auto;">
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="75">75</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="250">250</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="card-body flex-grow-1">
                 {{ formset.management_form }}
-  
+
                 <div id="catch-formset">
                     {% for form in formset %}
-                        <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded catch-row">
-                            <div class="col-md-0 p-md-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
+                        <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-lg-1 mb-2 p-0 p-md-0 border rounded catch-row">
+                            <div class="col-lg-0 p-lg-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
                                 <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
-                                    <h5 class="d-block d-md-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #{{ forloop.counter }}</h5>
+                                    <h5 class="d-block d-sm-block d-md-block d-lg-none d-xl-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #{{ forloop.counter }}</h5>
                                 </div>
                             </div>
-                            <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
-                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
-                                        <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
+                            <div class="col-lg-3 pt-lg-2 pb-lg-2 ps-lg-1 pe-lg-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+                                    <div class="d-flex gap-lg-1 gap-sm-1 align-items-center">
+                                        <p class="d-none d-sm-none d-md-none d-lg-block d-xl-block me-1 ms-2 mb-0 fs-14 row-number">{{ forloop.counter }}.</p>
                                         <div class="form-floating flex-grow-1">
                                             {{ form.species }}
                                             <label class="form-label" for="id_species">SPECIES</label>
@@ -124,8 +136,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="col-lg-3 pt-lg-2 pb-lg-2 ps-lg-0 pe-lg-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
                                     <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                                         <div class="form-floating flex-grow-1">
                                             {{ form.length_mm }}
@@ -144,8 +156,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="col-lg-2 pt-lg-2 pb-lg-2 ps-lg-0 pe-lg-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
                                     <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                                         <div class="form-floating flex-grow-1">
                                             {{ form.fish_sex }}
@@ -166,8 +178,8 @@
                                 </div>
                             </div> 
 
-                            <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                            <div class="col-lg-2 pt-lg-2 pb-lg-2 ps-lg-0 pe-lg-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
                                     <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                                         <div class="form-floating flex-grow-1">
                                             {{ form.gonad_stage }}
@@ -189,25 +201,25 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-2 pt-md-3 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                                <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0 align-items-center">
-                                    <div class="d-flex gap-md-1 gap-sm-1 align-items-center align-items-stretch">
-                                        <div class="col-md-6 offset-md-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
+                            <div class="col-lg-2 pt-lg-3 pb-lg-2 ps-lg-1 pe-lg-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                                <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0 align-items-center">
+                                    <div class="d-flex gap-lg-1 gap-sm-1 align-items-center align-items-stretch">
+                                        <div class="col-lg-6 offset-lg-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
                                             <div class="form-check form-switch flex-grow-1">
                                                     {{ form.spawn_patch }}
                                             </div>
-                                                <label class="form-label d-none d-md-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
-                                                <label class="form-label d-block d-md-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
+                                                <label class="form-label d-none d-lg-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
+                                                <label class="form-label d-block d-lg-none text-muted fs-11" for="id_spawn_patch">SPAWN PATCH?</label>
                                                 {% if form.spawn_patch.errors %}
                                                     <div class="text-danger small">{{ form.spawn_patch.errors|striptags }}</div>
                                                 {% endif %}
                                         </div>
-                                        <div class="col-md-6 offset-md-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
+                                        <div class="col-lg-6 offset-lg-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
                                             <div class="form-check form-switch flex-grow-1">
                                                 {{ form.collected4ag }}
                                             </div>
-                                                <label class="form-label d-none d-md-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
-                                                <label class="form-label d-block d-md-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
+                                                <label class="form-label d-none d-lg-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
+                                                <label class="form-label d-block d-lg-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
                                             {% if form.collected4ag.errors %}
                                                 <div class="text-danger small">{{ form.collected4ag.errors|striptags }}</div>
                                             {% endif %}
@@ -218,17 +230,19 @@
                         </div>
                         {% endfor %}
                 </div>{# /catch-formset #}
+
+                <!-- Empty form template for JS row cloning -->
                 <div id="empty-form-template" class="d-none">
-                    <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-md-1 mb-2 p-0 p-md-0 border rounded catch-row">
-                        <div class="col-md-0 p-md-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
+                    <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0 mb-sm-2 mb-lg-1 mb-2 p-0 p-md-0 border rounded catch-row">
+                        <div class="col-lg-0 p-lg-0 pt-1 pb-0 ps-2 pe-2 m-0 bg-light bg-opacity-10">
                             <div class="row g-0 g-sm-0 g-md-0 ms-0 me-0">
-                                <h5 class="d-block d-md-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #</h5>
+                                <h5 class="d-block d-sm-block d-md-block d-lg-none d-xl-none text-center text-muted me-0 ms-0 mb-1 row-number-mobile">Fish #</h5>
                             </div>
                         </div>
-                        <div class="col-md-3 pt-md-2 pb-md-2 ps-md-1 pe-md-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                        <div class="col-lg-3 pt-lg-2 pb-lg-2 ps-lg-1 pe-lg-1 pt-2 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
                             <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
-                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
-                                    <p class="d-none d-md-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
+                                <div class="d-flex gap-lg-1 gap-sm-1 align-items-center">
+                                    <p class="d-none d-sm-none d-md-none d-lg-block d-xl-block me-1 ms-2 mb-0 fs-14 row-number">.</p>
                                     <div class="form-floating flex-grow-1">
                                         {{ formset.empty_form.species }}
                                         <label class="form-label" for="id_species">SPECIES</label>
@@ -236,9 +250,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
-                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                        <div class="col-lg-3 pt-lg-2 pb-lg-2 ps-lg-0 pe-lg-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+                                <div class="d-flex gap-lg-1 gap-md-1 gap-sm-1 align-items-center">
                                     <div class="form-floating flex-grow-1">
                                         {{ formset.empty_form.length_mm }}
                                         <label class="form-label catch-length-label" for="id_length_mm">LENGTH (mm)</label>
@@ -250,9 +264,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
-                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
+                        <div class="col-lg-2 pt-lg-2 pb-lg-2 ps-lg-0 pe-lg-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
+                                <div class="d-flex gap-lg-1 gap-md-1 gap-sm-1 align-items-center">
                                     <div class="form-floating flex-grow-1">
                                         {{ formset.empty_form.fish_sex }}
                                         <label class="form-label d-none d-md-block" for="id_fish_sex">SEX</label>
@@ -266,8 +280,8 @@
                             </div>
                         </div> 
 
-                        <div class="col-md-2 pt-md-2 pb-md-2 ps-md-0 pe-md-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0">
+                        <div class="col-lg-2 pt-lg-2 pb-lg-2 ps-lg-0 pe-lg-0 pt-1 pb-2 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
                                 <div class="d-flex gap-md-1 gap-sm-1 align-items-center">
                                     <div class="form-floating flex-grow-1">
                                         {{ formset.empty_form.gonad_stage }}
@@ -283,35 +297,70 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2 pt-md-3 pb-md-2 ps-md-1 pe-md-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
-                            <div class="row g-0 g-sm-1 g-md-0 ms-0 me-0 align-items-center">
-                                <div class="d-flex gap-md-1 gap-sm-1 align-items-center align-items-stretch">
-                                    <div class="col-md-6 offset-md-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
+                        <div class="col-lg-2 pt-lg-3 pb-lg-2 ps-lg-1 pe-lg-1 pt-1 pb-1 ps-2 pe-2 m-0 bg-dark bg-opacity-10">
+                            <div class="row g-0 g-sm-1 g-md-1 g-lg-0 ms-0 me-0 align-items-center">
+                                <div class="d-flex gap-lg-1 gap-sm-1 align-items-center align-items-stretch">
+                                    <div class="col-lg-6 offset-lg-0 col-4 offset-1 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Spawning Patch<br>Present?">
                                         <div class="form-check form-switch flex-grow-1">
                                                 {{ formset.empty_form.spawn_patch }}
                                         </div>
-                                            <label class="form-label d-none d-md-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
-                                            <label class="form-label d-block d-md-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
+                                            <label class="form-label d-none d-lg-block text-muted fs-11" for="id_spawn_patch">SPAWN PATCH</label>
+                                            <label class="form-label d-block d-lg-none text-muted fs-11" for="id_spawn_patch">SPAWNING PATCH?</label>
                                     </div>
-                                    <div class="col-md-6 offset-md-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
+                                    <div class="col-lg-6 offset-lg-0 col-4 offset-2 align-items-center d-flex flex-column" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="Collected for<br>Age &amp; Growth?">
                                         <div class="form-check form-switch flex-grow-1">
                                             {{ formset.empty_form.collected4ag }}
                                         </div>
-                                            <label class="form-label d-none d-md-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
-                                            <label class="form-label d-block d-md-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
+                                            <label class="form-label d-none d-lg-block text-muted fs-11" for="id_collected4ag">A&amp;G</label>
+                                            <label class="form-label d-block d-lg-none text-muted fs-11" for="id_collected4ag">AGE &amp; GROWTH?</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Form save/load accordion -->
+                <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
+                    <div class="accordion accordion-flush mb-1 mb-md-1" id="FormSaveUI">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="FormSaveHeading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#FormSaveOne" aria-expanded="false" aria-controls="FormSaveOne">
+                                    Form Saving & Loading
+                                </button>
+                            </h2>
+                            <div id="FormSaveOne" class="accordion-collapse collapse"
+                                aria-labelledby="FormSaveHeading1" data-bs-parent="#FormSaveUI">
+                                <div class="accordion-body p-0 p-md-1 g-0 g-md-1 bg-dark bg-opacity-10">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-6">
+                                            <input id="form_file_input" type="file" class="form-control form-control-sm" accept=".json,application/json">
+                                            {% comment %} <div class="form-text">JSON files capture the event/catch information and stay on your device.</div> {% endcomment %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" id="load_form_file_btn" class="btn btn-sm btn-primary w-100">LOAD FORM</button>
+                                        </div>
+                                        <div class="col-md-2 offset-md-1">
+                                            <button type="button" id="save_form_file_btn" class="btn btn-sm btn-success w-100">SAVE FORM</button>
+                                        </div>
+                                        <div class="col-12">
+                                            <div id="form_file_status" class="small text-muted" role="status" aria-live="polite"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CSV loading accordion -->
                 <div class="row g-md-1 g-1 mb-md-0 mb-1 mt-md-2 rounded bg-dark bg-opacity-10">
                     <div class="accordion accordion-flush mb-1 mb-md-1" id="CSVLoadUI">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="AddCsvHeading1">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddEventOne">
-                                    Additional Data Loading Options
+                                    data-bs-target="#AddCsvOne" aria-expanded="false" aria-controls="AddCsvOne">
+                                    CSV Data Loading
                                 </button>
                             </h2>
                             <div id="AddCsvOne" class="accordion-collapse collapse"
@@ -320,19 +369,19 @@
                                     <div class="row g-2 align-items-stretch mb-2">
                                         <div class="col-md-6">
                                             <label class="form-label mb-1" for="csv_file_input">Load from CSV</label>
-                                            <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv"  data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
+                                            <input id="csv_file_input" type="file" class="form-control form-control-sm" accept=".csv,text/csv" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Header required.<br> Column order = Form.</em>">
                                         </div>
                                         <div class="col-md-2">
-                                            <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3">LOAD CSV</button>
+                                            <button type="button" id="csv_load_btn" class="btn btn-sm btn-primary mt-md-3 w-100">LOAD CSV</button>
                                         </div>
                                         <div class="col-md-2">
                                             <div id="csv_status" class="text-muted"></div>
                                         </div>
                                     </div>
-                                    <div class="row g-2 align-items-stretch mb-2">				
+                                    <div class="row g-2 align-items-stretch mb-2">
                                         <div class="col-md-6">
                                             <label class="form-label mb-1" for="csv_column_map">Column order (optional)</label>
-                                            <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="species,length_mm,weight_g,fish_sex,fish_count,gonad_stage,gonad_wt_g,spawn_patch,collected4ag"   data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
+                                            <input id="csv_column_map" type="text" class="form-control form-control-sm" placeholder="species,length_mm,weight_g,fish_sex,fish_count,gonad_stage,gonad_wt_g,spawn_patch,collected4ag" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" data-bs-title="<em>Comma-separated names for column mapping.</em>">
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-check mt-4">
@@ -346,14 +395,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-3 d-flex justify-content-between align-items-center">
+
+                <div class="mt-3 d-flex justify-content-center">
+                    <div class="btn-group" role="group">
                         <button type="submit" class="btn btn-success" id="icCatchSubmitBtn">
-                            <span id="icCatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                            <span id="icCatchSubmitSpinner" class="spinner-border spinner-border-sm d-none me-0" role="status" aria-hidden="true"></span>
                             SUBMIT
                         </button>
-                    <div>
-                        <button type="button" id="reset_form_btn" class="btn btn-secondary me-2">RESET</button>
-                        <button type="button" class="btn btn-info" onclick="window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
+                        <button type="button" id="reset_form_btn" class="btn btn-secondary ms-1 me-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Reset">
+                            <i class="ti ti-refresh"></i>
+                        </button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Cancel & Return Home" onclick="if(confirm('Cancelling this Entry? Click OK to proceed.')) window.location.href='{% url 'kiccd_app:home' %}'">CANCEL</button>
                     </div>
                 </div>
 
@@ -361,7 +413,12 @@
         </div>
     </div>
 </div>
-<!-- Catch input units modal -->
+<button type="button" id="floating_save_form_file_btn" class="btn btn-success btn-sm ic-floating-save-button"
+        aria-label="Save form to file" title="Save form to file" style="font-size: 1.3rem;">
+    <i class="ti ti-device-floppy" aria-hidden="true"></i>
+</button>
+<!-- CATCH INPUT UNITS MODAL                                            -->
+<!-- ================================================================== -->
 <div class="modal fade" id="catchUnitsModal" tabindex="-1" aria-labelledby="catchUnitsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -370,16 +427,16 @@
                 <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pb-2">
-                <p class="text-muted small mb-2">Note: Length and weight values are converted into millimeters and grams prior to submission.</p>
+                <p class="text-muted small mb-2">Note: Entered values are converted to the stored units (mm / g) before the record is saved.</p>
                 <div class="mb-3">
                     <label class="form-label fw-semibold mb-1 small">LENGTH</label>
                     <div class="d-flex gap-2">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" checked>
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" {% if display_length_unit == 'mm' %}checked{% endif %}>
                             <label class="form-check-label small" for="lengthUnitMm">mm <span class="text-muted">(default)</span></label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in" {% if display_length_unit == 'in' %}checked{% endif %}>
                             <label class="form-check-label small" for="lengthUnitIn">inches</label>
                         </div>
                     </div>
@@ -388,15 +445,15 @@
                     <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
                     <div class="d-flex gap-2 flex-wrap">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" checked>
-                            <label class="form-check-label small" for="weightUnitG">g <span class="text-muted">(default)</span></label>
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" {% if display_weight_unit == 'g' %}checked{% endif %}>
+                            <label class="form-check-label small" for="weightUnitG">g</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg">
-                            <label class="form-check-label small" for="weightUnitKg">kg</label>
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg" {% if display_weight_unit == 'kg' %}checked{% endif %}>
+                            <label class="form-check-label small" for="weightUnitKg">kg <span class="text-muted">(default)</span></label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb" {% if display_weight_unit == 'lb' %}checked{% endif %}>
                             <label class="form-check-label small" for="weightUnitLb">lb</label>
                         </div>
                     </div>
@@ -408,6 +465,8 @@
         </div>
     </div>
 </div>
+
+<!-- ================================================================== -->
 {% endblock page_content %}
 
 {% block extra_javascript %}
@@ -421,7 +480,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const visibleRowsSelect = document.getElementById('visible_rows');
     const formsetContainer = document.getElementById('catch-formset');
     const emptyFormTemplate = document.getElementById('empty-form-template');
-    const addRowsButton = document.getElementById('add_rows_btn');
     const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
     const csvFileInput = document.getElementById('csv_file_input');
     const csvLoadButton = document.getElementById('csv_load_btn');
@@ -429,15 +487,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const csvColumnMap = document.getElementById('csv_column_map');
     const csvClearExisting = document.getElementById('csv_clear_existing');
     const catchSnapshotInput = document.getElementById('catch_snapshot');
+    const displayLengthUnitInput = document.getElementById('display_length_unit');
+    const displayWeightUnitInput = document.getElementById('display_weight_unit');
+    const formFileInput = document.getElementById('form_file_input');
+    const saveFormFileButton = document.getElementById('save_form_file_btn');
+    const floatingSaveFormFileButton = document.getElementById('floating_save_form_file_btn');
+    const loadFormFileButton = document.getElementById('load_form_file_btn');
+    const formFileStatus = document.getElementById('form_file_status');
     const submitButton = catchForm ? catchForm.querySelector('button[type="submit"]') : null;
     const resetFormButton = document.getElementById('reset_form_btn');
     const catchSnapshotData = JSON.parse(document.getElementById('catchSnapshotData').textContent || '[]');
     const eventHasErrors = {{ event_has_errors|yesno:"true,false" }};
+    const restoreSnapshot = {{ restore_snapshot|yesno:"true,false" }};
     const eventCountUrl = "{% url 'kiccd_app:api_ic_event_catch_count' %}";
+    const formFileFormat = 'kiccd-dj.ic-catch-bulk-form';
+    const maxFormFileBytes = 5 * 1024 * 1024;
+    const maxSavedRows = 250;
+    const visibleRowOptions = [25, 50, 75, 100, 200, 250];
     let lastSyncedEventId = null;
 
-    let lengthUnit = 'mm';
-    let weightUnit = 'g';
+    const initialLengthUnit = document.querySelector('input[name="lengthUnitRadio"]:checked');
+    const initialWeightUnit = document.querySelector('input[name="weightUnitRadio"]:checked');
+    let lengthUnit = initialLengthUnit ? initialLengthUnit.value : 'mm';
+    let weightUnit = initialWeightUnit ? initialWeightUnit.value : 'kg';
     const unitLengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
     const unitWeightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
 
@@ -468,7 +540,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const lengthRadio = document.querySelector('input[name="lengthUnitRadio"]:checked');
             const weightRadio = document.querySelector('input[name="weightUnitRadio"]:checked');
             lengthUnit = lengthRadio ? lengthRadio.value : 'mm';
-            weightUnit = weightRadio ? weightRadio.value : 'g';
+            weightUnit = weightRadio ? weightRadio.value : 'kg';
+            if (displayLengthUnitInput) displayLengthUnitInput.value = lengthUnit;
+            if (displayWeightUnitInput) displayWeightUnitInput.value = weightUnit;
             updateUnitLabels();
             bootstrap.Modal.getInstance(document.getElementById('catchUnitsModal')).hide();
         });
@@ -783,35 +857,59 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (!preserveExistingValues) {
                         input.value = '';
                     }
-                    input.readOnly = true;
+                    input.readOnly = false;
                 });
 
                 if (!preserveExistingValues) {
                     sexSelect.value = '';
                     stageSelect.value = '';
                 }
-                sexSelect.readOnly = true;
-                stageSelect.readOnly = true;
+                sexSelect.readOnly = false;
+                stageSelect.readOnly = false;
 
                 if (!preserveExistingValues) {
                     spCheck.checked = false;
                 }
-                spCheck.readOnly = true;
+                spCheck.readOnly = false;
 
                 if (!preserveExistingValues) {
                     agCheck.checked = false;
                 }
-                agCheck.readOnly = true;
+                agCheck.readOnly = false;
 
             }
         }
 
         // Initial setup and event listener
+        let previousSpeciesValue = select.value;
         select.addEventListener('change', function () {
-            applyState(this.value, false);
+            const preserveValues = previousSpeciesValue === '' && this.value !== '0';
+            applyState(this.value, preserveValues);
+            previousSpeciesValue = this.value;
         });
 
         applyState(select.value, true);
+
+        // Auto-inherit species from the row above when the user starts typing a
+        // length and the species for this row has not yet been selected.
+        if (lengthInput) {
+            lengthInput.addEventListener('blur', function () {
+                if (String(select.value || '').trim() !== '') {
+                    return;
+                }
+                const allRows = getRows();
+                const rowIndex = allRows.indexOf(row);
+                if (rowIndex < 1) {
+                    return;
+                }
+                const aboveSpecies = allRows[rowIndex - 1].querySelector('select[id*="species"]');
+                if (!aboveSpecies || !aboveSpecies.value) {
+                    return;
+                }
+                select.value = aboveSpecies.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
     }
 
     getRows().forEach(function (row) {
@@ -908,10 +1006,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (csvColumnMap) {
             csvColumnMap.value = '';
         }
+        if (formFileInput) {
+            formFileInput.value = '';
+        }
         if (csvClearExisting) {
             csvClearExisting.checked = true;
         }
         setCsvStatus('', false);
+        setFormFileStatus('', false);
 
         if (catchSnapshotInput) {
             catchSnapshotInput.value = '';
@@ -927,6 +1029,186 @@ document.addEventListener('DOMContentLoaded', function () {
         applyVisibleRows(targetRows);
         updateRowNumbers();
         updateSubmitButtonState();
+    }
+
+    function setFormFileStatus(message, isError) {
+        if (!formFileStatus) return;
+        formFileStatus.textContent = message;
+        formFileStatus.classList.toggle('text-danger', Boolean(isError));
+        formFileStatus.classList.toggle('text-muted', !isError);
+        formFileStatus.classList.toggle('text-success', !isError && Boolean(message));
+    }
+
+    function isFormFileExcludedFieldName(name) {
+        return name === 'csrfmiddlewaretoken' ||
+            name === 'catch_snapshot' ||
+            name === 'display_length_unit' ||
+            name === 'display_weight_unit' ||
+            /^form-(TOTAL_FORMS|INITIAL_FORMS|MIN_NUM_FORMS|MAX_NUM_FORMS)$/.test(name);
+    }
+
+    function getFormFileFields() {
+        if (!catchForm) return [];
+        return Array.from(catchForm.elements).filter(function (field) {
+            return field.name && !isFormFileExcludedFieldName(field.name) && field.type !== 'file';
+        }).map(function (field) {
+            const savedField = { name: field.name, type: field.type };
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                savedField.value = field.value;
+                savedField.checked = field.checked;
+            } else if (field instanceof HTMLSelectElement && field.multiple) {
+                savedField.value = Array.from(field.selectedOptions).map(function (option) { return option.value; });
+            } else {
+                savedField.value = field.value;
+                if (field instanceof HTMLSelectElement && field.selectedOptions.length) {
+                    savedField.selectedText = field.selectedOptions[0].textContent.trim();
+                }
+            }
+            return savedField;
+        });
+    }
+
+    function saveFormToFile() {
+        if (!catchForm || !totalFormsInput) return;
+        const totalForms = parseInt(totalFormsInput.value, 10);
+        if (Number.isNaN(totalForms) || totalForms < 1 || totalForms > maxSavedRows) {
+            setFormFileStatus('The form has an unsupported number of catch rows.', true);
+            return;
+        }
+
+        const snapshot = {
+            format: formFileFormat,
+            version: 1,
+            savedAt: new Date().toISOString(),
+            totalForms: totalForms,
+            visibleRows: visibleRowsSelect ? parseInt(visibleRowsSelect.value, 10) : 25,
+            lengthUnit: lengthUnit,
+            weightUnit: weightUnit,
+            fields: getFormFileFields()
+        };
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const selectedEvent = eventSelect && eventSelect.selectedOptions.length
+            ? eventSelect.selectedOptions[0].textContent.trim()
+            : 'no-event';
+        const filenamePart = function (value) {
+            return String(value).trim()
+                .replace(/[<>:"\/\\|?*\u0000-\u001f]/g, '-')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^[-.]+|[-.]+$/g, '') || 'unknown';
+        };
+        link.download = 'Catch-form_' + filenamePart(selectedEvent) + '.json';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+        setFormFileStatus('Form saved to a JSON file.', false);
+    }
+
+    function validateFormFileSnapshot(snapshot) {
+        if (!snapshot || snapshot.format !== formFileFormat || snapshot.version !== 1) {
+            throw new Error('This is not a supported catch form file.');
+        }
+        if (!Number.isInteger(snapshot.totalForms) || snapshot.totalForms < 1 || snapshot.totalForms > maxSavedRows) {
+            throw new Error('The file contains an unsupported number of catch rows.');
+        }
+        if (!visibleRowOptions.includes(snapshot.visibleRows)) {
+            throw new Error('The file contains an invalid visible-row setting.');
+        }
+        if (!['mm', 'in'].includes(snapshot.lengthUnit) || !['g', 'kg', 'lb'].includes(snapshot.weightUnit)) {
+            throw new Error('The file contains invalid measurement units.');
+        }
+        if (!Array.isArray(snapshot.fields) || snapshot.fields.length > 5000) {
+            throw new Error('The file contains invalid form data.');
+        }
+        snapshot.fields.forEach(function (field) {
+            if (!field || typeof field.name !== 'string' || !field.name || typeof field.type !== 'string') {
+                throw new Error('The file contains invalid form field data.');
+            }
+            const validValue = typeof field.value === 'string' ||
+                (Array.isArray(field.value) && field.value.every(function (value) { return typeof value === 'string'; }));
+            if (!validValue ||
+                ((field.type === 'checkbox' || field.type === 'radio') && typeof field.checked !== 'boolean') ||
+                (field.selectedText !== undefined && typeof field.selectedText !== 'string')) {
+                throw new Error('The file contains invalid form field data.');
+            }
+        });
+        return snapshot;
+    }
+
+    function restoreFormField(field, savedField) {
+        if (field.type === 'checkbox' || field.type === 'radio') {
+            field.checked = savedField.checked;
+        } else if (field instanceof HTMLSelectElement && field.multiple) {
+            const selectedValues = new Set(Array.isArray(savedField.value) ? savedField.value : []);
+            Array.from(field.options).forEach(function (option) {
+                option.selected = selectedValues.has(option.value);
+            });
+        } else {
+            field.value = typeof savedField.value === 'string' ? savedField.value : '';
+        }
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function restoreFormFromFile(snapshot) {
+        if (!catchForm || !totalFormsInput) throw new Error('The catch form is unavailable.');
+
+        catchForm.reset();
+        fullResetForm();
+        trimRowsToCount(snapshot.totalForms);
+        ensureRowCount(snapshot.totalForms);
+        totalFormsInput.value = String(snapshot.totalForms);
+
+        const controlsByName = new Map();
+        Array.from(catchForm.elements).forEach(function (field) {
+            if (!field.name) return;
+            if (!controlsByName.has(field.name)) controlsByName.set(field.name, []);
+            controlsByName.get(field.name).push(field);
+        });
+        const occurrenceByName = new Map();
+        const unavailableSelections = [];
+        snapshot.fields.forEach(function (savedField) {
+            if (isFormFileExcludedFieldName(savedField.name)) return;
+            const fields = controlsByName.get(savedField.name) || [];
+            const occurrence = occurrenceByName.get(savedField.name) || 0;
+            occurrenceByName.set(savedField.name, occurrence + 1);
+            const field = fields[occurrence];
+            if (!field) return;
+
+            const expectedValues = Array.isArray(savedField.value) ? savedField.value : [savedField.value];
+            if (field instanceof HTMLSelectElement) {
+                expectedValues.forEach(function (value) {
+                    if (!value || Array.from(field.options).some(function (option) { return option.value === value; })) return;
+                    if (!field.multiple && savedField.selectedText) {
+                        field.add(new Option(savedField.selectedText, value));
+                    } else {
+                        unavailableSelections.push(savedField.name);
+                    }
+                });
+            }
+            restoreFormField(field, savedField);
+        });
+
+        const lengthRadio = document.getElementById(snapshot.lengthUnit === 'in' ? 'lengthUnitIn' : 'lengthUnitMm');
+        const weightRadio = document.getElementById('weightUnit' + snapshot.weightUnit.charAt(0).toUpperCase() + snapshot.weightUnit.slice(1));
+        if (lengthRadio) lengthRadio.checked = true;
+        if (weightRadio) weightRadio.checked = true;
+        lengthUnit = snapshot.lengthUnit;
+        weightUnit = snapshot.weightUnit;
+        if (displayLengthUnitInput) displayLengthUnitInput.value = lengthUnit;
+        if (displayWeightUnitInput) displayWeightUnitInput.value = weightUnit;
+        updateUnitLabels();
+
+        if (visibleRowsSelect) visibleRowsSelect.value = String(snapshot.visibleRows);
+        if (noFishCheckbox && noFishCheckbox.checked) applyVisibleRows(1);
+        else applyVisibleRows(snapshot.visibleRows);
+        if (catchSnapshotInput) catchSnapshotInput.value = '';
+        updateRowNumbers();
+        updateSubmitButtonState();
+        return Array.from(new Set(unavailableSelections));
     }
 
     function parseCsv(text) {
@@ -1018,12 +1300,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const fields = getRowFields(row);
             return {
                 species: fields.species ? String(fields.species.value || '') : '',
-                length_mm: fields.length ? String(fields.length.value || '') : '',
-                weight_g: fields.weight ? String(fields.weight.value || '') : '',
+                length_mm: fields.length ? toDefaultLength(fields.length.value, lengthUnit) : '',
+                weight_g: fields.weight ? toDefaultWeight(fields.weight.value, weightUnit) : '',
                 fish_sex: fields.sex ? String(fields.sex.value || '') : '',
                 fish_count: fields.count ? String(fields.count.value || '') : '',
                 gonad_stage: fields.stage ? String(fields.stage.value || '') : '',
-                gonad_wt_g: fields.gwt ? String(fields.gwt.value || '') : '',
+                gonad_wt_g: fields.gwt ? toDefaultWeight(fields.gwt.value, weightUnit) : '',
+                input_length: fields.length ? String(fields.length.value || '') : '',
+                input_weight: fields.weight ? String(fields.weight.value || '') : '',
+                input_gonad_weight: fields.gwt ? String(fields.gwt.value || '') : '',
                 spawn_patch: fields.spawn ? Boolean(fields.spawn.checked) : false,
                 collected4ag: fields.ag ? Boolean(fields.ag.checked) : false
             };
@@ -1056,12 +1341,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             const fields = getRowFields(row);
             setFieldValue(fields.species, rowData.species || '');
-            setFieldValue(fields.length, rowData.length_mm || '');
-            setFieldValue(fields.weight, rowData.weight_g || '');
+            setFieldValue(fields.length, rowData.input_length !== undefined ? rowData.input_length : (rowData.length_mm || ''));
+            setFieldValue(fields.weight, rowData.input_weight !== undefined ? rowData.input_weight : (rowData.weight_g || ''));
             setFieldValue(fields.sex, rowData.fish_sex || '');
             setFieldValue(fields.count, rowData.fish_count || '');
             setFieldValue(fields.stage, rowData.gonad_stage || '');
-            setFieldValue(fields.gwt, rowData.gonad_wt_g || '');
+            setFieldValue(fields.gwt, rowData.input_gonad_weight !== undefined ? rowData.input_gonad_weight : (rowData.gonad_wt_g || ''));
             setFieldValue(fields.spawn, rowData.spawn_patch ? '1' : '0');
             setFieldValue(fields.ag, rowData.collected4ag ? '1' : '0');
         });
@@ -1196,12 +1481,6 @@ document.addEventListener('DOMContentLoaded', function () {
         setCsvStatus('Loaded ' + dataRows.length + ' rows.', false);
     }
 
-    if (addRowsButton) {
-        addRowsButton.addEventListener('click', function () {
-            addRows(25);
-        });
-    }
-
     if (csvLoadButton && csvFileInput) {
         csvLoadButton.addEventListener('click', function () {
             if (!csvFileInput.files || !csvFileInput.files.length) {
@@ -1216,6 +1495,53 @@ document.addEventListener('DOMContentLoaded', function () {
             };
             reader.onerror = function () {
                 setCsvStatus('Unable to read the CSV file.', true);
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    if (saveFormFileButton) saveFormFileButton.addEventListener('click', saveFormToFile);
+    if (floatingSaveFormFileButton) floatingSaveFormFileButton.addEventListener('click', saveFormToFile);
+
+    if (loadFormFileButton && formFileInput) {
+        loadFormFileButton.addEventListener('click', function () {
+            if (!formFileInput.files || !formFileInput.files.length) {
+                setFormFileStatus('Select a saved JSON form file first.', true);
+                return;
+            }
+            const file = formFileInput.files[0];
+            if (file.size > maxFormFileBytes) {
+                setFormFileStatus('The selected file is too large to load.', true);
+                formFileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function () {
+                try {
+                    const snapshot = validateFormFileSnapshot(JSON.parse(String(reader.result || '')));
+                    if (!window.confirm('Loading this file will replace the current form contents. Continue?')) {
+                        setFormFileStatus('Loading cancelled.', false);
+                        return;
+                    }
+                    const unavailableSelections = restoreFormFromFile(snapshot);
+                    if (unavailableSelections.length) {
+                        setFormFileStatus(
+                            'Form loaded, but the following input(s) MUST be re-selected: ' + unavailableSelections.join(', ') + '.',
+                            true
+                        );
+                    } else {
+                        setFormFileStatus('Form loaded from file.', false);
+                    }
+                } catch (error) {
+                    setFormFileStatus(error && error.message ? error.message : 'Unable to load the selected form file.', true);
+                } finally {
+                    formFileInput.value = '';
+                }
+            };
+            reader.onerror = function () {
+                setFormFileStatus('Unable to read the selected form file.', true);
+                formFileInput.value = '';
             };
             reader.readAsText(file);
         });
@@ -1252,6 +1578,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (catchForm) {
         catchForm.addEventListener('submit', function (event) {
+            if (displayLengthUnitInput) displayLengthUnitInput.value = lengthUnit;
+            if (displayWeightUnitInput) displayWeightUnitInput.value = weightUnit;
             if (eventSelect && String(eventSelect.value || '').trim() === '') {
                 event.preventDefault();
                 updateSubmitButtonState();
@@ -1259,24 +1587,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             const rows = getRows();
-            if (lengthUnit !== 'mm' || weightUnit !== 'g') {
-                rows.forEach(function (row) {
-                    const fields = getRowFields(row);
-                    if (fields.length && fields.length.value) {
-                        fields.length.value = toDefaultLength(fields.length.value, lengthUnit);
-                    }
-                    if (fields.weight && fields.weight.value) {
-                        fields.weight.value = toDefaultWeight(fields.weight.value, weightUnit);
-                    }
-                });
-                lengthUnit = 'mm';
-                weightUnit = 'g';
-                const lengthDefault = document.getElementById('lengthUnitMm');
-                const weightDefault = document.getElementById('weightUnitG');
-                if (lengthDefault) lengthDefault.checked = true;
-                if (weightDefault) weightDefault.checked = true;
-                updateUnitLabels();
-            }
             if (totalFormsInput) {
                 totalFormsInput.value = String(rows.length);
             }
@@ -1293,7 +1603,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (eventHasErrors && Array.isArray(catchSnapshotData) && catchSnapshotData.length) {
+    if (catchForm) {
+        catchForm.addEventListener('formdata', function (event) {
+            // Normalize submitted measurements without changing the values displayed to the user.
+            getRows().forEach(function (row) {
+                const fields = getRowFields(row);
+                if (fields.length && fields.length.value) {
+                    event.formData.set(fields.length.name, toDefaultLength(fields.length.value, lengthUnit));
+                }
+                if (fields.weight && fields.weight.value) {
+                    event.formData.set(fields.weight.name, toDefaultWeight(fields.weight.value, weightUnit));
+                }
+                if (fields.gwt && fields.gwt.value) {
+                    event.formData.set(fields.gwt.name, toDefaultWeight(fields.gwt.value, weightUnit));
+                }
+            });
+        });
+    }
+
+    if (restoreSnapshot && Array.isArray(catchSnapshotData) && catchSnapshotData.length) {
         restoreSnapshotRows(catchSnapshotData);
     }
     
