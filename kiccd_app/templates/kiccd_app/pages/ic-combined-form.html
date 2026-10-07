@@ -51,6 +51,8 @@
     <form method="post" novalidate id="icCombinedForm">
         {% csrf_token %}
         <input type="hidden" id="catch_snapshot" name="catch_snapshot" value="">
+        <input type="hidden" id="display_length_unit" name="display_length_unit" value="{{ display_length_unit }}">
+        <input type="hidden" id="display_weight_unit" name="display_weight_unit" value="{{ display_weight_unit }}">
 
         <!-- ================================================================== -->
         <!-- CARD 1 — SAMPLING EVENT                                            -->
@@ -236,17 +238,20 @@
                     <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 ps-1 pt-1 pe-1 pb-2 ps-lg-2 pt-lg-1 pe-lg-2 pb-lg-2 bg-dark bg-opacity-10">
                         <div class="row g-1 g-sm-1 g-md-1 g-lg-0 ms-0 me-0">
                             <div class="d-flex gap-md-2 gap-1 align-items-center">
-                                <button type="button" class="btn btn-outline-secondary px-2 py-2" id="siteLookupBtn"
+                                <button type="button" class="btn btn-outline-secondary ps-2 pe-2 pb-2 pt-2 mb-3 align-middle" id="siteLookupBtn" disabled
                                         title="Find nearest site..."
                                         style="height:36px;min-width:25px;font-size:1.00rem;">
                                     <i class="ti ti-search"></i>
                                 </button>
-                                <div class="form-floating flex-grow-1">
-                                    {{ event_form.site }}
-                                    <label for="id_site" class="form-label">SITE NAME</label>
+                                <div class="flex-grow-1">
+                                    <div class="form-floating">
+                                        {{ event_form.site }}
+                                        <label for="id_site" class="form-label">SITE NAME</label>
+                                    </div>
+                                    <div id="siteProjectStatus" class="small text-muted ms-1" role="status" aria-live="polite"></div>
                                 </div>
                                 {% if perms.kiccd_app.add_samplesite %}
-                                <button type="button" class="btn btn-outline-success btn-sm p-1" id="addSiteBtn"
+                                <button type="button" class="btn btn-outline-success btn-sm p-1 mb-3 align-self-center" id="addSiteBtn"
                                         data-bs-toggle="modal" data-bs-target="#addSiteModal"
                                         title="Add a New Site" style="height:20px;width:20px;min-width:20px;font-size:0.70rem;">
                                     <i class="ti ti-plus"></i>
@@ -938,11 +943,11 @@
                     <label class="form-label fw-semibold mb-1 small">LENGTH</label>
                     <div class="d-flex gap-2">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" checked>
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitMm" value="mm" {% if display_length_unit == 'mm' %}checked{% endif %}>
                             <label class="form-check-label small" for="lengthUnitMm">mm <span class="text-muted">(default)</span></label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in">
+                            <input class="form-check-input" type="radio" name="lengthUnitRadio" id="lengthUnitIn" value="in" {% if display_length_unit == 'in' %}checked{% endif %}>
                             <label class="form-check-label small" for="lengthUnitIn">inches</label>
                         </div>
                     </div>
@@ -951,15 +956,15 @@
                     <label class="form-label fw-semibold mb-1 small">WEIGHT</label>
                     <div class="d-flex gap-2 flex-wrap">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitG" value="g" {% if display_weight_unit == 'g' %}checked{% endif %}>
                             <label class="form-check-label small" for="weightUnitG">g</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg" checked>
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitKg" value="kg" {% if display_weight_unit == 'kg' %}checked{% endif %}>
                             <label class="form-check-label small" for="weightUnitKg">kg <span class="text-muted">(default)</span></label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb">
+                            <input class="form-check-input" type="radio" name="weightUnitRadio" id="weightUnitLb" value="lb" {% if display_weight_unit == 'lb' %}checked{% endif %}>
                             <label class="form-check-label small" for="weightUnitLb">lb</label>
                         </div>
                     </div>
@@ -1268,6 +1273,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const loadFormFileButton = document.getElementById('load_form_file_btn');
     const formFileStatus = document.getElementById('form_file_status');
     const catchSnapshotInput = document.getElementById('catch_snapshot');
+    const displayLengthUnitInput = document.getElementById('display_length_unit');
+    const displayWeightUnitInput = document.getElementById('display_weight_unit');
     const submitButton = document.getElementById('icCombinedSubmitBtn');
     const resetFormButton = document.getElementById('reset_form_btn');
     const catchSnapshotData = JSON.parse(document.getElementById('catchSnapshotData').textContent || '[]');
@@ -1278,8 +1285,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const visibleRowOptions = [25, 50, 75, 100, 200, 250];
 
     // ---- Unit state ----
-    let lengthUnit = 'mm';  // 'mm' | 'in'
-    let weightUnit = 'kg';  // 'g'  | 'kg' | 'lb'
+    const initialLengthUnit = document.querySelector('input[name="lengthUnitRadio"]:checked');
+    const initialWeightUnit = document.querySelector('input[name="weightUnitRadio"]:checked');
+    let lengthUnit = initialLengthUnit ? initialLengthUnit.value : 'mm';
+    let weightUnit = initialWeightUnit ? initialWeightUnit.value : 'kg';
 
     const unitLengthLabels = { mm: 'LENGTH (mm)', in: 'LENGTH (in)' };
     const unitWeightLabels = { g: 'WEIGHT (g)', kg: 'WEIGHT (kg)', lb: 'WEIGHT (lb)' };
@@ -1324,6 +1333,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const wtRadio  = document.querySelector('input[name="weightUnitRadio"]:checked');
             lengthUnit = lenRadio ? lenRadio.value : 'mm';
             weightUnit = wtRadio  ? wtRadio.value  : 'g';
+            if (displayLengthUnitInput) displayLengthUnitInput.value = lengthUnit;
+            if (displayWeightUnitInput) displayWeightUnitInput.value = weightUnit;
             updateUnitLabels();
             bootstrap.Modal.getInstance(document.getElementById('catchUnitsModal')).hide();
         });
@@ -1577,6 +1588,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function isFormFileExcludedFieldName(name) {
         return name === 'csrfmiddlewaretoken' ||
             name === 'catch_snapshot' ||
+            name === 'display_length_unit' ||
+            name === 'display_weight_unit' ||
             /^form-(TOTAL_FORMS|INITIAL_FORMS|MIN_NUM_FORMS|MAX_NUM_FORMS)$/.test(name);
     }
 
@@ -1755,6 +1768,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (weightRadio) weightRadio.checked = true;
         lengthUnit = snapshot.lengthUnit;
         weightUnit = snapshot.weightUnit;
+        if (displayLengthUnitInput) displayLengthUnitInput.value = lengthUnit;
+        if (displayWeightUnitInput) displayWeightUnitInput.value = weightUnit;
         updateUnitLabels();
 
         if (visibleRowsSelect) visibleRowsSelect.value = String(snapshot.visibleRows);
@@ -1822,12 +1837,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const f = getRowFields(row);
             return {
                 species: f.species ? String(f.species.value || '') : '',
-                length_mm: f.length ? String(f.length.value || '') : '',
-                weight_g: f.weight ? String(f.weight.value || '') : '',
+                length_mm: f.length ? toDefaultLength(f.length.value, lengthUnit) : '',
+                weight_g: f.weight ? toDefaultWeight(f.weight.value, weightUnit) : '',
                 fish_sex: f.sex ? String(f.sex.value || '') : '',
                 fish_count: f.count ? String(f.count.value || '') : '',
                 gonad_stage: f.stage ? String(f.stage.value || '') : '',
-                gonad_wt_g: f.gwt ? String(f.gwt.value || '') : '',
+                gonad_wt_g: f.gwt ? toDefaultWeight(f.gwt.value, weightUnit) : '',
+                input_length: f.length ? String(f.length.value || '') : '',
+                input_weight: f.weight ? String(f.weight.value || '') : '',
+                input_gonad_weight: f.gwt ? String(f.gwt.value || '') : '',
                 spawn_patch: f.spawn ? Boolean(f.spawn.checked) : false,
                 collected4ag: f.ag ? Boolean(f.ag.checked) : false
             };
@@ -1846,12 +1864,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!row) return;
             const f = getRowFields(row);
             setFieldValue(f.species, rowData.species || '');
-            setFieldValue(f.length, rowData.length_mm || '');
-            setFieldValue(f.weight, rowData.weight_g || '');
+            setFieldValue(f.length, rowData.input_length !== undefined ? rowData.input_length : (rowData.length_mm || ''));
+            setFieldValue(f.weight, rowData.input_weight !== undefined ? rowData.input_weight : (rowData.weight_g || ''));
             setFieldValue(f.sex, rowData.fish_sex || '');
             setFieldValue(f.count, rowData.fish_count || '');
             setFieldValue(f.stage, rowData.gonad_stage || '');
-            setFieldValue(f.gwt, rowData.gonad_wt_g || '');
+            setFieldValue(f.gwt, rowData.input_gonad_weight !== undefined ? rowData.input_gonad_weight : (rowData.gonad_wt_g || ''));
             setFieldValue(f.spawn, rowData.spawn_patch ? '1' : '0');
             setFieldValue(f.ag, rowData.collected4ag ? '1' : '0');
         });
@@ -2077,6 +2095,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (catchForm) {
         catchForm.addEventListener('submit', function () {
+            if (displayLengthUnitInput) displayLengthUnitInput.value = lengthUnit;
+            if (displayWeightUnitInput) displayWeightUnitInput.value = weightUnit;
             normalizeTimeTo24Hour(document.getElementById('id_start_time'));
             normalizeTimeTo24Hour(document.getElementById('id_end_time'));
 
@@ -2087,19 +2107,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const rows = getRows();
 
-            // Convert non-default units back to mm / g before posting
-            if (lengthUnit !== 'mm' || weightUnit !== 'g') {
-                rows.forEach(function (row) {
-                    const f = getRowFields(row);
-                    if (f.length && f.length.value) f.length.value = toDefaultLength(f.length.value, lengthUnit);
-                    if (f.weight && f.weight.value) f.weight.value = toDefaultWeight(f.weight.value, weightUnit);
-                });
-                // Reset unit state and labels after conversion so page is consistent post-submit
-                lengthUnit = 'mm'; weightUnit = 'g';
-                var lenR = document.getElementById('lengthUnitMm'); if (lenR) lenR.checked = true;
-                var wtR  = document.getElementById('weightUnitG');  if (wtR)  wtR.checked  = true;
-                updateUnitLabels();
-            }
             if (totalFormsInput) totalFormsInput.value = String(rows.length);
             if (catchSnapshotInput) catchSnapshotInput.value = JSON.stringify(serializeRowsForSnapshot());
             rows.forEach(function (row) {
@@ -2108,6 +2115,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     f.sex.value = '0';
                     f.sex.dispatchEvent(new Event('change', { bubbles: true }));
                 }
+            });
+        });
+    }
+
+    if (catchForm) {
+        // Normalize submitted measurements without changing the values displayed to the user.
+        catchForm.addEventListener('formdata', function (event) {
+            getRows().forEach(function (row) {
+                const f = getRowFields(row);
+                if (f.length && f.length.value) event.formData.set(f.length.name, toDefaultLength(f.length.value, lengthUnit));
+                if (f.weight && f.weight.value) event.formData.set(f.weight.name, toDefaultWeight(f.weight.value, weightUnit));
+                if (f.gwt && f.gwt.value) event.formData.set(f.gwt.name, toDefaultWeight(f.gwt.value, weightUnit));
             });
         });
     }
@@ -2190,22 +2209,64 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const siteSelect = $('#id_site');
-    if (siteSelect.length) {
-        siteSelect.select2({
-            placeholder: '...',
-            allowClear: true,
-            width: '100%',
-            minimumInputLength: 2,
-            ajax: {
-                url: "{% url 'kiccd_app:api_sample_sites_lookup' %}",
-                dataType: 'json',
-                delay: 250,
-                data: function (params) { return { q: params.term }; },
-                processResults: function (data) { return { results: data.results || [] }; },
-                cache: true
-            }
-        });
+    const projectSelect = document.getElementById('id_project');
+    const siteProjectStatus = document.getElementById('siteProjectStatus');
+    const siteLookupUrl = "{% url 'kiccd_app:api_sample_sites_lookup' %}";
+    if (!siteSelect.length || !projectSelect) return;
+
+    siteSelect.select2({
+        placeholder: '...',
+        allowClear: true,
+        width: '100%'
+    });
+
+    function loadSitesForProject(projectId, preserveSelection) {
+        const selectedSiteId = preserveSelection ? siteSelect.val() : '';
+        siteSelect.empty().append(new Option('...', '', false, false));
+        siteSelect.prop('disabled', true).trigger('change');
+
+        if (!projectId) {
+            if (siteProjectStatus) siteProjectStatus.textContent = 'Select a Project to load the site list.';
+            return;
+        }
+
+        if (siteProjectStatus) siteProjectStatus.textContent = 'Loading project sites...';
+        fetch(siteLookupUrl + '?project_id=' + encodeURIComponent(projectId))
+            .then(function (response) {
+                if (!response.ok) throw new Error('Site lookup request failed with status ' + response.status);
+                return response.json();
+            })
+            .then(function (data) {
+                if (projectSelect.value !== String(projectId)) return;
+
+                const sites = data.results || [];
+                sites.forEach(function (site) {
+                    siteSelect.append(new Option(site.text, site.id, false, false));
+                });
+                const selectedSiteAvailable = sites.some(function (site) {
+                    return String(site.id) === String(selectedSiteId);
+                });
+                siteSelect.val(selectedSiteAvailable ? String(selectedSiteId) : '');
+                siteSelect.prop('disabled', false).trigger('change');
+
+                if (siteProjectStatus) {
+                    siteProjectStatus.textContent = sites.length
+                        ? sites.length + ' site(s) available for this project.'
+                        : 'No sites are associated with this project.';
+                }
+            })
+            .catch(function (error) {
+                if (projectSelect.value !== String(projectId)) return;
+                siteSelect.prop('disabled', true).trigger('change');
+                if (siteProjectStatus) siteProjectStatus.textContent = 'Unable to load sites for this project.';
+                console.error('Unable to load sites for selected project:', error);
+            });
     }
+
+    projectSelect.addEventListener('change', function () {
+        loadSitesForProject(this.value, false);
+    });
+    loadSitesForProject(projectSelect.value, true);
 });
 </script>
 
@@ -2408,6 +2469,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var _SITE_GEOJSON_URL = "{% url 'kiccd_app:api_sample_sites_geojson' %}";
     var _MBTOKEN = '{{ MAPBOX_TOKEN }}';
     var siteSelectEl = document.getElementById('id_site');
+    var eventProjectEl = document.getElementById('id_project');
+    var siteLookupBtn = document.getElementById('siteLookupBtn');
+
+    function updateSiteLookupButton() {
+        if (siteLookupBtn) siteLookupBtn.disabled = !eventProjectEl || !eventProjectEl.value;
+    }
+    if (eventProjectEl) eventProjectEl.addEventListener('change', updateSiteLookupButton);
+    updateSiteLookupButton();
 
     function _fetchSitePoolBounds() {
         if (_sitePoolCache !== null) return Promise.resolve(_sitePoolCache);
@@ -2435,12 +2504,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (params.length) url+='?'+params.join('&');
         return fetch(url).then(function(r){return r.json();}).then(function(d){_siteRmCacheMap[key]=d.features||[];return _siteRmCacheMap[key];}).catch(function(){_siteRmCacheMap[key]=[];return[];});
     }
-    function _fetchSiteLookupFeatures(basinId, poolId) {
-        var key='b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'');
+    function _fetchSiteLookupFeatures(basinId, poolId, projectId) {
+        var key='b'+(basinId!=null?basinId:'')+'_p'+(poolId!=null?poolId:'')+'_project'+projectId;
         if (_siteLookupCacheMap[key]!==undefined) return Promise.resolve(_siteLookupCacheMap[key]);
         var url=_SITE_GEOJSON_URL, params=[];
         if (basinId!=null) params.push('basin_id='+basinId);
         if (poolId!=null) params.push('pool_id='+poolId);
+        params.push('project_id='+encodeURIComponent(projectId));
         if (params.length) url+='?'+params.join('&');
         return fetch(url).then(function(r){return r.json();}).then(function(d){_siteLookupCacheMap[key]=d.features||[];return _siteLookupCacheMap[key];}).catch(function(){_siteLookupCacheMap[key]=[];return[];});
     }
@@ -2456,7 +2526,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function siteLookupNearestSite(lat, lng) {
         var la=parseFloat(lat), lo=parseFloat(lng);
-        if (isNaN(la)||isNaN(lo)||!window.turf) return;
+        var projectId=eventProjectEl ? eventProjectEl.value : '';
+        if (!projectId||isNaN(la)||isNaN(lo)||!window.turf) return;
         var pt=window.turf.point([lo,la]);
         Promise.all([_fetchSitePoolBounds(),_fetchSiteBasinBounds()]).then(function(res){
             var poolFeatures=res[0],basinFeatures=res[1];
@@ -2465,9 +2536,9 @@ document.addEventListener('DOMContentLoaded', function () {
             var basinId=basinMatch?basinMatch.properties.basin_id:null;
             var poolId=poolMatch?poolMatch.properties.pool_id:null;
             if (basinId==null&&poolId==null) return Promise.resolve([]);
-            return _fetchSiteLookupFeatures(basinId,poolId);
+            return _fetchSiteLookupFeatures(basinId,poolId,projectId);
         }).then(function(siteFeatures){
-            if (!siteFeatures||!siteFeatures.length) return;
+            if (!siteFeatures||!siteFeatures.length||!eventProjectEl||eventProjectEl.value!==projectId) return;
             var nearestSite=window.turf.nearestPoint(pt,window.turf.featureCollection(siteFeatures));
             if (nearestSite&&nearestSite.properties) _setSiteSelection(nearestSite.properties.id,nearestSite.properties.name);
         }).catch(function(e){console.error('Nearest site lookup failed:',e);});
@@ -2552,9 +2623,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (siteModal) siteModal.addEventListener('hidden.bs.modal', resetSiteModal);
 
-    var siteLookupBtn = document.getElementById('siteLookupBtn');
     if (siteSelectEl && siteLookupBtn) {
         siteLookupBtn.addEventListener('click', function () {
+            if (!eventProjectEl||!eventProjectEl.value) return;
             if (!eventLatEl||!eventLngEl||!eventLatEl.value||!eventLngEl.value) { alert('Enter coordinates before using SiteLookup.'); return; }
             siteLookupNearestSite(eventLatEl.value, eventLngEl.value);
         });

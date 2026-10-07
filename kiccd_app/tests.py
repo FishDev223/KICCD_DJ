@@ -79,3 +79,70 @@ class SampleSiteProjectAssociationTests(TestCase):
 			sample_site.projects.order_by('project_id'),
 			projects,
 		)
+
+
+class SampleSitesGeoJSONProjectFilterTests(TestCase):
+	def setUp(self):
+		self.user = get_user_model().objects.create_user(
+			username='site-lookup-user',
+			password='test-password',
+		)
+		self.client.force_login(self.user)
+		self.projects = [
+			Project.objects.create(project_id=201, name='Lookup Project One'),
+			Project.objects.create(project_id=202, name='Lookup Project Two'),
+		]
+		pool = Pool.objects.create(pool_id=2, name='Lookup Pool')
+		basin = Basin.objects.create(name='Lookup Basin', abbrev='LB')
+		state = State.objects.create(state_id=2, name='Lookup State', abbrev='LS')
+		county = County.objects.create(state=state, name='Lookup County')
+		trib = Trib.objects.create(basin=basin, pool=pool, name='Lookup Tributary')
+		site_type = SiteType.objects.create(name='Lookup River', abbrev='LR')
+		self.sites = []
+		for index, name in enumerate(('Shared Lookup Site', 'Project Two Lookup Site'), start=1):
+			site = SampleSite.objects.create(
+				name=name,
+				latitude=40 + index,
+				longitude=-80 - index,
+				type=site_type,
+				pool=pool,
+				state=state,
+				county=county,
+				woody_debris=False,
+				submersed_av=False,
+				basin=basin,
+				trib=trib,
+			)
+			self.sites.append(site)
+		self.sites[0].projects.add(*self.projects)
+		self.sites[1].projects.add(self.projects[1])
+
+	def test_geojson_can_be_filtered_to_sites_associated_with_a_project(self):
+		response = self.client.get(
+			reverse('kiccd_app:api_sample_sites_geojson'),
+			{'project_id': self.projects[0].pk},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(
+			[feature['properties']['id'] for feature in response.json()['features']],
+			[self.sites[0].pk],
+		)
+
+	def test_geojson_without_project_filter_keeps_existing_behavior(self):
+		response = self.client.get(reverse('kiccd_app:api_sample_sites_geojson'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(len(response.json()['features']), len(self.sites))
+
+	def test_site_lookup_returns_all_sites_associated_with_project(self):
+		response = self.client.get(
+			reverse('kiccd_app:api_sample_sites_lookup'),
+			{'project_id': self.projects[0].pk},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(
+			[site['id'] for site in response.json()['results']],
+			[self.sites[0].pk],
+		)

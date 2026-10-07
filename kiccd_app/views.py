@@ -855,6 +855,12 @@ def ic_combined_create(request):
     post_data = request.POST or None
     catch_snapshot = []
     restore_snapshot = False
+    display_length_unit = request.POST.get('display_length_unit', 'mm') if request.method == 'POST' else 'mm'
+    display_weight_unit = request.POST.get('display_weight_unit', 'kg') if request.method == 'POST' else 'kg'
+    if display_length_unit not in ('mm', 'in'):
+        display_length_unit = 'mm'
+    if display_weight_unit not in ('g', 'kg', 'lb'):
+        display_weight_unit = 'kg'
 
     if request.method == 'POST' and post_data is not None:
         mutable_post = post_data.copy()
@@ -963,6 +969,8 @@ def ic_combined_create(request):
         'formset': formset,
         'catch_snapshot': catch_snapshot,
         'restore_snapshot': restore_snapshot,
+        'display_length_unit': display_length_unit,
+        'display_weight_unit': display_weight_unit,
         'projects': Project.objects.order_by('project_id'),
         'partners': Partner.objects.order_by('abbrev'),
         'site_types': SiteType.objects.order_by('name'),
@@ -4170,12 +4178,21 @@ def SampleSite_by_basin_and_pool(request, basin_id, pool_id):
 
 @login_required
 def sample_sites_lookup(request):
-    """AJAX endpoint: Select2 lookup for sample sites by name or code."""
+    """Return sample sites for Select2 search or a selected project."""
     term = (request.GET.get('q') or '').strip()
-    qs = SampleSite.objects.all()
+    project_id = request.GET.get('project_id')
+    qs = SampleSite.objects.select_related('pool').all()
+    if project_id is not None:
+        try:
+            project_id = int(project_id)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid project_id.'}, status=400)
+        qs = qs.filter(projects__project_id=project_id).distinct()
     if term:
         qs = qs.filter(Q(name__icontains=term))
-    qs = qs.order_by('name')[:25]
+    qs = qs.order_by('name')
+    if project_id is None or term:
+        qs = qs[:25]
     results = []
     for site in qs:
         label = site.name
@@ -4192,7 +4209,8 @@ def sample_sites_geojson(request):
     Accepts optional query parameters to filter server-side before returning:
       basin_id — return only sample sites belonging to this basin
       pool_id  — return only sample sites belonging to this pool
-    Both may be combined.
+      project_id — return only sample sites associated with this project
+    Any filters may be combined.
     """
     qs = (
         SampleSite.objects
@@ -4202,10 +4220,17 @@ def sample_sites_geojson(request):
     )
     basin_id = request.GET.get('basin_id')
     pool_id = request.GET.get('pool_id')
+    project_id = request.GET.get('project_id')
     if basin_id:
         qs = qs.filter(basin_id=basin_id)
     if pool_id:
         qs = qs.filter(pool_id=pool_id)
+    if project_id is not None:
+        try:
+            project_id = int(project_id)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid project_id.'}, status=400)
+        qs = qs.filter(projects__project_id=project_id).distinct()
     qs = qs.order_by('pool__pool_id', 'river_mi')
     features = []
     for site in qs:
