@@ -115,9 +115,15 @@ def dynamic_pages_view(request, template_name):
 
 
 def sample_site_list(request):
-    qs = SampleSite.objects.select_related('pool','type','basin','trib').all().order_by('pool__pool_id', 'river_mi')
+    qs = (
+        SampleSite.objects
+        .select_related('pool', 'type', 'basin', 'trib')
+        .prefetch_related('projects')
+        .order_by('pool__pool_id', 'river_mi')
+    )
     context = {
         'sites': qs,   # for template loop
+        'projects': Project.objects.order_by('project_id'),
     }
     return render(request, 'kiccd_app/pages/sample-site-list.html', context)
 

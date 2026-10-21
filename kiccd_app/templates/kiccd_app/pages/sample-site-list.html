@@ -10,6 +10,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <style>
     #modal-site-map { width: 100%; height: 420px; }
+    #filtered-sites-map { width: 100%; height: min(75vh, 700px); min-height: 400px; }
     .mapboxgl-popup-content { padding: 10px 14px; font-size: 0.85rem; }
 </style>
 {% endblock extra_css %}
@@ -26,7 +27,7 @@
             <h4 class="d-block d-md-none mb-0 text-center align-middle">Agency Sampling Sites</h4>
         </div>    
         <div class="card-body ps-2 pe-2 pt-0 pb-2 flex-grow-1">
-            <table id="basic-datatable" class="table table-striped nowrap table-striped w-100">
+            <table id="SampleSite-datatable" class="table table-striped nowrap table-striped w-100">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -37,6 +38,7 @@
                         <th>Pool</th>
                         <th>Tributary</th>
                         <th>Basin|Waterbody</th>
+                        <th>Projects</th>
                     </tr>
                 </thead>
 
@@ -63,9 +65,10 @@
                         <td>{{ site.pool.abbrev }}</td>
                         <td>{{ site.trib.name }}</td>
                         <td>{{ site.basin.name }}</td>
+                        <td>|{% for project in site.projects.all %}{{ project.pk }}|{% endfor %}</td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="8">No records found.</td></tr>
+                    <tr><td colspan="9">No records found.</td></tr>
                 {% endfor %}
                 </tbody>
                 
@@ -95,6 +98,20 @@
     </div>
 </div>
 
+<div class="modal fade" id="filteredSitesMapModal" tabindex="-1" aria-labelledby="filteredSitesMapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title fw-semibold" id="filteredSitesMapModalLabel">Filtered Sample Sites</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="filtered-sites-map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock page_content %}
 
 {% block extra_javascript %}
@@ -108,8 +125,214 @@
 <script> 
 $(document).ready(function () {
     "use strict";
+    let sampleSiteTable;
+
+    function createProjectFilter() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'd-flex align-items-center gap-2 me-2';
+
+        const label = document.createElement('label');
+        label.className = 'form-label mb-0';
+        label.htmlFor = 'sampleSiteProjectFilter';
+        label.textContent = 'Project: ';
+
+        const select = document.createElement('select');
+        select.id = 'sampleSiteProjectFilter';
+        select.className = 'form-select form-select-sm';
+        select.setAttribute('aria-label', 'Filter sites by project');
+        select.add(new Option('All...', ''));
+        {% for project in projects %}
+        select.add(new Option('{{ project.name|escapejs }}', '{{ project.pk }}'));
+        {% endfor %}
+        select.addEventListener('change', function () {
+            const search = this.value ? '\\|' + this.value + '\\|' : '';
+            sampleSiteTable.column(8).search(search, true, false).draw();
+        });
+
+        wrapper.append(label, select);
+        return wrapper;
+    }
+
+    function escapeXml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+    }
+
+    function createKmlData(name, value) {
+        return '<Data name="' + escapeXml(name) + '"><value>' + escapeXml(value) + '</value></Data>';
+    }
+
+    function getFilteredSites(dataTable) {
+        const sites = [];
+        let skippedCount = 0;
+
+        dataTable.rows({ search: 'applied' }).every(function () {
+            const cells = this.node().cells;
+            const latitude = parseFloat(cells[1].textContent);
+            const longitude = parseFloat(cells[2].textContent);
+
+            if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90
+                || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+                skippedCount += 1;
+                return;
+            }
+
+            sites.push({
+                name: cells[0].textContent.trim(),
+                latitude: latitude,
+                longitude: longitude,
+                riverMile: cells[3].textContent.trim(),
+                type: cells[4].textContent.trim(),
+                pool: cells[5].textContent.trim(),
+                tributary: cells[6].textContent.trim(),
+                basin: cells[7].textContent.trim()
+            });
+        });
+
+        return { sites: sites, skippedCount: skippedCount };
+    }
+
+    function downloadFilteredSitesAsKml(dataTable) {
+        const filteredSites = getFilteredSites(dataTable);
+        const placemarks = [];
+
+        filteredSites.sites.forEach(function (site) {
+            const details = [
+                createKmlData('RM #', site.riverMile),
+                createKmlData('Type', site.type),
+                createKmlData('Pool', site.pool),
+                createKmlData('Trib', site.tributary),
+                createKmlData('Basin or waterbody', site.basin)
+            ].join('');
+            placemarks.push(
+                '<Placemark><name>' + escapeXml(site.name) + '</name>' +
+                '<ExtendedData>' + details + '</ExtendedData>' +
+                '<Point><coordinates>' + site.longitude + ',' + site.latitude + ',0</coordinates></Point></Placemark>'
+            );
+        });
+
+        if (!placemarks.length) {
+            alert('No filtered sites have valid coordinates to export.');
+            return;
+        }
+
+        const kml = '<?xml version="1.0" encoding="UTF-8"?>' +
+            '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>' +
+            '<name>Filtered Sample Sites</name>' + placemarks.join('') +
+            '</Document></kml>';
+        const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'filtered-sample-sites.kml';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+        if (filteredSites.skippedCount) {
+            alert('Exported ' + placemarks.length + ' site(s). ' + filteredSites.skippedCount + ' site(s) without valid coordinates were skipped.');
+        }
+    }
+
+    const FILTERED_MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
+    const filteredSitesMapModal = document.getElementById('filteredSitesMapModal');
+    let filteredSitesMap = null;
+    let filteredSitesMapLoaded = false;
+    let filteredSitesToDisplay = [];
+    let filteredSiteMarkers = [];
+
+    function renderFilteredSitesMap() {
+        filteredSiteMarkers.forEach(function (marker) { marker.remove(); });
+        filteredSiteMarkers = [];
+
+        const bounds = new mapboxgl.LngLatBounds();
+        filteredSitesToDisplay.forEach(function (site) {
+            const popupContent = document.createElement('div');
+            const siteName = document.createElement('strong');
+            siteName.textContent = site.name;
+            popupContent.appendChild(siteName);
+            [
+                ['RM #', site.riverMile],
+                ['Type', site.type],
+                ['Pool', site.pool],
+                ['Trib', site.tributary]
+                //  ['Basin', site.basin]
+            ].forEach(function (detail) {
+                if (!detail[1]) {
+                    return;
+                }
+                const line = document.createElement('div');
+                line.textContent = detail[0] + ': ' + detail[1];
+                popupContent.appendChild(line);
+            });
+            const marker = new mapboxgl.Marker({ color: '#e6d00d' })
+                .setLngLat([site.longitude, site.latitude])
+                .setPopup(new mapboxgl.Popup({ offset: 25 }).setDOMContent(popupContent))
+                .addTo(filteredSitesMap);
+            filteredSiteMarkers.push(marker);
+            bounds.extend([site.longitude, site.latitude]);
+        });
+
+        if (filteredSitesToDisplay.length === 1) {
+            const site = filteredSitesToDisplay[0];
+            filteredSitesMap.flyTo({ center: [site.longitude, site.latitude], zoom: 10 });
+        } else if (!bounds.isEmpty()) {
+            filteredSitesMap.fitBounds(bounds, { padding: 48, maxZoom: 12 });
+        }
+    }
+
+    function showFilteredSitesOnMap(dataTable) {
+        if (!FILTERED_MAPBOX_TOKEN) {
+            alert('The map is unavailable because its Mapbox token is not configured.');
+            return;
+        }
+        if (!filteredSitesMapModal) {
+            alert('The filtered-sites map is unavailable.');
+            return;
+        }
+
+        const filteredSites = getFilteredSites(dataTable);
+        if (!filteredSites.sites.length) {
+            alert('No filtered sites have valid coordinates to display.');
+            return;
+        }
+
+        filteredSitesToDisplay = filteredSites.sites;
+        if (filteredSites.skippedCount) {
+            alert(filteredSites.skippedCount + ' site(s) without valid coordinates were omitted from the map.');
+        }
+        bootstrap.Modal.getOrCreateInstance(filteredSitesMapModal).show();
+    }
+
+    filteredSitesMapModal.addEventListener('shown.bs.modal', function () {
+        if (!filteredSitesMap) {
+            mapboxgl.accessToken = FILTERED_MAPBOX_TOKEN;
+            filteredSitesMap = new mapboxgl.Map({
+                container: 'filtered-sites-map',
+                style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+                center: [-85.5, 37.8],
+                zoom: 5
+            });
+            filteredSitesMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            filteredSitesMap.on('load', function () {
+                filteredSitesMapLoaded = true;
+                renderFilteredSitesMap();
+            });
+        } else {
+            filteredSitesMap.resize();
+            if (filteredSitesMapLoaded) {
+                renderFilteredSitesMap();
+            }
+        }
+    });
+
     // Sample Site Datatable
-    $('#basic-datatable').DataTable({
+    sampleSiteTable = $('#SampleSite-datatable').DataTable({
         keys: true,
         scrollY: '530px',
         scrollCollapse: true,
@@ -119,20 +342,53 @@ $(document).ready(function () {
 		lengthChange: false,
 		paging: false,
         ordering: true,
-         layout: {
-        topStart: 'search',
-        topEnd: function () {
-            return $('<a>', {
-                href: "{% url 'kiccd_app:sample_site_create' %}",
-                class: 'btn btn-sm btn-success',
-                'data-bs-toggle': 'tooltip',
-                'data-bs-placement': 'top',
-                'data-bs-html': 'true',
-                'data-bs-title': '<em>Add a New Sample Site</em>'
-            }).append('<i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW')[0];
-        },
+        columnDefs: [
+            { targets: 8, visible: false, searchable: true }
+        ],
+        layout: {
+        topStart: [createProjectFilter, ],
+        topEnd: 'search',
         bottomStart: 'info',
-        bottomEnd: {buttons: ['copy', 'csv']}  
+        bottomEnd: {
+            buttons: [
+                {
+                    extend: 'copy',
+                    text: '<i class="ti ti-clipboard"></i> Copy',
+                    className: 'btn btn-sm',
+                    titleAttr: 'Copy sites to clipboard'
+                },
+                {   
+                    extend: 'csv',
+                    text: '<i class="ti ti-download"></i> CSV',
+                    className: 'btn btn-sm',
+                    titleAttr: 'Download sites as CSV file'
+                },
+                {
+                    text: '<i class="ti ti-download"></i> KML',
+                    className: 'btn btn-sm',
+                    titleAttr: 'Download sites as KML file',
+                    action: function (event, dataTable) {
+                        downloadFilteredSitesAsKml(dataTable);
+                    }
+                },
+                {
+                    text: '<i class="ti ti-map-search"></i> Map',
+                    className: 'btn btn-sm',
+                    titleAttr: 'View sites on a map',
+                    action: function (event, dataTable) {
+                        showFilteredSitesOnMap(dataTable);
+                    }
+                },
+                {
+                    text: '<i class="ti ti-copy-plus"></i> New',
+                    className: 'btn btn-sm',
+                    titleAttr: 'Add a New Site',
+                    action: function () {
+                        window.location.href = "{% url 'kiccd_app:sample_site_create' %}";
+                    }
+                },
+            ]
+        }
         },      
         "language": {
             "paginate": {
@@ -141,7 +397,7 @@ $(document).ready(function () {
             },
             "lengthMenu": "_MENU_ sites",
             "search": "",
-            "searchPlaceholder": "Filter...",
+            "searchPlaceholder": "Search...",
             "info": "_END_ Sites",
             "zeroRecords": "No matching sites...",
             "emptyTable": "No sites available",

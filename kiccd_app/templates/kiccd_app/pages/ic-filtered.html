@@ -132,7 +132,7 @@
             </form>
 
             {% if filters_applied %}
-            <div class="mt-3 mb-2 text-muted small">Filtered records: {{ catches|length }}</div>
+            <div class="mt-3 mb-2 text-muted small">Located {{ catches|length }} matching records.</div>
             <table id="basic-datatable" class="table table-striped dt-responsive nowrap table-striped w-100">
                 <thead>
                     <tr>
@@ -143,8 +143,8 @@
                         <th>Pool</th>
                         <th>Site</th>
                         <th>Gear</th>
-                        <th>Effort (min)</th>
                         <th>Run/Set</th>
+                        <th>Effort (min)</th>
                         <th>Species</th>
                         <th>Length (mm)</th>
                         <th>Weight (g)</th>
@@ -204,17 +204,27 @@ $(document).ready(function () {
             fixedHeader: true,
             pageLength: 50,
             layout: {
-                topStart: { pageLength: { menu: [50, 100, 150, 200] } },
-                topEnd: { search: { placeholder: '' } },
+                topStart: 'search',
+                topEnd: { pageLength: { menu: [50, 100, 150, 200] } },
                 bottomStart: 'info',
                 bottomEnd: 'paging',
-                bottom: { buttons: ['copy', 'csv', 'pdf'] }
+                bottom: { buttons: ['copy', 'csv'] }
             },
             language: {
                 paginate: {
                     previous: "<i class='ti ti-chevron-left'>",
                     next: "<i class='ti ti-chevron-right'>"
-                }
+                },
+            "lengthMenu": "_MENU_ / page",
+            "search": "",
+            "searchPlaceholder": "Filter...",
+            "info": "Records _START_ to _END_ (n = _TOTAL_) ",
+            "zeroRecords": "No matching records...",
+            "emptyTable": "No records available",
+            "loadingRecords": "Loading records...",
+            "infoFiltered": "(filtered from _MAX_)",
+            "infoEmpty": "0 Records",
+            "processing": "Processing records..."
             },
             drawCallback: function () {
                 $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
