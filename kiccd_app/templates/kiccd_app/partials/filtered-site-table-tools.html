@@ -1,0 +1,255 @@
+<script>
+(function () {
+    'use strict';
+
+    const mapboxToken = '{{ MAPBOX_TOKEN }}';
+    const mapModal = document.getElementById('filteredSitesMapModal');
+    let filteredSitesMap = null;
+    let filteredSitesMapLoaded = false;
+    let filteredSitesToDisplay = [];
+    let filteredSiteMarkers = [];
+
+    function escapeXml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+    }
+
+    function getFilteredSites(dataTable, columns) {
+        const sites = [];
+        let skippedCount = 0;
+
+        dataTable.rows({ search: 'applied' }).every(function () {
+            const cells = this.node().cells;
+            const latitude = parseFloat(cells[columns.latitude].textContent);
+            const longitude = parseFloat(cells[columns.longitude].textContent);
+
+            if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90
+                || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+                skippedCount += 1;
+                return;
+            }
+
+            function cellText(column) {
+                return column === undefined ? '' : cells[column].textContent.trim();
+            }
+
+            sites.push({
+                name: cellText(columns.name),
+                latitude: latitude,
+                longitude: longitude,
+                riverMile: cellText(columns.riverMile),
+                type: cellText(columns.type),
+                pool: cellText(columns.pool),
+                tributary: cellText(columns.tributary),
+                basin: cellText(columns.basin)
+            });
+        });
+
+        return { sites: sites, skippedCount: skippedCount };
+    }
+
+    function createKmlData(name, value) {
+        return '<Data name="' + escapeXml(name) + '"><value>' + escapeXml(value) + '</value></Data>';
+    }
+
+    function downloadFilteredSitesAsKml(dataTable, columns) {
+        const filteredSites = getFilteredSites(dataTable, columns);
+        if (!filteredSites.sites.length) {
+            alert('No filtered sites have valid coordinates to export.');
+            return;
+        }
+
+        const placemarks = filteredSites.sites.map(function (site) {
+            const details = [
+                createKmlData('RM #', site.riverMile),
+                createKmlData('Type', site.type),
+                createKmlData('Pool', site.pool),
+                createKmlData('Trib', site.tributary),
+                createKmlData('Basin or waterbody', site.basin)
+            ].join('');
+            return '<Placemark><name>' + escapeXml(site.name) + '</name>' +
+                '<ExtendedData>' + details + '</ExtendedData>' +
+                '<Point><coordinates>' + site.longitude + ',' + site.latitude + ',0</coordinates></Point></Placemark>';
+        }).join('');
+        const kml = '<?xml version="1.0" encoding="UTF-8"?>' +
+            '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>' +
+            '<name>Filtered Sites</name>' + placemarks +
+            '</Document></kml>';
+        downloadFile(kml, 'application/vnd.google-earth.kml+xml;charset=utf-8', 'filtered-sites.kml');
+
+        if (filteredSites.skippedCount) {
+            alert('Exported ' + filteredSites.sites.length + ' site(s). ' + filteredSites.skippedCount + ' site(s) without valid coordinates were skipped.');
+        }
+    }
+
+    function downloadFilteredSitesAsGpx(dataTable, columns) {
+        const filteredSites = getFilteredSites(dataTable, columns);
+        if (!filteredSites.sites.length) {
+            alert('No filtered sites have valid coordinates to export.');
+            return;
+        }
+
+        const waypoints = filteredSites.sites.map(function (site) {
+            return '<wpt lat="' + site.latitude + '" lon="' + site.longitude + '">' +
+                '<name>' + escapeXml(site.name) + '</name></wpt>';
+        }).join('');
+        const gpx = '<?xml version="1.0" encoding="UTF-8"?>' +
+            '<gpx version="1.1" creator="KICCD_DJ" xmlns="http://www.topografix.com/GPX/1/1">' +
+            '<metadata><name>Filtered Sites</name></metadata>' + waypoints + '</gpx>';
+        downloadFile(gpx, 'application/gpx+xml;charset=utf-8', 'filtered-sites.gpx');
+
+        if (filteredSites.skippedCount) {
+            alert('Exported ' + filteredSites.sites.length + ' site(s). ' + filteredSites.skippedCount + ' site(s) without valid coordinates were skipped.');
+        }
+    }
+
+    function downloadFile(content, mimeType, filename) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function renderFilteredSitesMap() {
+        filteredSiteMarkers.forEach(function (marker) { marker.remove(); });
+        filteredSiteMarkers = [];
+
+        const bounds = new mapboxgl.LngLatBounds();
+        filteredSitesToDisplay.forEach(function (site) {
+            const popupContent = document.createElement('div');
+            const siteName = document.createElement('strong');
+            siteName.textContent = site.name;
+            popupContent.appendChild(siteName);
+            [
+                ['RM #', site.riverMile],
+                ['Type', site.type],
+                ['Pool', site.pool],
+                ['Tributary', site.tributary],
+                ['Basin', site.basin]
+            ].forEach(function (detail) {
+                if (!detail[1]) return;
+                const line = document.createElement('div');
+                line.textContent = detail[0] + ': ' + detail[1];
+                popupContent.appendChild(line);
+            });
+
+            const marker = new mapboxgl.Marker({ color: '#e6d00d' })
+                .setLngLat([site.longitude, site.latitude])
+                .setPopup(new mapboxgl.Popup({ offset: 25 }).setDOMContent(popupContent))
+                .addTo(filteredSitesMap);
+            filteredSiteMarkers.push(marker);
+            bounds.extend([site.longitude, site.latitude]);
+        });
+
+        if (filteredSitesToDisplay.length === 1) {
+            const site = filteredSitesToDisplay[0];
+            filteredSitesMap.flyTo({ center: [site.longitude, site.latitude], zoom: 10 });
+        } else if (!bounds.isEmpty()) {
+            filteredSitesMap.fitBounds(bounds, { padding: 48, maxZoom: 12 });
+        }
+    }
+
+    function showFilteredSitesOnMap(dataTable, columns) {
+        if (!mapboxToken) {
+            alert('The map is unavailable because its Mapbox token is not configured.');
+            return;
+        }
+        if (!mapModal) {
+            alert('The filtered-sites map is unavailable.');
+            return;
+        }
+
+        const filteredSites = getFilteredSites(dataTable, columns);
+        if (!filteredSites.sites.length) {
+            alert('No filtered sites have valid coordinates to display.');
+            return;
+        }
+
+        filteredSitesToDisplay = filteredSites.sites;
+        if (filteredSites.skippedCount) {
+            alert(filteredSites.skippedCount + ' site(s) without valid coordinates were omitted from the map.');
+        }
+        bootstrap.Modal.getOrCreateInstance(mapModal).show();
+    }
+
+    if (mapModal) {
+        mapModal.addEventListener('shown.bs.modal', function () {
+            if (!filteredSitesMap) {
+                mapboxgl.accessToken = mapboxToken;
+                filteredSitesMap = new mapboxgl.Map({
+                    container: 'filtered-sites-map',
+                    style: 'mapbox://styles/cwhickey2020/ckcapjune3emc1imkffjxbtc2',
+                    center: [-85.5, 37.8],
+                    zoom: 5
+                });
+                filteredSitesMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+                filteredSitesMap.on('load', function () {
+                    filteredSitesMapLoaded = true;
+                    renderFilteredSitesMap();
+                });
+            } else {
+                filteredSitesMap.resize();
+                if (filteredSitesMapLoaded) renderFilteredSitesMap();
+            }
+        });
+    }
+
+    window.createFilteredSiteButtons = function (createUrl, columns) {
+        return [
+            {
+                extend: 'copy',
+                text: '<i class="ti ti-clipboard"></i> Copy',
+                className: 'btn btn-sm',
+                titleAttr: 'Copy to clipboard'
+            },
+            {
+                extend: 'csv',
+                text: '<i class="ti ti-download"></i> CSV',
+                className: 'btn btn-sm',
+                titleAttr: 'Download as CSV file'
+            },
+            {
+                text: '<i class="ti ti-download"></i> KML',
+                className: 'btn btn-sm',
+                titleAttr: 'Download as KML file',
+                action: function (event, dataTable) {
+                    downloadFilteredSitesAsKml(dataTable, columns);
+                }
+            },
+            {
+                text: '<i class="ti ti-download"></i> GPX',
+                className: 'btn btn-sm',
+                titleAttr: 'Download as GPX file',
+                action: function (event, dataTable) {
+                    downloadFilteredSitesAsGpx(dataTable, columns);
+                }
+            },
+            {
+                text: '<i class="ti ti-map-search"></i> Map',
+                className: 'btn btn-sm',
+                titleAttr: 'View on a map',
+                action: function (event, dataTable) {
+                    showFilteredSitesOnMap(dataTable, columns);
+                }
+            },
+            {
+                text: '<i class="ti ti-copy-plus"></i> New',
+                className: 'btn btn-sm',
+                titleAttr: 'Add a New Site',
+                action: function () {
+                    window.location.href = createUrl;
+                }
+            }
+        ];
+    };
+}());
+</script>

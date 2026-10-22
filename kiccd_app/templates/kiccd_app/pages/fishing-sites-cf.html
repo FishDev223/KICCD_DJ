@@ -10,6 +10,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <style>
     #modal-site-map { width: 100%; height: 420px; }
+    #filtered-sites-map { width: 100%; height: min(75vh, 700px); min-height: 400px; }
     .mapboxgl-popup-content { padding: 10px 14px; font-size: 0.85rem; }
 </style>
 {% endblock extra_css %}
@@ -92,6 +93,8 @@
     </div>
 </div>
 
+{% include 'kiccd_app/partials/filtered-site-map-modal.html' %}
+
 {% endblock page_content %}
 
 {% block extra_javascript %}
@@ -102,6 +105,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.js" integrity="sha384-mFSRsfjTuXtihSLc/J0LxrFE1H9WRRllwGM6pxxyiYACkVdxRG82d3DQVlq8yXZM" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/datetime/1.6.2/js/dataTables.dateTime.js" integrity="sha384-I0rL1eK8/4jZ1njbsVwTibN/q+IvWmYk6aLQ9TvNAUUbFNps5B5fh1Z2/H5uWERY" crossorigin="anonymous"></script>
 <script src="{% static 'js/datatables.min.js' %}"></script>
+{% include 'kiccd_app/partials/filtered-site-table-tools.html' %}
 <script>
 $(document).ready(function () {
     "use strict";
@@ -116,20 +120,16 @@ $(document).ready(function () {
 		lengthChange: false,
 		paging: false,
         ordering: true,
-         layout: {
-        topStart: 'search',
-        topEnd: function () {
-            return $('<a>', {
-                href: "{% url 'kiccd_app:cf_site_create' %}",
-                class: 'btn btn-sm btn-success',
-                'data-bs-toggle': 'tooltip',
-                'data-bs-placement': 'top',
-                'data-bs-html': 'true',
-                'data-bs-title': '<em>Add a New Fishing Site</em>'
-            }).append('<i class="ti ti-copy-plus align-middle me-1 fs-18"></i> NEW')[0];
-        },
+        layout: {
+        topStart: null,
+        topEnd: 'search',
         bottomStart: 'info',
-        bottomEnd: {buttons: ['copy', 'csv']}  
+        bottomEnd: {
+            buttons: window.createFilteredSiteButtons(
+                "{% url 'kiccd_app:cf_site_create' %}",
+                { name: 0, latitude: 1, longitude: 2, riverMile: 3, type: 4, pool: 5, tributary: 6, basin: 7 }
+            )
+        }
         },      
         "language": {
             "paginate": {

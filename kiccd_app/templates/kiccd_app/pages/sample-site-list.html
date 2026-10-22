@@ -239,6 +239,37 @@ $(document).ready(function () {
         }
     }
 
+    function downloadFilteredSitesAsGpx(dataTable) {
+        const filteredSites = getFilteredSites(dataTable);
+        if (!filteredSites.sites.length) {
+            alert('No filtered sites have valid coordinates to export.');
+            return;
+        }
+
+        const waypoints = filteredSites.sites.map(function (site) {
+            return '<wpt lat="' + site.latitude + '" lon="' + site.longitude + '">' +
+                '<name>' + escapeXml(site.name) + '</name></wpt>';
+        }).join('');
+        const gpx = '<?xml version="1.0" encoding="UTF-8"?>' +
+            '<gpx version="1.1" creator="KICCD_DJ" xmlns="http://www.topografix.com/GPX/1/1">' +
+            '<metadata><name>Filtered Sample Sites</name></metadata>' +
+            waypoints +
+            '</gpx>';
+        const blob = new Blob([gpx], { type: 'application/gpx+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'filtered-sample-sites.gpx';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+        if (filteredSites.skippedCount) {
+            alert('Exported ' + filteredSites.sites.length + ' site(s). ' + filteredSites.skippedCount + ' site(s) without valid coordinates were skipped.');
+        }
+    }
+
     const FILTERED_MAPBOX_TOKEN = '{{ MAPBOX_TOKEN }}';
     const filteredSitesMapModal = document.getElementById('filteredSitesMapModal');
     let filteredSitesMap = null;
@@ -355,26 +386,34 @@ $(document).ready(function () {
                     extend: 'copy',
                     text: '<i class="ti ti-clipboard"></i> Copy',
                     className: 'btn btn-sm',
-                    titleAttr: 'Copy sites to clipboard'
+                    titleAttr: 'Copy to clipboard'
                 },
                 {   
                     extend: 'csv',
                     text: '<i class="ti ti-download"></i> CSV',
                     className: 'btn btn-sm',
-                    titleAttr: 'Download sites as CSV file'
+                    titleAttr: 'Download as CSV file'
                 },
                 {
                     text: '<i class="ti ti-download"></i> KML',
                     className: 'btn btn-sm',
-                    titleAttr: 'Download sites as KML file',
+                    titleAttr: 'Download as KML file',
                     action: function (event, dataTable) {
                         downloadFilteredSitesAsKml(dataTable);
                     }
                 },
                 {
+                    text: '<i class="ti ti-download"></i> GPX',
+                    className: 'btn btn-sm',
+                    titleAttr: 'Download as GPX file',
+                    action: function (event, dataTable) {
+                        downloadFilteredSitesAsGpx(dataTable);
+                    }
+                },
+                {
                     text: '<i class="ti ti-map-search"></i> Map',
                     className: 'btn btn-sm',
-                    titleAttr: 'View sites on a map',
+                    titleAttr: 'View on a map',
                     action: function (event, dataTable) {
                         showFilteredSitesOnMap(dataTable);
                     }
